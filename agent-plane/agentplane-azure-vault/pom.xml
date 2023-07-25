@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (C) 2022-2023 Catena-X Association and others. 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License 2.0 which is available at
+ * http://www.apache.org/licenses/.
+ * 
+ * SPDX-FileType: SOURCE
+ * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * SPDX-License-Identifier: Apache-2.0
+-->
+<!--
+  Pom for building the azure-vault based agent plane artifacts
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.eclipse.tractusx.agents.edc</groupId>
+        <artifactId>agent-plane</artifactId>
+        <version>1.9.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.eclipse.tractusx.agents.edc.agent-plane</groupId>
+    <artifactId>agentplane-azure-vault</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Tractus-X Knowledge Agents EDC Dataplane (Az-Vault)</name>
+    <description>Builds a Containerized Agent Dataplane with Agent/Triple Extensions And Accessing the Azure Vault to Store Intermediate Secrets.</description>
+    <url>http://catena-x.net/</url>
+
+    <properties>
+        <sonar.moduleKey>${project.groupId}_${project.artifactId}</sonar.moduleKey>
+        <symbolic.name>org.eclipse.tractusx.edc.agentplane-azure-vault</symbolic.name>
+        <finalName>${symbolic.name}-${project.version}</finalName>
+    </properties>
+
+    <build>
+        <!-- keep it for shadowing and docker input -->
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>../../</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>NOTICE.md</include>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.eclipse.edc.boot.system.runtime.BaseRuntime</mainClass>
+                            <useUniqueVersions>false</useUniqueVersions>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Base Data-Plane -->
+        <dependency>
+            <groupId>org.eclipse.tractusx.edc</groupId>
+            <artifactId>edc-dataplane-azure-vault</artifactId>
+            <version>${tx.edc.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                        <groupId>org.yaml</groupId>
+                        <artifactId>snakeyaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>dev.failsafe</groupId>
+                    <artifactId>failsafe</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${org.yaml.snakeyaml.version}</version>
+        </dependency>
+
+        <!-- Agent Extensions -->
+        <dependency>
+            <groupId>org.eclipse.tractusx.agents.edc.agent-plane</groupId>
+            <artifactId>agent-plane-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.tractusx.edc</groupId>
+            <artifactId>auth-jwt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <scope>test</scope>
+       </dependency>
+        <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-core</artifactId>
+         <scope>test</scope>
+         <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+         </exclusions>
+       </dependency>
+
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>with-docker-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
