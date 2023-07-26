@@ -23,12 +23,12 @@ the [SPARQL](https://www.w3.org/TR/sparql11-query/) protocol.
 The EDC is usually deployed as at least two components, the Control Plane (which does the actual contracting, negotiations and state handling/validation) and several data planes
 which perform the actual data transfer. 
 
-The present Agent Plane is a variant of the [Http Data Plane](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-dataplane) 
+The present Agent Plane is a variant of the [Standard Http/S3 Data Plane](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-dataplane) 
 and can be either employed standalone or as a companion to other protocol planes.
 
 This module consists of
 
-- [Agent Http Procotols Extension](agent-plane-protocol)
+- [Agent Procotols Extension](agent-plane-protocol)
 - [Ready-Made Agent Plane (Azure Vault)](agentplane-azure-vault)
 - [Ready-Made Agent Plane (Hashicorp Vault)](agentplane-hashicorp)
 
