@@ -63,7 +63,7 @@ If you want to use the pre-built binaries, you should also add the repository
     <repositories>
         <repository> 
             <id>ka-edc</id>
-            <url>https://maven.pkg.github.com/catenax-ng/product-agents-edc</url>
+            <url>https://maven.pkg.github.com/eclipse-tractusx/knowledge-agents-edc</url>
         </repository>
     </repositories>
 </project>
@@ -72,5 +72,5 @@ If you want to use the pre-built binaries, you should also add the repository
 If you want to add the pre-built binaries directly into an exploded deployment/container, download
 the library into your "lib/" folder.
 
-For that purpose, visit [the package](https://github.com/catenax-ng/product-agents-edc/packages/1868799) and choose
+For that purpose, visit [the package](https://github.com/eclipse-tractusx/knowledge-agents-edc/packages/1868799) and choose
 the latest jar for downloading.

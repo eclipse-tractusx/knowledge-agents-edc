@@ -47,9 +47,9 @@ version: 1.9.5-SNAPSHOT
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "1.9.5-SNAPSHOT"
-home: https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector
+home: https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
 sources:
-  - https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector
+  - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
 dependencies:
   # HashiCorp Vault
   - name: vault

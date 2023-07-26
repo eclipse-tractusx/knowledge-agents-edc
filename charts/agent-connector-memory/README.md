@@ -19,7 +19,7 @@ Control Plane and a Data Plane. Note that _no_ external dependencies such as Has
 
 This chart is intended for use with an _existing_ HashiCorp Vault.
 
-**Homepage:** <https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector>
+**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
 
 ## Setting up SSI
 
@@ -65,7 +65,7 @@ helm install my-release product-knowledge/agent-connector --version 1.9.5-SNAPSH
 
 ## Source Code
 
-* <https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector>
+* <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
 
 ## Requirements
 

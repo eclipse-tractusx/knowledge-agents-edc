@@ -59,10 +59,10 @@ mvn package -Pwith-docker-image
 Alternatively, after a successful build, you can invoke docker yourself 
 
 ```console
-docker build -t ghcr.io/catenax-ng/product-agents-edc/agentplane-azure-vault:1.9.5-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
+docker build -t ghcr.io/eclipse-tractusx/knowledge-agents-edc/agentplane-azure-vault:1.9.5-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
 ```
 
 ```console
-docker build -t ghcr.io/catenax-ng/product-agents-edc/agentplane-hashicorp:1.9.5-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
+docker build -t ghcr.io/eclipse-tractusx/knowledge-agents-edc/agentplane-hashicorp:1.9.5-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
 ```
 

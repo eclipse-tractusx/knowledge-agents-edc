@@ -19,7 +19,7 @@ Control Plane and a Data Plane. Note that _no_ external dependencies such as a P
 
 This chart is intended for use with an _existing_ PostgreSQL database and an _existing_ Azure KeyVault.
 
-**Homepage:** <https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector>
+**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
 
 ## Setting up SSI
 
@@ -73,7 +73,7 @@ helm install my-release product-knowledge/agent-connector-azure-vault --version 
 
 ## Source Code
 
-* <https://github.com/catenax-ng/product-agents-edc/tree/main/charts/agent-connector>
+* <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
 
 ## Requirements
 
