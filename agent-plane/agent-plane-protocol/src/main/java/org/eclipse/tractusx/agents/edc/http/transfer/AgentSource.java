@@ -111,9 +111,7 @@ public class AgentSource implements DataSource {
                 skill=skillText.get();
             }
         }
-        String authKey=request.getSourceDataAddress().getProperties().getOrDefault("authKey",null);
-        String authCode=request.getSourceDataAddress().getProperties().getOrDefault("authCode",null);
-        try (Response response = processor.execute(this.requestFactory.toRequest(params),skill,graph,authKey,authCode)) {
+        try (Response response = processor.execute(this.requestFactory.toRequest(params),skill,graph,request.getSourceDataAddress().getProperties())) {
             if(!response.isSuccessful()) {
                 return StreamResult.error(format("Received code transferring HTTP data for request %s: %s - %s.", requestId, response.code(), response.message()));
             }

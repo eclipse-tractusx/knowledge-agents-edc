@@ -15,6 +15,7 @@ import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.system.configuration.Config;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * typed wrapper around the
@@ -24,30 +25,39 @@ public class AgentConfig {
 
     public static String DEFAULT_ASSET_PROPERTY = "cx.agent.asset.default";
     public static String DEFAULT_ASSET_NAME = "urn:x-arq:DefaultGraph";
+
     public static String ASSET_FILE_PROPERTY = "cx.agent.asset.file";
+
     public static String ACCESS_POINT_PROPERTY = "cx.agent.accesspoint.name";
+    public static String DEFAULT_ACCESS_POINT = "api";
+
     public static String VERBOSE_PROPERTY = "cx.agent.sparql.verbose";
     public static boolean DEFAULT_VERBOSE_PROPERTY = false;
-    public static String DEFAULT_ACCESS_POINT = "api";
+
     public static String CONTROL_PLANE_MANAGEMENT_PROVIDER = "cx.agent.controlplane.management.provider";
     public static String CONTROL_PLANE_MANAGEMENT = "cx.agent.controlplane.management";
     public static String CONTROL_PLANE_IDS = "cx.agent.controlplane.protocol";
+
     public static String BUSINESS_PARTNER_NUMBER = "edc.participant.id";
     public static String CONTROL_PLANE_AUTH_HEADER = "edc.api.auth.header";
     public static String CONTROL_PLANE_AUTH_VALUE = "edc.api.auth.key";
+
     public static String NEGOTIATION_TIMEOUT_PROPERTY = "cx.agent.negotiation.timeout";
     public static long DEFAULT_NEGOTIATION_TIMEOUT = 30000;
+    
     public static String NEGOTIATION_POLLINTERVAL_PROPERTY = "cx.agent.negotiation.poll";
     public static long DEFAULT_NEGOTIATION_POLLINTERVAL = 1000;
+    
     public static String DATASPACE_SYNCINTERVAL_PROPERTY = "cx.agent.dataspace.synchronization";
     public static long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
+    
     public static String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
-
+    
     public static String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
-
+    
     public static String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
     public static long DEFAULT_FEDERATION_SERVICE_BATCH_SIZE = Long.MAX_VALUE;
-
+    
     public static String THREAD_POOL_SIZE = "cx.agent.threadpool.size";
     public static int DEFAULT_THREAD_POOL_SIZE = 4;
 
@@ -62,6 +72,19 @@ public class AgentConfig {
     public static String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
 
 
+    public static String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
+    public static String DEFAULT_SERVICE_ALLOW_PATTERN = ".*";
+
+
+    public static String SERVICE_DENY_PROPERTY = "cx.agent.service.deny";
+    public static String DEFAULT_SERVICE_DENY_PATTERN = "^$";
+
+    /**
+     * precompiled stuff
+     */
+    protected final Pattern serviceAllowPattern;
+    protected final Pattern serviceDenyPattern;
+    
     /**
      * references to EDC services
      */
@@ -76,6 +99,8 @@ public class AgentConfig {
     public AgentConfig(Monitor monitor, Config config) {
         this.monitor = monitor;
         this.config = config;
+        serviceAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_PROPERTY,DEFAULT_SERVICE_ALLOW_PATTERN));
+        serviceDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_PROPERTY,DEFAULT_SERVICE_DENY_PATTERN));
     }
 
     /**
@@ -240,6 +265,20 @@ public class AgentConfig {
      */
     public String getDefaultSkillContract() {
         return config.getString(DEFAULT_SKILL_CONTRACT_PROPERTY,null);
+    }
+
+    /**
+     * @return regular expression for allowed service URLs
+     */
+    public Pattern getServiceAllowPattern() {
+        return serviceAllowPattern;
+    }
+
+    /**
+     * @return regular expression for denied service URLs
+     */
+    public Pattern getServiceDenyPattern() {
+        return serviceDenyPattern;
     }
 
 }

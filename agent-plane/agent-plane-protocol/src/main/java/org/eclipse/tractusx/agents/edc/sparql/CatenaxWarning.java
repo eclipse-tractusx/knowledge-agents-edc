@@ -23,7 +23,6 @@ import java.util.Objects;
  * a warning
  */
 public class CatenaxWarning {
-
     public static Symbol cxWarnings=Symbol.create("cx:warnings");
 
     /**
@@ -49,7 +48,8 @@ public class CatenaxWarning {
 
     /**
      * set current warnings
-     * @param warnings
+     * @param context to set into
+     * @param warnings the warning list
      */
     public static void setWarnings(Context context, List<CatenaxWarning> warnings) {
         context.put(cxWarnings,warnings);

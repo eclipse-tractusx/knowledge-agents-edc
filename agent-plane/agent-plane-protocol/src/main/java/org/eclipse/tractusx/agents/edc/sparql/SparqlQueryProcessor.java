@@ -171,30 +171,40 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
      * @param request ok request
      * @param skill skill ref
      * @param graph graph ref
-     * @param authKey optional auth key, such as X-Api-Key or Authorization
-     * @param authCode optional auth value, such as 4711 or Basic xxxx
+     * @param targetProperties a set of address properties of the asset to invoke
      * @return simulated ok response
      */
-    public Response execute(Request request, String skill, String graph, String authKey, String authCode) {
+    public Response execute(Request request, String skill, String graph, Map<String,String> targetProperties) {
+
+        // wrap jakarta into java.servlet
         HttpServletContextAdapter contextAdapter=new HttpServletContextAdapter(request);
         HttpServletRequestAdapter requestAdapter=new HttpServletRequestAdapter(request,contextAdapter);
         HttpServletResponseAdapter responseAdapter=new HttpServletResponseAdapter(request);
         contextAdapter.setAttribute(Fuseki.attrVerbose, config.isSparqlVerbose());
         contextAdapter.setAttribute(Fuseki.attrOperationRegistry, operationRegistry);
         contextAdapter.setAttribute(Fuseki.attrNameRegistry, dataAccessPointRegistry);
+
+        // build and populate a SPARQL action from the wrappers
         AgentHttpAction action = new AgentHttpAction(++count, monitorWrapper, requestAdapter,responseAdapter, skill, graph);
-        // Should we check whether this already has been done? the context should be quite static
         action.setRequest(rdfStore.getDataAccessPoint(), rdfStore.getDataService());
         ServiceExecutorRegistry.set(action.getContext(),registry);
-        action.getContext().set(DataspaceServiceExecutor.targetUrl,request.header(DataspaceServiceExecutor.targetUrl.getSymbol()));
-        action.getContext().set(DataspaceServiceExecutor.authKey,authKey);
-        action.getContext().set(DataspaceServiceExecutor.authCode,authCode);
+        action.getContext().set(DataspaceServiceExecutor.TARGET_URL_SYMBOL,request.header(DataspaceServiceExecutor.TARGET_URL_SYMBOL.getSymbol()));
+        action.getContext().set(DataspaceServiceExecutor.AUTH_KEY_SYMBOL,targetProperties.getOrDefault("authKey",null));
+        action.getContext().set(DataspaceServiceExecutor.AUTH_CODE_SYMBOL,targetProperties.getOrDefault("authCode",null));
         action.getContext().set(ARQConstants.sysOptimizerFactory,optimizerFactory);
+        if(targetProperties.containsKey(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())) {
+            action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())));
+        }
+        if(targetProperties.containsKey(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())) {
+            action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())));
+        }
         if(graph!=null) {
-            action.getContext().set(DataspaceServiceExecutor.asset,graph);
+            action.getContext().set(DataspaceServiceExecutor.ASSET_SYMBOL,graph);
         }
         List<CatenaxWarning> previous=CatenaxWarning.getWarnings(action.getContext());
         CatenaxWarning.setWarnings(action.getContext(),null);
+
+        // and finally execute the SPARQL action
         try {
             execute(action);
             List<CatenaxWarning> newWarnings=CatenaxWarning.getWarnings(action.getContext());
@@ -324,9 +334,9 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         } catch (Exception e) {
             throw new BadRequestException(String.format("Error: Could not bind variables"),e);
         }
-        if(action.getContext().isDefined(DataspaceServiceExecutor.asset)) {
-            String targetUrl=action.getContext().get(DataspaceServiceExecutor.targetUrl);
-            String asset=action.getContext().get(DataspaceServiceExecutor.asset);
+        if(action.getContext().isDefined(DataspaceServiceExecutor.ASSET_SYMBOL)) {
+            String targetUrl=action.getContext().get(DataspaceServiceExecutor.TARGET_URL_SYMBOL);
+            String asset=action.getContext().get(DataspaceServiceExecutor.ASSET_SYMBOL);
             asset=asset.replace("?","\\?");
             String graphPattern=String.format("GRAPH\\s*\\<?(%s)?%s\\>?",UNSET_BASE,asset);
             Matcher graphMatcher=Pattern.compile(graphPattern).matcher(queryString);

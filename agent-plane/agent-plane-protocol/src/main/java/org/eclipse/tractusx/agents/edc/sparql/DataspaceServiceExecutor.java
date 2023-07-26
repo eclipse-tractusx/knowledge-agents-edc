@@ -91,11 +91,13 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
     /**
      * some constants
      */
-    public final static Symbol authKey = Symbol.create("cx:authKey");
-    public final static Symbol authCode = Symbol.create("cx:authCode");
-    public final static Pattern EDC_TARGET_ADDRESS = Pattern.compile("((?<protocol>edc|edcs)://(?<connector>[^#?]*))?(#(?<asset>[^/?]*))?(\\?(?<params>.*))?");
-    public final static Symbol targetUrl = Symbol.create("cx:targetUrl");
-    public final static Symbol asset = Symbol.create("cx:asset");
+    public final static Symbol AUTH_KEY_SYMBOL = Symbol.create("cx-common:authenticationKey");
+    public final static Symbol AUTH_CODE_SYMBOL = Symbol.create("cx-common:authenticationCode");
+    public final static Pattern EDC_TARGET_ADDRESS_PATTERN = Pattern.compile("((?<protocol>edc|edcs)://(?<connector>[^#?]*))?(#(?<asset>[^/?]*))?(\\?(?<params>.*))?");
+    public final static Symbol TARGET_URL_SYMBOL  = Symbol.create("cx-fx:targetUri");
+    public final static Symbol ASSET_SYMBOL = Symbol.create("cx-common:Asset");
+    public final static Symbol ALLOW_SYMBOL = Symbol.create("cx-common:allowServicePattern");
+    public final static Symbol DENY_SYMBOL = Symbol.create("cx-common:denyServicePattern");
 
     /**
      * create a new executor
@@ -113,30 +115,41 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
     }
 
     /**
-     * bulk execution call
+     * bulk execution call - this is the default
+     * TODO implement batch size per service and not globally
      * @param opService bound operator
      * @param queryIterator incoming bindings (may set service uri and input params)
      * @param executionContext context
      * @param serviceExecutorBulk bulk executor
      * @return binding generating iterator
-     * TODO implement batch size per service and not globally
      */
     @Override
     public QueryIterator createExecution(OpService opService, QueryIterator queryIterator, ExecutionContext executionContext, ServiceExecutorBulk serviceExecutorBulk) {
         Node serviceNode=opService.getService();
         Set<String> boundVars=new HashSet<>();
         long batchSize=config.getFederationServiceBatchSize();
-        // return an iterator over batches
+
+        //
+        // returns an iterator over batches
+        //
         return new QueryIter1(queryIterator,executionContext) {
 
-            // the iterator over the current batch
+            // the active iterator over the current batch
             private QueryIterator batchIterator;
 
+            /**
+             * check whether we still have something left in the current iterator
+             * or switch to the next batch
+             */
             @Override
             protected boolean hasNextBinding() {
                 return (batchIterator!=null && batchIterator.hasNext()) || hasNextResultBinding();
             }
 
+            /**
+             * switch to the next batch
+             * @return whether next batch exists
+             */
             public boolean hasNextResultBinding() {
                 // do we have additional input bindings
                 if(this.getInput().hasNext()) {
@@ -175,26 +188,36 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
                 }
             }
 
+            /**
+             * the hasNextBinding call has already been done, so we simply call next
+             * on the current iterator - it should be there, otherwise it behaves as an orinary
+             * iterator who has no next binding
+             */
             @Override
             protected Binding moveToNextBinding() {
                 return batchIterator.next();
             }
 
+            /**
+             * no explicit sub canceling implemented, http is stateless in this respect
+             */
             @Override
             protected void requestSubCancel() {
 
             }
 
+            /**
+             * no explicit closing implemented, http is stateless in this respect
+             */
             @Override
             protected void closeSubIterator() {
-
             }
 
         };
     }
 
     /**
-     * single execution mode
+     * single execution mode - this is not used anymore - batch mode is default
      * @param opExecute  the bound operator (if variable is used in service description)
      * @param opOriginal the unbound operator
      * @param binding    the current binding
@@ -231,13 +254,27 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
      */
      public QueryIterator createExecution(OpService opOriginal, String serviceURL, Set<String> boundVars, List<Binding> bindings, ExecutionContext execCxt) {
         Context context = execCxt.getContext();
+
+        // check whether the service url is allowed (in the context, in the default)
+        Pattern allowPattern = context.get(ALLOW_SYMBOL,config.getServiceAllowPattern());
+        if(!allowPattern.matcher(serviceURL).matches())  {
+            throw new QueryExecException(String.format("The service %s does not match the allowed pattern %s. Aborted execution.",serviceURL,allowPattern.pattern()));
+        }
+
+        // check whether the service url is denied (in the context, in the default)
+        Pattern denyPattern = context.get(DENY_SYMBOL,config.getServiceDenyPattern());
+        if(denyPattern.matcher(serviceURL).matches()) {
+            throw new QueryExecException(String.format("The service %s matches the denied pattern %s. Aborted execution.",serviceURL,denyPattern.pattern()));
+        }
+
         boolean silent = opOriginal.getSilent();
 
         // derive the asset type from the service URL, if possible
+        // otherwise we will get it from the endpoint address after a ngotiation
         String assetType= serviceURL.contains("Skill") ? "cx-common:SkillAsset" : serviceURL.contains("Graph") ? "cx-common:GraphAsset" : "cx-common:Asset";
 
         // in case we have an EDC target, we need to negotiate/proxy the transfer
-        Matcher edcMatcher = EDC_TARGET_ADDRESS.matcher(serviceURL);
+        Matcher edcMatcher = EDC_TARGET_ADDRESS_PATTERN.matcher(serviceURL);
         if (edcMatcher.matches()) {
 
             //
@@ -299,8 +336,8 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
             }
             Map<String, List<String>> serviceParams = allServiceParams.computeIfAbsent(serviceURL, k -> new HashMap<>());
             serviceParams.put("cx_accept",List.of("application/json"));
-            execCxt.getContext().put(authKey, endpoint.getAuthKey());
-            execCxt.getContext().put(authCode, endpoint.getAuthCode());
+            execCxt.getContext().put(AUTH_KEY_SYMBOL, endpoint.getAuthKey());
+            execCxt.getContext().put(AUTH_CODE_SYMBOL, endpoint.getAuthCode());
         } else {
             monitor.info(String.format("About to execute http target %s without dataspace", serviceURL));
         }
@@ -389,10 +426,10 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
                         .agentConfig(config)
                         .sendMode(querySendMode);
 
-                if (context.isDefined(authKey)) {
-                    String authKeyProp = context.get(authKey);
+                if (context.isDefined(AUTH_KEY_SYMBOL)) {
+                    String authKeyProp = context.get(AUTH_KEY_SYMBOL);
                     monitor.debug(String.format("About to use authentication header %s on http target %s", authKeyProp, serviceURL));
-                    String authCodeProp = context.get(authCode);
+                    String authCodeProp = context.get(AUTH_CODE_SYMBOL);
                     qExecBuilder = qExecBuilder.httpHeader(authKeyProp, authCodeProp);
                 }
 
@@ -481,10 +518,10 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
                         header("Accept",WebContent.contentTypeResultsJSON).
                         POST(HttpRequest.BodyPublishers.ofString(bindingSet));
 
-                if (context.isDefined(authKey)) {
-                    String authKeyProp=context.get(authKey);
+                if (context.isDefined(AUTH_KEY_SYMBOL)) {
+                    String authKeyProp=context.get(AUTH_KEY_SYMBOL);
                     monitor.debug(String.format("About to use authentication header %s on http target %s", authKeyProp,serviceURL));
-                    String authCodeProp=context.get(authCode);
+                    String authCodeProp=context.get(AUTH_CODE_SYMBOL);
                     skillRequest=skillRequest.header(authKeyProp,authCodeProp);
                 }
 

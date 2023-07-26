@@ -23,8 +23,6 @@ import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -144,7 +142,7 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
         } else {
             // we need to annotate the base url "pure" because we do not directly hit the endpoint
             params.baseUrl("http://dummy.org");
-            params.header(DataspaceServiceExecutor.targetUrl.getSymbol(), address.getProperty(BASE_URL));
+            params.header(DataspaceServiceExecutor.TARGET_URL_SYMBOL.getSymbol(), address.getProperty(BASE_URL));
 
             // there is the case where a KA-BIND protocol call is
             // one-to-one routed through the transfer plane ... in which case
