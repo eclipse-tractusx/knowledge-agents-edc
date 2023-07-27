@@ -523,6 +523,18 @@ dataplanes:
       skillcontract: Contract?partner=Skill
       # -- Sets the maximal batch size when delegating to agents and services
       maxbatchsize: '9223372036854775807'
+      # -- A set of configs for regulating outgoing service calls
+      services:
+        # -- A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property)
+        allow: '(edcs?://.*)|(https://query.wikidata.org/sparql)'
+        # -- A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property)
+        deny: 'http://.*'
+        # -- A set of configs for regulating outgoing service calls when providing an asset (when no specific asset property is given)
+        asset:
+          # -- A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property)
+          allow: '(edcs?://.*)'
+          # -- A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property)
+          deny: 'https?://.*'
 
 # -- Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden
 postgresql:

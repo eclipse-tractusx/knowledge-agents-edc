@@ -71,19 +71,25 @@ public class AgentConfig {
 
     public static String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
 
-
     public static String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
-    public static String DEFAULT_SERVICE_ALLOW_PATTERN = ".*";
-
+    public static String DEFAULT_SERVICE_ALLOW_PATTERN = "(http|edc)s?://.*";
 
     public static String SERVICE_DENY_PROPERTY = "cx.agent.service.deny";
     public static String DEFAULT_SERVICE_DENY_PATTERN = "^$";
+
+    public static String SERVICE_ALLOW_ASSET_PROPERTY = "cx.agent.service.asset.allow";
+    public static String DEFAULT_SERVICE_ALLOW_ASSET_PATTERN = "(http|edc)s://.*";
+
+    public static String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
+    public static String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
     /**
      * precompiled stuff
      */
     protected final Pattern serviceAllowPattern;
     protected final Pattern serviceDenyPattern;
+    protected final Pattern serviceAssetAllowPattern;
+    protected final Pattern serviceAssetDenyPattern;
     
     /**
      * references to EDC services
@@ -101,6 +107,8 @@ public class AgentConfig {
         this.config = config;
         serviceAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_PROPERTY,DEFAULT_SERVICE_ALLOW_PATTERN));
         serviceDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_PROPERTY,DEFAULT_SERVICE_DENY_PATTERN));
+        serviceAssetAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_ASSET_PROPERTY,DEFAULT_SERVICE_ALLOW_ASSET_PATTERN));
+        serviceAssetDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_ASSET_PROPERTY,DEFAULT_SERVICE_DENY_ASSET_PATTERN));
     }
 
     /**
@@ -280,5 +288,20 @@ public class AgentConfig {
     public Pattern getServiceDenyPattern() {
         return serviceDenyPattern;
     }
+
+        /**
+     * @return regular expression for allowed service URLs in assets
+     */
+    public Pattern getServiceAssetAllowPattern() {
+        return serviceAssetAllowPattern;
+    }
+
+    /**
+     * @return regular expression for denied service URLs in assets
+     */
+    public Pattern getServiceAssetDenyPattern() {
+        return serviceAssetDenyPattern;
+    }
+
 
 }

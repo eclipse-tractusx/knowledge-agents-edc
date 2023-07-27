@@ -579,4 +579,35 @@ public class TestAgentController {
         assertTrue(warnings.isArray(),"Got a warnings array");
         assertEquals(warnings.size(),2,"Got correct service warnings number");
     }
+
+     /**
+     * test standard allowance
+     * @throws IOException in case of an error
+     */
+    @Test
+    public void testDefaultService() throws IOException {
+        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "+
+                "SELECT ?chain1 ?what ?output WHERE { " +
+                "  VALUES (?chain1 ?what) { "+
+                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"42\"^^xsd:int) "+
+                "   (<https://query.wikidata.org/sparql> \"21\"^^xsd:int) "+
+                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"84\"^^xsd:int) "+
+                "  } "+
+                "  SERVICE ?chain1 { " +
+                "    BIND(?what as ?output) "+
+                "  } "+
+                "}";
+        Request.Builder builder=new Request.Builder();
+        builder.url("http://localhost:8080");
+        builder.addHeader("Accept","application/sparql-results+json");
+        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
+        Response response=processor.execute(builder.build(),null,null,Map.of());
+        assertEquals(true,response.isSuccessful(),"Successful result");
+        JsonNode root=mapper.readTree(response.body().string());
+        JsonNode bindings=root.get("results").get("bindings");
+        assertEquals(1,bindings.size(),"Correct number of result bindings.");
+        JsonNode warnings=mapper.readTree(response.header("cx_warnings","[]"));
+        assertTrue(warnings.isArray(),"Got a warnings array");
+        assertEquals(warnings.size(),1,"Got correct service warnings number");
+    }
 }

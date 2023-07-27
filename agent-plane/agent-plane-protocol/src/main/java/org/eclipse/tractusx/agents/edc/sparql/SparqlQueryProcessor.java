@@ -194,9 +194,13 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         action.getContext().set(ARQConstants.sysOptimizerFactory,optimizerFactory);
         if(targetProperties.containsKey(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())) {
             action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())));
+        } else {
+            action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,config.getServiceAssetAllowPattern());
         }
         if(targetProperties.containsKey(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())) {
             action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())));
+        } else {
+            action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,config.getServiceAssetDenyPattern());
         }
         if(graph!=null) {
             action.getContext().set(DataspaceServiceExecutor.ASSET_SYMBOL,graph);

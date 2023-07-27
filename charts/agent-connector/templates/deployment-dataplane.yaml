@@ -157,9 +157,32 @@ spec:
               value: {{ join "," $dataplane.agent.default | quote }} 
             - name: "CX_AGENT_SKILL_CONTRACT_DEFAULT"
               value: {{ $dataplane.agent.skillcontract | quote }}
-
           {{- end }}
           
+          {{- if $dataplane.agent.services }}
+            ###################
+            # AGENT SERVICES #
+            ###################
+          {{- if $dataplane.agent.services.allow }}
+            - name: "CX_AGENT_SERVICE_ALLOW"
+              value: {{ $dataplane.agent.services.allow | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.deny }}
+            - name: "CX_AGENT_SERVICE_DENY"
+              value: {{ $dataplane.agent.services.deny | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.asset }}
+          {{- if $dataplane.agent.services.asset.allow }}
+            - name: "CX_AGENT_SERVICE_ASSET_ALLOW"
+              value: {{ $dataplane.agent.services.asset.allow | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.asset.deny }}
+            - name: "CX_AGENT_SERVICE_ASSET_DENY"
+              value: {{ $dataplane.agent.services.asset.deny | quote }} 
+          {{- end }}
+          {{- end }}
+          {{- end }}
+
           {{- if $dataplane.agent.connectors }}
             ###################
             # AGENT SYNC      #
