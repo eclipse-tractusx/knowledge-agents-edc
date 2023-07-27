@@ -26,6 +26,7 @@ import org.apache.http.HttpStatus;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.spi.types.domain.edr.EndpointDataReference;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.IAgreementController;
 import org.eclipse.tractusx.agents.edc.sparql.CatenaxWarning;
 
@@ -50,6 +51,7 @@ public class DelegationService implements IDelegationService {
     protected final OkHttpClient client;
     public final static TypeReference<List<CatenaxWarning>> warningTypeReference = new TypeReference<>(){};
     protected final TypeManager typeManager;
+    protected final AgentConfig config;
 
     /**
      * creates a new delegation service
@@ -57,11 +59,12 @@ public class DelegationService implements IDelegationService {
      * @param monitor logging facility
      * @param client outgoing http infrastructure
      */
-    public DelegationService(IAgreementController agreementController, Monitor monitor, OkHttpClient client, TypeManager typeManager) {
+    public DelegationService(IAgreementController agreementController, Monitor monitor, OkHttpClient client, TypeManager typeManager, AgentConfig config) {
         this.agreementController=agreementController;
         this.monitor=monitor;
         this.client=client;
         this.typeManager=typeManager;
+        this.config=config;
     }
 
     /**
@@ -72,6 +75,14 @@ public class DelegationService implements IDelegationService {
      * @return a response
      */
     public Response executeQueryRemote(String remoteUrl, String skill, String graph, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri)  {
+        Pattern serviceAllowPattern=config.getServiceAllowPattern();
+        if(!serviceAllowPattern.matcher(remoteUrl).matches()) {
+            return HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s does not match the allowed service pattern %s",remoteUrl,serviceAllowPattern.pattern()),null);
+        }
+        Pattern serviceDenyPattern=config.getServiceDenyPattern();
+        if(serviceDenyPattern.matcher(remoteUrl).matches()) {
+            return HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s matches the denied service pattern %s",remoteUrl,serviceDenyPattern.pattern()),null);
+        }
         String asset = skill != null ? skill : graph;
         EndpointDataReference endpoint = agreementController.get(asset);
         if(endpoint==null) {

@@ -65,6 +65,9 @@ public class AgentHttpAction extends HttpAction {
         parseBody(request,response);
     }
 
+    /**
+     * parses parameters
+     */
     protected void parseArgs(HttpServletRequest request, HttpServletResponse response) {
         String params = "";
         String uriParams = request.getQueryString();
@@ -106,6 +109,9 @@ public class AgentHttpAction extends HttpAction {
         }
     }
 
+    /**
+     * parses the body
+     */
     protected void parseBody(HttpServletRequest request, HttpServletResponse response) {
         if(RESULTSET_CONTENT_TYPE.equals(request.getContentType())) {
             ObjectMapper om= new ObjectMapper();

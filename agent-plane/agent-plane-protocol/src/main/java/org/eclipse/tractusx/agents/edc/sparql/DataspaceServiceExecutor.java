@@ -91,13 +91,13 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
     /**
      * some constants
      */
-    public final static Symbol AUTH_KEY_SYMBOL = Symbol.create("cx-common:authenticationKey");
-    public final static Symbol AUTH_CODE_SYMBOL = Symbol.create("cx-common:authenticationCode");
+    public final static Symbol AUTH_KEY_SYMBOL = Symbol.create("https://w3id.org/edc/v0.0.1/ns/authKey");
+    public final static Symbol AUTH_CODE_SYMBOL = Symbol.create("https://w3id.org/edc/v0.0.1/ns/authCode");
     public final static Pattern EDC_TARGET_ADDRESS_PATTERN = Pattern.compile("((?<protocol>edc|edcs)://(?<connector>[^#?]*))?(#(?<asset>[^/?]*))?(\\?(?<params>.*))?");
-    public final static Symbol TARGET_URL_SYMBOL  = Symbol.create("cx-fx:targetUri");
-    public final static Symbol ASSET_SYMBOL = Symbol.create("cx-common:Asset");
-    public final static Symbol ALLOW_SYMBOL = Symbol.create("cx-common:allowServicePattern");
-    public final static Symbol DENY_SYMBOL = Symbol.create("cx-common:denyServicePattern");
+    public final static Symbol TARGET_URL_SYMBOL  = Symbol.create("https://w3id.org/edc/v0.0.1/ns/baseUrl");
+    public final static Symbol ASSET_SYMBOL = Symbol.create("https://w3id.org/edc/v0.0.1/ns/id");
+    public final static Symbol ALLOW_SYMBOL = Symbol.create("https://w3id.org/catenax/ontology/common#allowServicePattern");
+    public final static Symbol DENY_SYMBOL = Symbol.create("https://w3id.org/catenax/ontology/common#denyServicePattern");
 
     /**
      * create a new executor

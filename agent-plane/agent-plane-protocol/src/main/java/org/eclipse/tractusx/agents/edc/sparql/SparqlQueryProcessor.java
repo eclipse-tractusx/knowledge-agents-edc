@@ -189,8 +189,8 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         action.setRequest(rdfStore.getDataAccessPoint(), rdfStore.getDataService());
         ServiceExecutorRegistry.set(action.getContext(),registry);
         action.getContext().set(DataspaceServiceExecutor.TARGET_URL_SYMBOL,request.header(DataspaceServiceExecutor.TARGET_URL_SYMBOL.getSymbol()));
-        action.getContext().set(DataspaceServiceExecutor.AUTH_KEY_SYMBOL,targetProperties.getOrDefault("authKey",null));
-        action.getContext().set(DataspaceServiceExecutor.AUTH_CODE_SYMBOL,targetProperties.getOrDefault("authCode",null));
+        action.getContext().set(DataspaceServiceExecutor.AUTH_KEY_SYMBOL,targetProperties.getOrDefault(DataspaceServiceExecutor.AUTH_KEY_SYMBOL.getSymbol(),null));
+        action.getContext().set(DataspaceServiceExecutor.AUTH_CODE_SYMBOL,targetProperties.getOrDefault(DataspaceServiceExecutor.AUTH_CODE_SYMBOL.getSymbol(),null));
         action.getContext().set(ARQConstants.sysOptimizerFactory,optimizerFactory);
         if(targetProperties.containsKey(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())) {
             action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())));
@@ -263,6 +263,8 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
      */
     @Override
     protected void execute(String queryString, HttpAction action) {
+        // make sure the query param is decoded (which Fuseki sometimes forgets)
+        queryString=HttpUtils.urlDecodeParameter(queryString);
         // support for the special www-forms form
         if(action.getRequestContentType() != null && action.getRequestContentType().contains("application/x-www-form-urlencoded")) {
             Map<String,List<String>> parts= AgentSourceHttpParamsDecorator.parseParams(queryString);

@@ -152,7 +152,7 @@ public class AgentExtension implements ServiceExtension {
 
         // stored procedure store and transport endpoint
         ISkillStore skillStore=new EdcSkillStore(catalogService,typeManager,config);
-        DelegationService delegationService=new DelegationService(agreementController,monitor,httpClient,typeManager);
+        DelegationService delegationService=new DelegationService(agreementController,monitor,httpClient,typeManager,config);
         AgentController agentController=new AgentController(monitor,agreementController,config,processor,skillStore,delegationService);
         monitor.debug(String.format("Registering agent controller %s",agentController));
         webService.registerResource(DEFAULT_CONTEXT_ALIAS, agentController);

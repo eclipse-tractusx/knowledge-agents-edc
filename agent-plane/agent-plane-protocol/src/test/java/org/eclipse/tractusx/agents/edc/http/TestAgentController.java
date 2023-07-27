@@ -76,7 +76,7 @@ public class TestAgentController {
     InMemorySkillStore skillStore=new InMemorySkillStore();
 
 
-    DelegationService delegationService=new DelegationService(mockController,monitor,null,typeManager);
+    DelegationService delegationService=new DelegationService(mockController,monitor,null,typeManager,agentConfig);
     AgentController agentController=new AgentController(monitor,mockController,agentConfig,processor,skillStore,delegationService);
 
     AutoCloseable mocks=null;
