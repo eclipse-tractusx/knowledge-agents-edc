@@ -1,32 +1,41 @@
 <!--
- * Copyright (C) 2022-2023 Catena-X Association and others. 
- * 
+ * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
  * This program and the accompanying materials are made available under the
- * terms of the Apache License 2.0 which is available at
- * http://www.apache.org/licenses/.
- * 
- * SPDX-FileType: DOCUMENTATION
- * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
  * SPDX-License-Identifier: Apache-2.0
 -->
 
 # Tractus-X Knowledge Agents EDC Extensions (KA-EDC)
 
 ![GitHub contributors](https://img.shields.io/github/contributors/eclipse-tractusx/knowledge-agents-edc)
-![GitHub Org's stars](https://img.shields.io/github/stars/catenax-ng)
+![GitHub Org's stars](https://img.shields.io/github/stars/eclipse-tractusx)
 ![GitHub](https://img.shields.io/github/license/eclipse-tractusx/knowledge-agents-edc)
 ![GitHub all releases](https://img.shields.io/github/downloads/eclipse-tractusx/knowledge-agents-edc/total)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eclipse-tractusx_knowledge-agents-edc&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eclipse-tractusx_knowledge-agents-edc)
 
-KA-EDC is a product of the [Catena-X Knowledge Agents Kit](https://catenax-ng.github.io/product-knowledge) implementing the core "dataspace" modules of the CX-0084 standard (Federated Queries in Dataspaces).
+KA-EDC is a product of the [Catena-X Knowledge Agents Kit (about to move to: Tractus-X Knowledge Agents Kit)](https://bit.ly/tractusx-agents) implementing the core "dataspace" modules of the CX-0084 standard (Federated Queries in Dataspaces).
 
-* See the [user documentation](docs/README.md)
-* See the [copyright notice](COPYRIGHT.md)
-* See the [authors file](AUTHORS.md)
-* See the [license file](LICENSE.md)
-* See the [code of conduct](CODE_OF_CONDUCT.md)
-* See the [contribution guidelines](CONTRIBUTING.md)
-* See the [dependencies](DEPENDENCIES.md)
+* See the [User Documentation](docs/README.md)
+* See the [Authors](AUTHORS.md)
+* See the [Changelog](CHANGELOG.md)
+* See the [Code of Conduct](CODE_OF_CONDUCT.md)
+* See the [Contribution Guidelines](CONTRIBUTING.md)
+* See the [License](LICENSE)
+* See the [Notice on 3rd Party Software](NOTICE.md)
+* See this [Readme](README.md)
+* See the [Security Notice](Security.md)
 
 ## About the Project 
 
@@ -39,7 +48,8 @@ In particular, KA-EDC consists of
 - [Agent (Data) Plane](agent-plane) extensions to ingest, validate, process and delegate federated procedure calls (so-called Skills) on top of data and functional assets. In particular, they implement the [Semantic Web](https://www.w3.org/standards/semanticweb/) [SPARQL](https://www.w3.org/TR/sparql11-query/) protocol. 
 
 Included in this repository are ready-made [Helm charts](charts). 
-They can be installed from the [Catena-X Knowledge Agents Kit Helm Repository](https://docs.catenax-ng.github.io/product-knowledge/infrastructure).
+
+They can be installed from the [Tractus-X Helm Repository (Stable Versions)](https://eclipse-tractusx.github.io/charts/stable) or [Tractus-X Helm Repository (Dev Versions)](https://eclipse-tractusx.github.io/charts/dev).
 
 ## Source Code Layout & Runtime Collaboration
 
@@ -78,8 +88,8 @@ mvn -s settings.xml publish
 Deployment can be done
 * via [JAR libraries](https://github.com/orgs/eclipse-tractusx/packages?repo_name=knowledge-agents-edc&ecosystem=maven) copied into your Java runtime
 * via [Docker images](https://github.com/orgs/eclipse-tractusx/packages?repo_name=knowledge-agents-edc&ecosystem=docker) 
-* vial [Helm Charts](https://catenax-ng.github.io/product-knowledge/infrastructure/index.yaml)
+* via [Helm Charts (Stable Versions)](https://eclipse-tractusx.github.io/charts/stable) or [Helm Charts (Dev Versions)](https://eclipse-tractusx.github.io/charts/stable)
 
-See the [user documentation](docs/README.md)
+See the [user documentation](docs/README.md) for more detailed deployment information.
 
 
