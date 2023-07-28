@@ -1,16 +1,23 @@
 <!--
- * Copyright (C) 2022-2023 Catena-X Association and others. 
- * 
+ * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
  * This program and the accompanying materials are made available under the
- * terms of the Apache License 2.0 which is available at
- * http://www.apache.org/licenses/.
- * 
- * SPDX-FileType: DOCUMENTATION
- * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
  * SPDX-License-Identifier: Apache-2.0
 -->
 
-# Contributing to Tractus-X
+# Contributing to Eclipse Tractus-X
 
 Thanks for your interest in this project.
 
@@ -35,11 +42,9 @@ more.
 
 * https://projects.eclipse.org/projects/automotive.tractusx/developer
 
-The project maintains the following source code repositories
+The project maintains the source code repositories in the following GitHub organization:
 
-* https://github.com/eclipse/tractusx
-* https://github.com/catena-x
-* https://github.com/catenax-ng
+* https://github.com/eclipse-tractusx/
 
 ## Eclipse Development Process
 
