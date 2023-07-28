@@ -93,7 +93,7 @@ jobs:
       - name: "Check if image exists"
         id: imageCheck
         run: |
-          docker manifest inspect ghcr.io/eclipse-tractusx/knowledge-agents-edc/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}
+          docker manifest inspect tractusx/knowledge-agents-edc/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}
         continue-on-error: true
 
         ## the next two steps will only execute if the image exists check was successful
@@ -101,7 +101,7 @@ jobs:
         if: success() && steps.imageCheck.outcome != 'failure'
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "ghcr.io/eclipse-tractusx/knowledge-agents-edc/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}"
+          image-ref: "tractusx/knowledge-agents-edc/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}"
           format: "sarif"
           output: "trivy-results-${{ matrix.image }}.sarif"
           exit-code: "1"

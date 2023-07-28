@@ -25,8 +25,10 @@ on:
   push:
     branches:
       - main
+      - releases
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v*.*.*'
+      - 'v*.*.*-*'
   release:
     types:
       - published
@@ -40,6 +42,9 @@ on:
   workflow_dispatch:
     branches:
       - 'releases/**'
+
+env:
+  IMAGE_NAMESPACE: "tractusx"
 
 concurrency:
   # cancel only running jobs on pull requests
@@ -84,14 +89,14 @@ jobs:
         if: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc') && ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          # Use existing DockerHub credentials present as secrets
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Deploy Java via Maven
         if: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc') && ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         run: |
-          ./mvnw -s settings.xml deploy -Pwith-docker-image
+          ./mvnw -s settings.xml deploy
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,6 +109,60 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Create SemVer or ref tags dependent of trigger event
+      - name: Docker Meta Agent Plane Hashicorp
+        id: meta-hash
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.IMAGE_NAMESPACE }}/agent-plane-hashicorp
+          # Automatically prepare image tags; See action docs for more examples. 
+          # semver patter will generate tags like these for example :1 :1.2 :1.2.3
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Agent Plane Hashicorp Container Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: agent-plane-hashicorp
+          file: agent-plane/agent-plane-hashcorp/src/main/docker/Dockerfile
+          # Build image for verification purposes on every trigger event. Only push if event is not a PR
+          push: ${{ ( github.repository != 'catenax-ng/product-agents-edc' && github.repository != 'eclipse-tractusx/knowledge-agents-edc') || ( github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')) }}
+          tags: ${{ steps.meta-hash.outputs.tags }}
+          labels: ${{ steps.meta-hash.outputs.labels }}
+
+      # Create SemVer or ref tags dependent of trigger event
+      - name: Docker Meta Agent Plane Azure Vault
+        id: meta-azr
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.IMAGE_NAMESPACE }}/agent-plane-azure-vault
+          # Automatically prepare image tags; See action docs for more examples. 
+          # semver patter will generate tags like these for example :1 :1.2 :1.2.3
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Agent Plane Azure Vault Container Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: agent-plane/agent-plane-azure-vault/.
+          file: agent-plane/agent-plane-azure-vault/src/main/docker/Dockerfile
+          # Build image for verification purposes on every trigger event. Only push if event is not a PR
+          push: ${{ (github.repository == 'catenax-ng/product-agents' || github.repository == 'eclipse-tractusx/knowledge-agents')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
+          tags: ${{ steps.meta-azr.outputs.tags }}
+          labels: ${{ steps.meta-azr.outputs.labels }}
+
+
+      # Report unit test output to github job
       - if: success() || failure()
         name: Java Test Report
         uses: dorny/test-reporter@v1

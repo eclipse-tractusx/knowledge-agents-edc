@@ -1,14 +1,19 @@
+// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
 //
-// Copyright (C) 2022-2023 Catena-X Association and others. 
-// 
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
 // This program and the accompanying materials are made available under the
-// terms of the Apache License 2.0 which is available at
-// http://www.apache.org/licenses/.
-//  
-// SPDX-FileType: SOURCE
-// SPDX-FileCopyrightText: 2022-2023 Catena-X Association
-// SPDX-License-Identifier: Apache-2.0
+// terms of the Apache License, Version 2.0 which is available at
+// https://www.apache.org/licenses/LICENSE-2.0.
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
 import org.eclipse.tractusx.agents.edc.ISkillStore;
@@ -358,7 +363,7 @@ public class AgentController {
                 "owl,http://www.w3.org/2002/07/owl#\n" +
                 "xsd,http://www.w3.org/2001/XMLSchema#\n" +
                 "rdfs,http://www.w3.org/2000/01/rdf-schema#\n" +
-                "cx,https://raw.githubusercontent.com/catenax-ng/product-knowledge/main/ontology/cx_ontology.ttl#\n");
+                "cx,https://w3id.org/catenax/ontology#\n");
         builder.type("text/csv;charset=UTF-8");
         builder.header("Content-Disposition","attachment; filename=namespaces.csv");
         return builder.build();

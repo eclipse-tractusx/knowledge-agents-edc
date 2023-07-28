@@ -514,7 +514,7 @@ dataplanes:
       # -- A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue
       default:
         - dataspace.ttl
-        - https://raw.githubusercontent.com/catenax-ng/product-ontology/main/ontology.ttl
+        - https://w3id.org/catenax/ontology.ttl
       # -- The synchronization interval in ms to update the federated data catalogue
       synchronization: -1
       # -- The list of remote connector IDS URLs to synchronize with

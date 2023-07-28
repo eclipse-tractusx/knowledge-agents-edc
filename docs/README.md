@@ -1,14 +1,22 @@
 <!--
- * Copyright (C) 2022-2023 Catena-X Association and others. 
- * 
+ * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
  * This program and the accompanying materials are made available under the
- * terms of the Apache License 2.0 which is available at
- * http://www.apache.org/licenses/.
- * 
- * SPDX-FileType: DOCUMENTATION
- * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
  * SPDX-License-Identifier: Apache-2.0
 -->
+
 # Tractus-X Knowledge Agents EDC Extensions (KA-EDC)
 
 The Tractus-X Knowledge Agents EDC Extensions (KA-EDC) repository creates runnable applications out of EDC extensions from
@@ -63,7 +71,7 @@ To install a KA-enabled EDC (Setup 1 - Memory & Hashicorp Vault), add the follow
 dependencies:
   
     - name: agent-connector-memory
-      repository: https://catenax-ng.github.io/product-knowledge/infrastructure
+      repository: https://eclipse-tractusx.github.io/charts/dev
       version: 1.9.5-SNAPSHOT
       alias: my-connector
 ```
@@ -74,7 +82,7 @@ To install a KA-enabled EDC (Setup 2 -Postgresql & Azure Vault), add the followi
 dependencies:
   
     - name: agent-connector-azure-vault
-      repository: https://catenax-ng.github.io/product-knowledge/infrastructure
+      repository: https://eclipse-tractusx.github.io/charts/dev
       version: 1.9.5-SNAPSHOT
       alias: my-connector
 ```
@@ -85,7 +93,7 @@ To install a KA-enabled EDC (Setup 3 -Postgresql & Hashicorp Vault), add the fol
 dependencies:
   
     - name: agent-connector
-      repository: https://catenax-ng.github.io/product-knowledge/infrastructure
+      repository: https://eclipse-tractusx.github.io/charts/dev
       version: 1.9.5-SNAPSHOT
       alias: my-connector
 ```

@@ -1,12 +1,19 @@
 <!--
- * Copyright (C) 2022-2023 Catena-X Association and others. 
- * 
+ * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
  * This program and the accompanying materials are made available under the
- * terms of the Apache License 2.0 which is available at
- * http://www.apache.org/licenses/.
- * 
- * SPDX-FileType: DOCUMENTATION
- * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
  * SPDX-License-Identifier: Apache-2.0
 -->
 # Tractus-X Knowledge Agent Plane Azure Vault (KA-EDC-AGENT-AZR)
@@ -47,7 +54,7 @@ mvn -s ../../../settings.xml install -Pwith-docker-image
 Alternatively, after a sucessful [build](#building) the docker image of the Agent Plane is created using
 
 ```console
-docker build -t ghcr.io/eclipse-tractusx/knowledge-agents-edc/agentplane-azure-vault:1.9.5-SNAPSHOT -f src/main/docker/Dockerfile .
+docker build -t tractusx//agentplane-azure-vault:1.9.5-SNAPSHOT -f src/main/docker/Dockerfile .
 ```
 
 To run the docker image, you could invoke this command
@@ -59,7 +66,7 @@ docker run -p 8082:8082 \
   -v $(pwd)/resources/dataplane.properties:/app/configuration.properties \
   -v $(pwd)/resources/opentelemetry.properties:/app/opentelemetry.properties \
   -v $(pwd)/resources/logging.properties:/app/logging.properties \
-  ghcr.io/eclipse-tractusx/knowledge-agents-edc/agentplane-azure-vault:latest
+  tractusx/agentplane-azure-vault:latest
 ````
 
 Afterwards, you should be able to access the [local SparQL endpoint](http://localhost:8082/api/agent) via

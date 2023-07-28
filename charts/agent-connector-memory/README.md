@@ -1,13 +1,21 @@
 <!--
- * Copyright (C) 2022-2023 Catena-X Association and others. 
- * 
+ * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
  * This program and the accompanying materials are made available under the
- * terms of the Apache License 2.0 which is available at
- * http://www.apache.org/licenses/.
- * 
- * SPDX-FileType: DOCUMENTATION
- * SPDX-FileCopyrightText: 2022-2023 Catena-X Association
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
  * SPDX-License-Identifier: Apache-2.0
+
 -->
 
 # agent-connector-memory
@@ -25,7 +33,7 @@ This chart is intended for use with an _existing_ HashiCorp Vault.
 
 ### Preconditions
 
-- the [Managed Identity Walled (MIW)](https://github.com/catenax-ng/tx-managed-identity-wallets) must be running and reachable via network
+- the [Managed Identity Walled (MIW)](https://github.com/eclipse-tractusx/managed-identity-wallet) must be running and reachable via network
 - the necessary set of VerifiableCredentials for this participant must be pushed to MIW. This is typically done by the
   Portal during participant onboarding
 - KeyCloak must be running and reachable via network
@@ -59,8 +67,8 @@ to launch the application. The configuration values mentioned above (`controlpla
 Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
-helm repo add product-knowledge https://catenax-ng.github.io/product-knowledge/infrastructure
-helm install my-release product-knowledge/agent-connector --version 1.9.5-SNAPSHOT
+helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
+helm install my-release eclipse-tractusx/agent-connector --version 1.9.5-SNAPSHOT
 ```
 
 ## Source Code
@@ -176,10 +184,16 @@ helm install my-release product-knowledge/agent-connector --version 1.9.5-SNAPSH
 | controlplane.volumes | list | `[]` | [volume](https://kubernetes.io/docs/concepts/storage/volumes/) directories |
 | customLabels | object | `{}` | To add some custom labels |
 | dataplanes.dataplane.affinity | object | `{}` |  |
-| dataplanes.dataplane.agent | object | `{"connectors":[],"default":["dataspace.ttl","https://raw.githubusercontent.com/catenax-ng/product-ontology/main/ontology.ttl"],"maxbatchsize":"9223372036854775807","skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
+| dataplanes.dataplane.agent | object | `{"connectors":[],"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
 | dataplanes.dataplane.agent.connectors | list | `[]` | The list of remote connector IDS URLs to synchronize with |
-| dataplanes.dataplane.agent.default | list | `["dataspace.ttl","https://raw.githubusercontent.com/catenax-ng/product-ontology/main/ontology.ttl"]` | A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue |
+| dataplanes.dataplane.agent.default | list | `["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"]` | A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue |
 | dataplanes.dataplane.agent.maxbatchsize | string | `"9223372036854775807"` | Sets the maximal batch size when delegating to agents and services |
+| dataplanes.dataplane.agent.services | object | `{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"}` | A set of configs for regulating outgoing service calls |
+| dataplanes.dataplane.agent.services.allow | string | `"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)"` | A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property) |
+| dataplanes.dataplane.agent.services.asset | object | `{"allow":"(edcs?://.*)","deny":"https?://.*"}` | A set of configs for regulating outgoing service calls when providing an asset (when no specific asset property is given) |
+| dataplanes.dataplane.agent.services.asset.allow | string | `"(edcs?://.*)"` | A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property) |
+| dataplanes.dataplane.agent.services.asset.deny | string | `"https?://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
+| dataplanes.dataplane.agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | dataplanes.dataplane.agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | dataplanes.dataplane.agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
 | dataplanes.dataplane.autoscaling.enabled | bool | `false` | Enables [horizontal pod autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
