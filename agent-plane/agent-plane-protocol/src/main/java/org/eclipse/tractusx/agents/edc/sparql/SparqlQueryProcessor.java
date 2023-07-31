@@ -149,11 +149,7 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         List<CatenaxWarning> previous=CatenaxWarning.getWarnings(action.getContext());
         CatenaxWarning.setWarnings(action.getContext(),null);
         try {
-            if (action.getRequestMethod().equals("GET")) {
-                this.executeWithParameter(action);
-            } else {
-                this.executeBody(action);
-            }
+            executeAction(action);
             List<CatenaxWarning> newWarnings=CatenaxWarning.getWarnings(action.getContext());
             if(newWarnings!=null) {
                 response.addHeader("cx_warnings",objectMapper.writeValueAsString(newWarnings));
@@ -168,6 +164,20 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
             throw new InternalServerErrorException(e.getMessage(),e.getCause());
         } finally {
             CatenaxWarning.setWarnings(action.getContext(),previous);
+        }
+    }
+
+    /**
+     * execute the given action. Circumvents
+     * too strict SPARQL requirements in favor
+     * to KA-MATCH semantics.
+     * @param action a jena http action
+     */
+    protected void executeAction(AgentHttpAction action) {
+        if (action.getRequestMethod().equals("GET")) {
+            this.executeWithParameter(action);
+        } else {
+            this.executeBody(action);
         }
     }
 
@@ -215,7 +225,7 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
 
         // and finally execute the SPARQL action
         try {
-            execute(action);
+            executeAction(action);
             List<CatenaxWarning> newWarnings=CatenaxWarning.getWarnings(action.getContext());
             if(newWarnings!=null) {
                 responseAdapter.addHeader("cx_warnings",objectMapper.writeValueAsString(newWarnings));
@@ -224,7 +234,9 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
             if(responseAdapter.getStatus()==200) {
                 responseAdapter.setStatus(203);
             }
-        } catch(JsonProcessingException | QueryExceptionHTTP e) {
+        } catch(ActionErrorException e) {
+            responseAdapter.setStatus(HttpStatus.SC_BAD_REQUEST,e.getMessage());
+        } catch(QueryExecException | JsonProcessingException | QueryExceptionHTTP e) {
             responseAdapter.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR,e.getMessage());
         } finally {
             CatenaxWarning.setWarnings(action.getContext(),previous);
