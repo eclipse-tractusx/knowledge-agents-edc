@@ -16,11 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.json.JsonObject;
-import org.eclipse.edc.policy.model.Policy;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLdObject;
 
 public class ContractAgreement extends JsonLdObject {

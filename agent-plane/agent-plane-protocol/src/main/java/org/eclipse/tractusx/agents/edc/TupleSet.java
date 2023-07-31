@@ -67,8 +67,8 @@ public class TupleSet {
             }
         }
         Collection<Tuple> explosion=new ArrayList<>();
-        for(int count=0;count<explodes.size();count++) {
-            explosion.addAll(explodes.get(count).getTuples(explodedVars.toArray(new String[0])));
+        for (TupleSet explode : explodes) {
+            explosion.addAll(explode.getTuples(explodedVars.toArray(new String[0])));
         }
         if(ownVars.size()>0) {
             for(String key : ownVars) {
@@ -109,8 +109,8 @@ public class TupleSet {
      */
     public Set<String> getVariables() {
         Set<String> myVars=new HashSet<>(bindings.keySet());
-        for(int count=0;count<explodes.size();count++) {
-            myVars.addAll(explodes.get(count).getVariables());
+        for (TupleSet explode : explodes) {
+            myVars.addAll(explode.getVariables());
         }
         return myVars;
     }

@@ -20,8 +20,8 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.graph.NodeTransform;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,6 +59,6 @@ public class VariableDetector implements NodeTransform {
     }
 
     public List<Var> getVariables() {
-        return variables.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(variables.values());
     }
 }

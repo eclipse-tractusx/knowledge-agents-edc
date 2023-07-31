@@ -17,7 +17,6 @@
 package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.node.TextNode;
-import jakarta.json.Json;
 import org.eclipse.edc.spi.query.Criterion;
 import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.TypeManager;

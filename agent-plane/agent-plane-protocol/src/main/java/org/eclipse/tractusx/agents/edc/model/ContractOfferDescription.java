@@ -16,8 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.model;
 
-import org.eclipse.edc.policy.model.Policy;
-
 public class ContractOfferDescription {
     private final String offerId;
     private final String assetId;

@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class Tuple {
 
-    Map<String,String> bindings=new HashMap<>();
+    Map<String,String> bindings;
     
     /**
      * create a fresh tuple

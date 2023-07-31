@@ -16,12 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import jakarta.json.JsonObject;
-import org.eclipse.edc.connector.contract.spi.types.negotiation.ContractNegotiation.Type;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLdObject;
 
 /**
