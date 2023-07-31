@@ -59,7 +59,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- REPO -->
-        <repo>tractusx/knowledge-agents-edc/</repo>
+        <repo>tractusx/</repo>
         <platform>linux/amd64</platform>
     </properties>
     <modules>
