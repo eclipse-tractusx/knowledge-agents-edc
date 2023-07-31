@@ -430,8 +430,12 @@ dataplanes:
       - enabled: false
         # -- The hostname to be used to precisely map incoming traffic onto the underlying network service
         hostname: "edc-data.local"
-        # -- Additional ingress annotations to add
-        annotations: {}
+        # -- Additional ingress annotations to add, for example when supporting more demanding use cases you may set { nginx.org/proxy-connect-timeout: "30s", nginx.org/proxy-read-timeout: "360s", nginx.org/client-max-body-size: "10m"}
+        annotations: 
+            # Sample settings for more demanding use cases
+            # nginx.org/proxy-connect-timeout: "30s"
+            # nginx.org/proxy-read-timeout: "360s"
+            # nginx.org/client-max-body-size: "10m"
         # -- EDC endpoints exposed by this ingress resource
         endpoints:
           - public

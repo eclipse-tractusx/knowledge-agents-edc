@@ -230,7 +230,7 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.5-SNAPSHO
 | dataplanes.dataplane.image.pullPolicy | string | `"IfNotPresent"` | [Kubernetes image pull policy](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) to use |
 | dataplanes.dataplane.image.repository | string | `""` | Which derivate of the data plane to use. when left empty the deployment will select the correct image automatically |
 | dataplanes.dataplane.image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
-| dataplanes.dataplane.ingresses[0].annotations | object | `{}` | Additional ingress annotations to add |
+| dataplanes.dataplane.ingresses[0].annotations | string | `nil` | Additional ingress annotations to add, for example when supporting more demanding use cases you may set { nginx.org/proxy-connect-timeout: "30s", nginx.org/proxy-read-timeout: "360s", nginx.org/client-max-body-size: "10m"} |
 | dataplanes.dataplane.ingresses[0].certManager.clusterIssuer | string | `""` | If preset enables certificate generation via cert-manager cluster-wide issuer |
 | dataplanes.dataplane.ingresses[0].certManager.issuer | string | `""` | If preset enables certificate generation via cert-manager namespace scoped issuer |
 | dataplanes.dataplane.ingresses[0].className | string | `""` | Defines the [ingress class](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class)  to use |
