@@ -165,7 +165,7 @@ public class DelegationService implements IDelegationService {
     }
 
     protected static Pattern PARAMETER_KEY_ALLOW = Pattern.compile("^(?!asset$)[^&?=]+$");
-    protected static Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^[^&=]+$");
+    protected static Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^.+$");
 
     /**
      * computes the url to target the given data plane
