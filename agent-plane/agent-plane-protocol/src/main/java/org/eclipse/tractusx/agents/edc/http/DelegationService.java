@@ -231,7 +231,7 @@ public class DelegationService implements IDelegationService {
                 for(String value : myResponse.headers().values(header)) {
                     if(header.equals("cx_warnings")) {
                         warnings=Optional.of(typeManager.getMapper().readValue(value,warningTypeReference ));
-                    } else if(!header.equals("Content-Length")) {
+                    } else if(!header.toLowerCase().equals("content-length")) {
                         response.addHeader(header, value);
                     }
                 }
