@@ -39,7 +39,7 @@ KA-EDC is a product of the [Catena-X Knowledge Agents Kit (about to move to: Tra
 
 ## About the Project 
 
-This repository hosts the relevant reference extensions to the [Eclipse Dataspace Components (EDC)](https://github.com/eclipse-edc/Connector).
+This repository hosts reference extensions to the [Eclipse Dataspace Components (EDC)](https://github.com/eclipse-edc/Connector).
 It provides container images and deployments for a ready-made KA-enabled [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc).
 
 In particular, KA-EDC consists of

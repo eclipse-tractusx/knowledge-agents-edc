@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+//
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
+// This program and the accompanying materials are made available under the
+// terms of the Apache License, Version 2.0 which is available at
+// https://www.apache.org/licenses/LICENSE-2.0.
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+-->
+
+<!--
+  Pom for building EDC extensions
+-->
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eclipse.tractusx.agents</groupId>
+    <artifactId>edc</artifactId>
+    <version>1.9.5-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Tractus-X Knowledge Agents EDC Extensions</name>
+    <description>EDC-Related Artifacts for Federated Procedure Calls</description>
+    <dependencies>
+    </dependencies>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <skipTests>false</skipTests>
+
+        <junit.version>5.9.3</junit.version>
+        <mockito.version>5.4.0</mockito.version>
+        <tx.edc.version>0.5.0</tx.edc.version>
+        <edc.version>0.1.3</edc.version>
+        <failsafe.version>3.3.2</failsafe.version>
+        <okhttp.version>4.11.0</okhttp.version>
+        <slf4j.version>2.0.7</slf4j.version>
+        <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+        <com.nimbusds.version>9.31</com.nimbusds.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
+        <org.apache.jena.version>4.8.0</org.apache.jena.version>
+        <com.azure.azure-identity.version>1.9.1</com.azure.azure-identity.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.6.2</com.azure.azure-security-keyvault-secrets.version>
+        <org.yaml.snakeyaml.version>2.0</org.yaml.snakeyaml.version>
+        <net.minidev.jsonsmart.version>2.4.11</net.minidev.jsonsmart.version>
+
+        <!-- Source characteristics -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- REPO -->
+        <repo>tractusx/</repo>
+        <platform>linux/amd64</platform>
+    </properties>
+    <modules>
+        <module>common/auth-jwt</module>
+        <module>agent-plane</module>
+    </modules>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Packages -->
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-identity</artifactId>
+                <version>${com.azure.azure-identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-security-keyvault-secrets</artifactId>
+                <version>${com.azure.azure-security-keyvault-secrets.version}</version>
+            </dependency>
+            <!-- BOMs -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-bom</artifactId>
+                <version>${mockito.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <!-- unfortunately you have to repeat that in all relevant sub-modules -->
+                    <configuration>
+                        <groups>!online</groups>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <!--
+                        NOTE: To build and tag docker images the `docker` executable needs to
+                                be on the PATH to be used by the exec-maven-plugin plugin
+                    -->
+                    <executions>
+                        <execution>
+                            <id>docker-build-${project.artifactId}:${project.version}</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <configuration>
+                                <executable>docker</executable>
+                                <workingDirectory>${project.basedir}</workingDirectory>
+                                <arguments>
+                                    <argument>build</argument>
+                                    <argument>--platform</argument>
+                                    <argument>${platform}</argument>
+                                    <argument>-f</argument>
+                                    <argument>src/main/docker/Dockerfile</argument>
+                                    <argument>--build-arg</argument>
+                                    <argument>JAR=target/${project.artifactId}.jar</argument>
+                                    <argument>--build-arg</argument>
+                                    <argument>LIB=target/lib</argument>
+                                    <argument>-t</argument>
+                                    <argument>${repo}${project.artifactId}:${project.version}</argument>
+                                    <argument>.</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>docker-tag-${project.artifactId}:latest</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <configuration>
+                                <executable>docker</executable>
+                                <workingDirectory>${project.basedir}</workingDirectory>
+                                <arguments>
+                                    <argument>tag</argument>
+                                    <argument>${repo}${project.artifactId}:${project.version}</argument>
+                                    <argument>${repo}${project.artifactId}:latest</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>docker-push-${project.artifactId}:${project.version}</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <configuration>
+                                <executable>docker</executable>
+                                <workingDirectory>${project.basedir}</workingDirectory>
+                                <arguments>
+                                    <argument>push</argument>
+                                    <argument>${repo}${project.artifactId}:${project.version}</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.37.0</version>
+                    <executions>
+                        <execution>
+                            <id>format</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>check</goal>
+                                <goal>apply</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.cyclonedx</groupId>
+                    <artifactId>cyclonedx-maven-plugin</artifactId>
+                    <version>2.7.1</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>makeAggregateBom</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <projectType>library</projectType>
+                        <schemaVersion>1.4</schemaVersion>
+                        <includeBomSerialNumber>true</includeBomSerialNumber>
+                        <includeCompileScope>true</includeCompileScope>
+                        <includeProvidedScope>true</includeProvidedScope>
+                        <includeRuntimeScope>true</includeRuntimeScope>
+                        <includeSystemScope>true</includeSystemScope>
+                        <includeTestScope>false</includeTestScope>
+                        <includeLicenseText>true</includeLicenseText>
+                        <outputReactorProjects>true</outputReactorProjects>
+                        <outputFormat>all</outputFormat>
+                        <outputName>${project.artifactId}-${project.version}-sbom</outputName>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository> <!-- To be able to use product edc releases -->
+            <id>edc</id>
+            <url>https://maven.pkg.github.com/eclipse-tractusx/tractusx-edc</url>
+        </repository>
+        <repository> <!-- runtime meta-model -->
+            <id>oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <repository> <!-- ids -->
+            <id>ids</id>
+            <url>https://maven.iais.fraunhofer.de/artifactory/eis-ids-public/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Tractus-X Maven Repository on Github</name>
+            <url>https://maven.pkg.github.com/eclipse-tractusx/knowledge-agents-edc</url>
+        </repository>
+    </distributionManagement>
+
+</project>
