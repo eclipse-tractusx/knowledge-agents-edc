@@ -20,6 +20,12 @@
 
 # Helm Charts
 
+This folder contains ready-made charts for the following variants of the Agent-Enabled EDC
+
+- [Agent-Enabled EDC based on Hashicorp Vault and PostgreSQL persistence](agent-connector) 
+- [Agent-Enabled EDC based on Azure Vault and PostgreSQL persistence](agent-connector-azure-vault) 
+- [Agent-Enabled EDC based on Hashicorp Vault and in-memory persistence](agent-connector-memory)
+
 ## Chart Linting
 
 Chart linting is performed using [helm's CT tool](https://github.com/helm/chart-testing).

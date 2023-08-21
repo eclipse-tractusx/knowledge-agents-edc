@@ -64,9 +64,9 @@ spec:
           {{- if $dataplane.image.repository }}
           image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default "0.5.0" }}"
           {{- else if $dataplane.agent }}
-          image: "tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "tractusx/agentplane-azure-vault:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
           {{- else }}
-          image: "tractusx/edc-dataplane-hashicorp-vault:{{ .Values.dataplane.image.tag | default "0.5.0" }}"
+          image: "tractusx/edc-dataplane-azure-vault:{{ .Values.dataplane.image.tag | default "0.5.0" }}"
           {{- end }}
           imagePullPolicy: {{ $dataplane.image.pullPolicy }}
           ports:

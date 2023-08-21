@@ -76,3 +76,21 @@ the browser or by directly invoking a query
 curl --request GET 'http://localhost/api/agent?asset=urn:graph:cx:Dataspace&query=SELECT ?senseOfLife WHERE { VALUES (?senseOfLife) { ("42"^^xsd:int) } }' \
 --header 'X-Api-Key: foo'
 ```
+
+### Notice for Docker Image
+
+DockerHub: https://hub.docker.com/r/tractusx/agentplane-azure-vault
+
+Eclipse Tractus-X product(s) installed within the image:
+GitHub: https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/agent-plane/agentplane-azure-vault
+Project home: https://projects.eclipse.org/projects/automotive.tractusx
+Dockerfile: https://github.com/eclipse-tractusx/knowledge-agents-edc/blob/main/agent-plane/agentplane-azure-vault/src/main/docker/Dockerfile
+Project license: Apache License, Version 2.0
+
+Used base image
+
+[eclipse-temurin:17-jre-alpine](https://hub.docker.com/_/eclipse-temurin/tags?page=1&name=17-jre-alpine) 
+
+As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
+
+As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
