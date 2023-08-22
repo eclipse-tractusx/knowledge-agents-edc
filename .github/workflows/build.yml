@@ -128,7 +128,7 @@ jobs:
       - name: Agent Plane Hashicorp Container Build and push
         uses: docker/build-push-action@v3
         with:
-          context: agent-plane-hashicorp
+          context: agent-plane/agent-plane-hashicorp
           file: agent-plane/agent-plane-hashicorp/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
           push: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
