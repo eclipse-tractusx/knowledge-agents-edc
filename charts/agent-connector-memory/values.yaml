@@ -31,6 +31,8 @@ install:
   vault: false
 fullnameOverride: ""
 nameOverride: ""
+# -- Image registry to use
+imageRegistry: docker.io/
 # -- Existing image pull secret to use to [obtain the container image from private registries](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry)
 imagePullSecrets: []
 # -- To add some custom labels
@@ -429,7 +431,7 @@ dataplanes:
         # -- The hostname to be used to precisely map incoming traffic onto the underlying network service
         hostname: "edc-data.local"
         # -- Additional ingress annotations to add, for example when supporting more demanding use cases you may set { nginx.org/proxy-connect-timeout: "30s", nginx.org/proxy-read-timeout: "360s", nginx.org/client-max-body-size: "10m"}
-        annotations: 
+        annotations:
             # Sample settings for more demanding use cases
             # nginx.org/proxy-connect-timeout: "30s"
             # nginx.org/proxy-read-timeout: "360s"

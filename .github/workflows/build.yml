@@ -160,13 +160,3 @@ jobs:
           push: ${{ (github.repository == 'catenax-ng/product-agents' || github.repository == 'eclipse-tractusx/knowledge-agents')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-azr.outputs.tags }}
           labels: ${{ steps.meta-azr.outputs.labels }}
-
-
-      # Report unit test output to github job
-      - if: success() || failure()
-        name: Java Test Report
-        uses: dorny/test-reporter@v1
-        with:
-          name: Test Report Java
-          path: '**/surefire-reports/TEST-*.xml'
-          reporter: java-junit

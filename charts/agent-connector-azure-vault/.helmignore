@@ -15,10 +15,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
----
-# Config for testing charts
-validate-maintainers: false
-helm-extra-set-args: "--set=imageRegistry=kind-registry:5000/"
-chart-repos:
- - helm=https://helm.releases.hashicorp.com
- - bitnami=https://charts.bitnami.com/bitnami
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+# Doc Templates
+README.md.gotmpl
+# Accept only values.yaml
+values?*.yaml
+values?*.yml
