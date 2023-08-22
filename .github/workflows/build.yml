@@ -115,7 +115,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.IMAGE_NAMESPACE }}/agent-plane-hashicorp
+            ${{ env.IMAGE_NAMESPACE }}/agentplane-hashicorp
           # Automatically prepare image tags; See action docs for more examples. 
           # semver patter will generate tags like these for example :1 :1.2 :1.2.3
           tags: |
@@ -128,8 +128,8 @@ jobs:
       - name: Agent Plane Hashicorp Container Build and push
         uses: docker/build-push-action@v3
         with:
-          context: agent-plane/agent-plane-hashicorp
-          file: agent-plane/agent-plane-hashicorp/src/main/docker/Dockerfile
+          context: agent-plane/agentplane-hashicorp
+          file: agent-plane/agentplane-hashicorp/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
           push: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-hash.outputs.tags }}
@@ -141,7 +141,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.IMAGE_NAMESPACE }}/agent-plane-azure-vault
+            ${{ env.IMAGE_NAMESPACE }}/agentplane-azure-vault
           # Automatically prepare image tags; See action docs for more examples. 
           # semver patter will generate tags like these for example :1 :1.2 :1.2.3
           tags: |
@@ -154,8 +154,8 @@ jobs:
       - name: Agent Plane Azure Vault Container Build and push
         uses: docker/build-push-action@v3
         with:
-          context: agent-plane/agent-plane-azure-vault/.
-          file: agent-plane/agent-plane-azure-vault/src/main/docker/Dockerfile
+          context: agent-plane/agentplane-azure-vault/.
+          file: agent-plane/agentplane-azure-vault/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
           push: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-azr.outputs.tags }}
