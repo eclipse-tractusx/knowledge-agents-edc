@@ -129,9 +129,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: agent-plane-hashicorp
-          file: agent-plane/agent-plane-hashcorp/src/main/docker/Dockerfile
+          file: agent-plane/agent-plane-hashicorp/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
-          push: ${{ ( github.repository != 'catenax-ng/product-agents-edc' && github.repository != 'eclipse-tractusx/knowledge-agents-edc') || ( github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')) }}
+          push: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-hash.outputs.tags }}
           labels: ${{ steps.meta-hash.outputs.labels }}
 
@@ -157,6 +157,6 @@ jobs:
           context: agent-plane/agent-plane-azure-vault/.
           file: agent-plane/agent-plane-azure-vault/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
-          push: ${{ (github.repository == 'catenax-ng/product-agents' || github.repository == 'eclipse-tractusx/knowledge-agents')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
+          push: ${{ (github.repository == 'catenax-ng/product-agents-edc' || github.repository == 'eclipse-tractusx/knowledge-agents-edc')  && (github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-azr.outputs.tags }}
           labels: ${{ steps.meta-azr.outputs.labels }}
