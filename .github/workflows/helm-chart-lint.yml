@@ -21,17 +21,22 @@ name: Lint and Test Charts
 
 # Run chart linting and tests on each pull request
 on:
+  # Runs automatically on pushes and PRs into main and release branches, if changes to the chart have been performed
   push:
     branches:
       - main
-      - releases
+      - 'releases/**'
     paths:
       - .github/workflows/**
       - charts/**
   pull_request:
+    branches:
+      - main
+      - 'releases/**'
     paths:
       - .github/workflows/**
       - charts/**
+  # Can be triggered to investigate upgrades
   workflow_dispatch:
     inputs:
       node_image:
