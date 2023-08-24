@@ -87,9 +87,12 @@ mvn -s settings.xml publish
 
 Deployment can be done
 * via [JAR libraries](https://github.com/orgs/eclipse-tractusx/packages?repo_name=knowledge-agents-edc&ecosystem=maven) copied into your Java runtime
-* via [Docker images](https://github.com/orgs/eclipse-tractusx/packages?repo_name=knowledge-agents-edc&ecosystem=docker) 
+* via [Docker images](https://hub.docker.com/r/tractusx) 
 * via [Helm Charts (Stable Versions)](https://eclipse-tractusx.github.io/charts/stable) or [Helm Charts (Dev Versions)](https://eclipse-tractusx.github.io/charts/stable)
 
 See the [user documentation](docs/README.md) for more detailed deployment information.
 
+### Notice for Docker Images
 
+* [Notice for Agent Data Plane Running Against Hashicorp Vault](agent-plane/agentplane-hashicorp/README.md#notice-for-docker-images)
+* [Notice for Agent Data Plane Running Against Azure Vault](agent-plane/agentplane-azure-vault/README.md#notice-for-docker-images)

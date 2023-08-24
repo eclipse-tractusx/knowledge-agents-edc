@@ -1,3 +1,7 @@
+{{- if eq (.Values.networkPolicy.enabled | toString) "true" }}
+{{- range tuple "controlplane" "dataplane" }}
+{{- $name := . }}
+---
 #
 #  Copyright (c) 2023 Contributors to the Eclipse Foundation
 #
@@ -16,10 +20,6 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #
-
-{{- if eq (.Values.networkPolicy.enabled | toString) "true" }}
-{{- range tuple "controlplane" "dataplane" }}
-{{- $name := . }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

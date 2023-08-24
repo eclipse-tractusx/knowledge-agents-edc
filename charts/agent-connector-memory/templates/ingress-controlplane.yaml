@@ -1,3 +1,14 @@
+{{- $fullName := include "txdc.fullname" . }}
+{{- $controlLabels := include "txdc.controlplane.labels" . }}
+{{- $controlEdcEndpoints := .Values.controlplane.endpoints }}
+{{- $gitVersion := .Capabilities.KubeVersion.GitVersion }}
+{{- $namespace := .Release.Namespace }}
+
+{{- range .Values.controlplane.ingresses }}
+{{- if and .enabled .endpoints }}
+{{- $controlIngressName := printf "%s-controlplane-%s" $fullName .hostname }}
+{{- $annotations := .annotations | default dict }}
+---
 #
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
@@ -19,18 +30,6 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #
-
-{{- $fullName := include "txdc.fullname" . }}
-{{- $controlLabels := include "txdc.controlplane.labels" . }}
-{{- $controlEdcEndpoints := .Values.controlplane.endpoints }}
-{{- $gitVersion := .Capabilities.KubeVersion.GitVersion }}
-{{- $namespace := .Release.Namespace }}
-
-{{- range .Values.controlplane.ingresses }}
-{{- if and .enabled .endpoints }}
-{{- $controlIngressName := printf "%s-controlplane-%s" $fullName .hostname }}
-{{- $annotations := .annotations | default dict }}
----
 {{- if semverCompare ">=1.19-0" $gitVersion }}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" $gitVersion }}

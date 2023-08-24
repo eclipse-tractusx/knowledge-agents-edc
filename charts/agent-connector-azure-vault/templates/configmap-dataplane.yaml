@@ -1,3 +1,6 @@
+{{ $root := . }}
+{{- range $dataplane_name, $dataplane := .Values.dataplanes }}
+---
 #
 #  Copyright (c) 2023 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
@@ -20,9 +23,6 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #
-{{ $root := . }}
-{{- range $dataplane_name, $dataplane := .Values.dataplanes }}
----
 apiVersion: v1
 kind: ConfigMap
 metadata:

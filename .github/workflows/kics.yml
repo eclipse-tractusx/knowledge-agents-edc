@@ -22,11 +22,17 @@ name: "KICS"
 
 on:
   push:
-    branches: [main, releases]
+    branches: 
+     - main
+     - 'releases/**'
   pull_request:
-    branches: [main, releases]
+    branches: 
+      - main
+      - 'releases/**'
+
   workflow_dispatch:
 
+  # Since rules may change should run regularily
   schedule:
     - cron: "0 0 * * *"
 

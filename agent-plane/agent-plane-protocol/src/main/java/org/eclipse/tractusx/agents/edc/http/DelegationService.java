@@ -165,7 +165,7 @@ public class DelegationService implements IDelegationService {
     }
 
     protected static Pattern PARAMETER_KEY_ALLOW = Pattern.compile("^(?!asset$)[^&?=]+$");
-    protected static Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^[^&=]+$");
+    protected static Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^.+$");
 
     /**
      * computes the url to target the given data plane
@@ -231,7 +231,7 @@ public class DelegationService implements IDelegationService {
                 for(String value : myResponse.headers().values(header)) {
                     if(header.equals("cx_warnings")) {
                         warnings=Optional.of(typeManager.getMapper().readValue(value,warningTypeReference ));
-                    } else if(!header.equals("Content-Length")) {
+                    } else if(!header.toLowerCase().equals("content-length")) {
                         response.addHeader(header, value);
                     }
                 }

@@ -17,11 +17,15 @@
  * SPDX-License-Identifier: Apache-2.0
 -->
 
-# Tractus-X Knowledge Agents EDC Extensions (KA-EDC)
+# Tractus-X Knowledge Agents EDC Extensions (KA-EDC) Documentation
 
-The Tractus-X Knowledge Agents EDC Extensions (KA-EDC) repository creates runnable applications out of EDC extensions from
-the [Eclipse DataSpace Connector](https://github.com/eclipse-edc/Connector) and [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc) 
-repositories.
+In the Knowledge Agent Architecture, an Agent is any component which speaks and/or enacts a Semantic Web protocol, such as SPARQL.
+
+The Tractus-X Knowledge Agents EDC Extensions (KA-EDC) introduces support for these protocols (and runnable applications) into the [Eclipse DataSpace Connector](https://github.com/eclipse-edc/Connector) and [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc).
+
+In particular, KA-EDC implements the so-called Matchmaking Agent endpoint that is able to discover and delegate to business data & functions provided by Binding Agents such as provided by [Knowledge Agents Reference Implementations (KA-RI)](https://github.com/eclipse-tractusx/knowledge-agents).
+
+In contrast to the Binding Agents which are restricted to a subset of the full SPARQL protocol called the KA-BIND profile, KA-EDC implements the KA-MATCH and KA-TRANSFER profiles. The data upon which KA-EDC operates however consists of ontology information and the data catalogue of the respective dataspace tenant.
 
 ## How it works
 

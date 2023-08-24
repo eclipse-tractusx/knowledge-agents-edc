@@ -107,11 +107,11 @@ public class AgentSource implements DataSource {
                 }
                 if(runMode==SkillDistribution.CONSUMER) {
                     if(distribution==SkillDistribution.PROVIDER) {
-                        return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", skill));
+                        return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
                     }
                     return StreamResult.success(Stream.of(new AgentPart("application/sparql-query",skillText.get().getBytes())));
                 } else if(runMode==SkillDistribution.PROVIDER && distribution==SkillDistribution.CONSUMER) {
-                    return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", skill));
+                    return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
                 }
                 skill=skillText.get();
             }

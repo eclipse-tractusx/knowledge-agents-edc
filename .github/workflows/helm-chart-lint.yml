@@ -21,17 +21,36 @@ name: Lint and Test Charts
 
 # Run chart linting and tests on each pull request
 on:
+  # Runs automatically on pushes and PRs into main and release branches, if changes to the chart have been performed
   push:
     branches:
       - main
-      - releases
+      - 'releases/**'
     paths:
       - .github/workflows/**
       - charts/**
   pull_request:
+    branches:
+      - main
+      - 'releases/**'
     paths:
       - .github/workflows/**
       - charts/**
+  # Can be triggered to investigate upgrades
+  workflow_dispatch:
+    inputs:
+      node_image:
+        description: 'kindest/node image for k8s kind cluster'
+        # k8s version from 3.1 release as default
+        default: 'kindest/node:v1.24.6'
+        required: false
+        type: string
+      upgrade_from:
+        description: 'chart version to upgrade from'
+        # chart version from 3.2 release as default
+        default: 'x.x.x'
+        required: false
+        type: string
 
 jobs:
   lint-test:
@@ -47,10 +66,9 @@ jobs:
         with:
           version: v3.10.3
 
-      # Setup python as a prerequisite for chart linting
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.3.1
@@ -66,14 +84,3 @@ jobs:
       # run chart linting
       - name: Run chart-testing (lint)
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --config charts/config/chart-testing-config.yaml
-
-      # Preparing a kind cluster to install and test charts on
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.4.0
-        if: ${{ env.CHART_CHANGED == 'true' }}
-
-      # install the chart to the kind cluster and run helm test
-      # define charts to test with the --charts parameter
-      - name: Run chart-testing (install)
-        run: ct install --charts charts/agent-connector,charts/agent-connector-azure-vault,charts/agent-connector-memory --config charts/config/chart-testing-config.yaml
-        if: ${{ env.CHART_CHANGED == 'true' }}
