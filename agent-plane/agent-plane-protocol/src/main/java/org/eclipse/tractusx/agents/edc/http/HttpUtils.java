@@ -34,6 +34,21 @@ public class HttpUtils {
     /**
      * ensure that the given parameter string is correctly
      * encoded
+     * @param pattern maybe undecoded patterm
+     * @return a url encoded string 
+     */
+    public static String urlEncode(String pattern) {
+        try {
+            return URLEncoder.encode(pattern,DEFAULT_ENCODING);
+        } catch(UnsupportedEncodingException e) {
+            // this should never happen
+            return pattern;
+        }
+    }
+
+        /**
+     * ensure that the given parameter string is correctly
+     * encoded
      * TODO optimize
      * @param parameter maybe undecoded parameter
      * @return a url encoded string which additionally encodes some URL-prefix related symbols
@@ -42,7 +57,7 @@ public class HttpUtils {
         if(parameter==null || parameter.length()==0) return "";
         try {
             parameter = urlDecodeParameter(parameter);
-            return encodeParameter(URLEncoder.encode(parameter, DEFAULT_ENCODING));
+            return encodeParameter(urlEncode(parameter));
         } catch(UnsupportedEncodingException e) {
             // this should never happen
             return parameter;

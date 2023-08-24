@@ -304,8 +304,9 @@ public class AgentController {
             @Context UriInfo uri
     ) {
         monitor.debug(String.format("Received a GET Rest Repositories request %s",request));
-        String url=uri.toString();
+        String url=uri.getAbsolutePath().toString();
         url=url.substring(0,url.length()-18);
+        url=HttpUtils.urlEncode(url);
         return "[\n" +
                 "    {\n" +
                 "        \"id\": \"AGENT\",\n" +
@@ -337,8 +338,9 @@ public class AgentController {
             @Context UriInfo uri
     ) {
         monitor.debug(String.format("Received a GET Repositories request %s",request));
-        String url=uri.toString();
+        String url=uri.getAbsolutePath().toString();
         url=url.substring(0,url.length()-13);
+        url=HttpUtils.urlEncode(url);
         Response.ResponseBuilder builder=Response.ok("uri,id,title,readable,writable\n"+url+",AGENT,Catena-X Knowledge Agent Dataspace Endpoint,true,true\n");
         builder.type("text/csv;charset=UTF-8");
         builder.header("Content-Disposition","attachment; filename=repositories.csv");
