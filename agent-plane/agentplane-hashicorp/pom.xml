@@ -62,6 +62,7 @@
                     <include>LICENSE</include>
                     <include>DEPENDENCIES</include>
                     <include>SECURITY.md</include>
+                    <include>NOTICE.md</include>
                 </includes>
             </resource>
             <resource>
