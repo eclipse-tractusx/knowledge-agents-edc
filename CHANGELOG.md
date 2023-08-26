@@ -24,27 +24,31 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
-# Unreleased
-
-## [1.9.5-SNAPSHOT] - 
+## [1.9.5] - 
 
 ### Added
 
-- Matchmaking Agent: Possibility to invoke Skills as Services
+- Matchmaking Agent: Possibility to invoke Skills as Services according to KA-MATCH
 - Matchmaking Agent: Possibility to steer Delegation through Asset Properties
+- Matchmaking Agent: Possibility to allow/deny service requests based on URL pattern
+- Transfer: Possibility to annotate assets with service request allow/deny patterns
+- Transfer: Implement Skill Protocol of KA-TRANSFER
+- Federated Data Catalogue: Embedding Shapes Properties as Named Graphs
 - Skill Store: Implementation using EDC Control Plane/Asset Catalogue
 
 ### Changed
 
 - Adapted all Catena-X namespaces to https://w3id.org/catenax
-- Adapted to Tractus-X EDC 0.4 and the v2 Management API
 - Adapted to Tractus-X EDC 0.5 and the changed EDR callback
+- Adapted to Tractus-X EDC 0.4 and the v2 Management and Catalogue APIs
 - Upgraded to the latest possible version of dependent libraries
 - Eclipse Tractus-X standards and migration
 
 ### Removed
 
 - Previous EDC Control Plane Extensions regarding SPARQL/HTTP transfer
+
+# Unreleased
 
 ## [Unreleased]
 
