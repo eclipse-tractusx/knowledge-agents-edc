@@ -478,27 +478,28 @@ public class QueryExecutor implements QueryExec {
                 }
                 StringBuilder nextPart=null;
                 String embeddedContentType=null;
-                BufferedReader reader=new BufferedReader(new InputStreamReader(inputStream));
-                for(String line = reader.readLine(); line!=null; line=reader.readLine()) {
-                    if(boundary.equals(line)) {
-                        if(nextPart!=null && embeddedContentType!=null) {
-                            if(embeddedContentType.equals("application/cx-warnings+json")) {
-                                warnings=Optional.of(nextPart.toString());
-                            } else {
-                                inputStream=new ByteArrayInputStream(nextPart.toString().getBytes());
-                                contentType=embeddedContentType;
+                try (BufferedReader reader=new BufferedReader(new InputStreamReader(inputStream))) {
+                    for(String line = reader.readLine(); line!=null; line=reader.readLine()) {
+                        if(boundary.equals(line)) {
+                            if(nextPart!=null && embeddedContentType!=null) {
+                                if(embeddedContentType.equals("application/cx-warnings+json")) {
+                                    warnings=Optional.of(nextPart.toString());
+                                } else {
+                                    inputStream=new ByteArrayInputStream(nextPart.toString().getBytes());
+                                    contentType=embeddedContentType;
+                                }
                             }
+                            nextPart=new StringBuilder();
+                            String contentLine=reader.readLine();
+                            if(contentLine!=null && contentLine.startsWith("Content-Type: ")) {
+                                embeddedContentType=contentLine.substring(14);
+                            } else {
+                                embeddedContentType=null;
+                            }
+                        } else if(nextPart!=null) {
+                            nextPart.append(line);
+                            nextPart.append("\n");
                         }
-                        nextPart=new StringBuilder();
-                        String contentLine=reader.readLine();
-                        if(contentLine!=null && contentLine.startsWith("Content-Type: ")) {
-                            embeddedContentType=contentLine.substring(14);
-                        } else {
-                            embeddedContentType=null;
-                        }
-                    } else if(nextPart!=null) {
-                        nextPart.append(line);
-                        nextPart.append("\n");
                     }
                 }
                 if(nextPart!=null && embeddedContentType!=null) {
