@@ -129,7 +129,40 @@ spec:
             - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
               value: {{ include "txdc.controlplane.url.validation" $root}}
 
+            ###################
+            # AUTH (JWT)      #
+            ###################
+          {{- if $dataplane.auth }}
+          {{- range $auth, $authDef := $dataplane.auth }} 
+            - name: {{ printf "TRACTUSX_AUTH_%s_TYPE" (upper $auth) | quote }}
+              value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
+              value: {{ $authDef.context | required "Authentication Service needs a context" | quote }}
+          {{- if $authDef.register }}   
+            - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
+              value: {{ $authDef.register | quote }}
+          {{- end }}
+          {{- if $authDef.apiCode }}   
+            - name: {{ printf "TRACTUSX_AUTH_%s_API_CODE" (upper $auth) | quote }}
+              value: {{ $authDef.apiCode | quote }}
+          {{- end }}
+          {{- if $authDef.vaultKey }}   
+            - name: {{ printf "TRACTUSX_AUTH_%s_VAULT_KEY" (upper $auth) | quote }}
+              value: {{ $authDef.vaultKey | quote }}
+          {{- end }}
+          {{- if $authDef.publicKey }}   
+            - name: {{ printf "TRACTUSX_AUTH_%s_PUBLICKEY" (upper $auth) | quote }}
+              value: {{ $authDef.publicKey | quote }}
+          {{- end }}
+          {{- if $authDef.checkExpiry }}   
+            - name: {{ printf "TRACTUSX_AUTH_%s_CHECKEXPIRY" (upper $auth) | quote }}
+              value: {{ $authDef.checkExpiry | quote }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+
           {{- if $dataplane.endpoints.callback }}
+
             ###################
             # AGENT CALLBACK  #
             ###################
@@ -150,6 +183,7 @@ spec:
           {{- end }}
 
           {{- if $dataplane.agent.default }}
+
             ###############
             # AGENT INIT  #
             ###############
@@ -160,6 +194,7 @@ spec:
           {{- end }}
 
           {{- if $dataplane.agent.services }}
+
             ###################
             # AGENT SERVICES #
             ###################
@@ -184,6 +219,7 @@ spec:
           {{- end }}
           
           {{- if $dataplane.agent.connectors }}
+
             ###################
             # AGENT SYNC      #
             ###################

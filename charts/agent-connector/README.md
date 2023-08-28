@@ -20,14 +20,14 @@
 
 # agent-connector
 
-![Version: 1.9.5-SNAPSHOT](https://img.shields.io/badge/Version-1.9.5--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.9.7-SNAPSHOT](https://img.shields.io/badge/Version-1.9.7--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. The connector deployment consists of two runtime consists of a
 Control Plane and a Data Plane. Note that _no_ external dependencies such as a PostgreSQL database and HashiCorp Vault are included.
 
 This chart is intended for use with an _existing_ PostgreSQL database and an _existing_ HashiCorp Vault.
 
-**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
+**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/>
 
 ## Setting up SSI
 
@@ -68,8 +68,14 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector --version 1.9.5-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-connector --version 1.9.7-SNAPSHOT
 ```
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Tractus-X Knowledge Agents Team |  |  |
 
 ## Source Code
 
@@ -197,6 +203,15 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.5-SNAPSHO
 | dataplanes.dataplane.agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | dataplanes.dataplane.agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | dataplanes.dataplane.agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
+| dataplanes.dataplane.auth | object | `{"default":{"api-code":69609650,"check-expiry":true,"context":"default","public-key":null,"register":false,"type":"api-key","vault-key":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
+| dataplanes.dataplane.auth.default | object | `{"api-code":69609650,"check-expiry":true,"context":"default","public-key":null,"register":false,"type":"api-key","vault-key":null}` | the default authentication service |
+| dataplanes.dataplane.auth.default.api-code | int | `69609650` | specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead |
+| dataplanes.dataplane.auth.default.check-expiry | bool | `true` | controls whether the expiry date of jwt tokens is checked when type=jwt |
+| dataplanes.dataplane.auth.default.context | string | `"default"` | the context(s) of the default authentication service separated by commas |
+| dataplanes.dataplane.auth.default.public-key | string | `nil` | public key for checking the validity of jwt tokens, set this when type=jwt |
+| dataplanes.dataplane.auth.default.register | bool | `false` | controls whether this service should be registered as the default EDC authentication service globally |
+| dataplanes.dataplane.auth.default.type | string | `"api-key"` | the type of the default authentication service (api-key, jwt or composite) |
+| dataplanes.dataplane.auth.default.vault-key | string | `nil` | vault key for obtaining the API key, Set this when type=api-key or use the api-code property instead |
 | dataplanes.dataplane.autoscaling.enabled | bool | `false` | Enables [horizontal pod autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
 | dataplanes.dataplane.autoscaling.maxReplicas | int | `100` | Maximum replicas if resource consumption exceeds resource threshholds |
 | dataplanes.dataplane.autoscaling.minReplicas | int | `1` | Minimal replicas if resource consumption falls below resource threshholds |
@@ -281,6 +296,7 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.5-SNAPSHO
 | dataplanes.dataplane.volumes | list | `[]` | [volume](https://kubernetes.io/docs/concepts/storage/volumes/) directories |
 | fullnameOverride | string | `""` |  |
 | imagePullSecrets | list | `[]` | Existing image pull secret to use to [obtain the container image from private registries](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry) |
+| imageRegistry | string | `"docker.io/"` | Image registry to use |
 | install.postgresql | bool | `false` |  |
 | install.vault | bool | `false` |  |
 | nameOverride | string | `""` |  |

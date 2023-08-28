@@ -34,6 +34,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * tests the jwt service
+ */
 public class JwtAuthenticationServiceTest {
     ObjectMapper om;
 
@@ -43,6 +46,18 @@ public class JwtAuthenticationServiceTest {
 
     String token;
     String token2;
+
+    public org.eclipse.tractusx.edc.auth.JwtAuthenticationService getService() {
+        return service;
+    }
+
+    public String getToken2() {
+        return token2;
+    }
+
+    public String getToken() {
+        return token;
+    }
 
     @BeforeEach
     public void initialize() throws JOSEException {
@@ -79,6 +94,12 @@ public class JwtAuthenticationServiceTest {
     @Test
     public void testValidJwtToken() {
         var headers=Map.of("Authorization", List.of("Bearer "+token));
+        assertTrue(service.isAuthenticated(headers),"Could not authenticate using valid token");
+    }
+
+    @Test
+    public void testValidLowercaseJwtToken() {
+        var headers=Map.of("authorization", List.of("Bearer "+token));
         assertTrue(service.isAuthenticated(headers),"Could not authenticate using valid token");
     }
 

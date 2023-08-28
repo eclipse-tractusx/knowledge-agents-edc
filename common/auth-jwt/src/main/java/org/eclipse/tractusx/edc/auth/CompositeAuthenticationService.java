@@ -25,30 +25,44 @@ import java.util.Map;
 
 public class CompositeAuthenticationService implements AuthenticationService {
 
-    protected final Collection<AuthenticationService> subServices=new ArrayList<>();
+    protected final Collection<AuthenticationService> subServices;
+    protected final CompositeAuthenticationMode mode;
 
-    public CompositeAuthenticationService() {
+    public CompositeAuthenticationService(CompositeAuthenticationMode mode, Collection<AuthenticationService> subServices) {
+        this.mode=mode;
+        this.subServices=subServices;
     }
 
     @Override
     public boolean isAuthenticated(Map<String, List<String>> map) {
-        return subServices.stream().noneMatch(service-> !service.isAuthenticated(map));
+        switch(mode) {
+            case ONE:
+                return subServices.stream().anyMatch(service -> service.isAuthenticated(map));
+            case ALL:
+            default:
+                return subServices.stream().allMatch(service -> service.isAuthenticated(map));
+        }
     }
 
     public static class Builder {
-        CompositeAuthenticationService service;
+        Collection<AuthenticationService> subServices=new ArrayList<>();
+        CompositeAuthenticationMode mode=CompositeAuthenticationMode.ALL;
 
-        public Builder() {
-            service=new CompositeAuthenticationService();
-        }
+        public Builder() {}
 
         public Builder addService(AuthenticationService subService) {
-            service.subServices.add(subService);
+            subServices.add(subService);
             return this;
         }
 
+        public Builder setMode(CompositeAuthenticationMode mode) {
+            this.mode=mode;
+            return this;
+        }
+
+
         public CompositeAuthenticationService build() {
-            return service;
+            return new CompositeAuthenticationService(mode,subServices);
         }
 
     }
