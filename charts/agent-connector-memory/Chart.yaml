@@ -25,7 +25,7 @@
 apiVersion: v2
 name: agent-connector-memory
 description: |
-  A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector using In-Memory Persistence. This is a variant of [the Tractus-X In-Memory Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-memory) which allows 
+  A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector using In-Memory Persistence. This is a variant of [the Tractus-X In-Memory Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-memory) which allows
   to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
   Control Plane and one or several Data Planes. Note that _no_ external dependencies such as HashiCorp Vault are included.
 
