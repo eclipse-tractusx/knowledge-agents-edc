@@ -83,6 +83,12 @@ To publish the binary artifacts (environment variables GITHUB_ACTOR and GITHUB_T
 mvn -s settings.xml publish
 ```
 
+To update the [DEPENDENCIES](./DEPENDENCIES) declarations
+
+```shell
+./mvnw org.eclipse.dash:license-tool-plugin:license-check 
+```
+
 ### Deployment
 
 Deployment can be done
