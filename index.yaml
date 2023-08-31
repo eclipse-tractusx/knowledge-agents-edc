@@ -3,6 +3,38 @@ entries:
   agent-connector:
   - apiVersion: v2
     appVersion: 1.9.5-SNAPSHOT
+    created: "2023-08-31T07:02:45.062081148Z"
+    dependencies:
+    - alias: vault
+      condition: install.vault
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.20.0
+    - alias: postgresql
+      condition: install.postgresql
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.1.6
+    description: 'A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector.
+      This is a variant of [the Tractus-X Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector)
+      which allows to deal with several data (and agent) planes. The connector deployment
+      consists of at least two runtime consists of a Control Plane and one or several
+      Data Planes. Note that _no_ external dependencies such as a PostgreSQL database
+      and HashiCorp Vault are included.  This chart is intended for use with an _existing_
+      PostgreSQL database and an _existing_ HashiCorp Vault. '
+    digest: 1703a5c4135ff71e147235ee24e15ed742a46c9caeb44c6efa88d208a4f16c29
+    home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
+    maintainers:
+    - name: Tractus-X Knowledge Agents Team
+    name: agent-connector
+    sources:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
+    type: application
+    urls:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-connector-1.9.7-SNAPSHOT/agent-connector-1.9.7-SNAPSHOT.tgz
+    version: 1.9.7-SNAPSHOT
+  - apiVersion: v2
+    appVersion: 1.9.5-SNAPSHOT
     created: "2023-08-24T08:17:57.706729903Z"
     dependencies:
     - alias: vault
@@ -34,6 +66,34 @@ entries:
   agent-connector-azure-vault:
   - apiVersion: v2
     appVersion: 1.9.5-SNAPSHOT
+    created: "2023-08-31T07:02:45.309049179Z"
+    dependencies:
+    - alias: postgresql
+      condition: install.postgresql
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.1.6
+    description: 'A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector
+      configured against Azure Vault. This is a variant of [the Tractus-X Azure Vault
+      Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-azure-vault)
+      which allows to deal with several data (and agent) planes. The connector deployment
+      consists of at least two runtime consists of a Control Plane and one or several
+      Data Planes. Note that _no_ external dependencies such as a PostgreSQL database
+      and Azure KeyVault are included.  This chart is intended for use with an _existing_
+      PostgreSQL database and an _existing_ Azure KeyVault. '
+    digest: 834d6bb66f444f459905d6e9f6d9615f4efefe9bd4eec4404c5498fb2df8458a
+    home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
+    maintainers:
+    - name: Tractus-X Knowledge Agents Team
+    name: agent-connector-azure-vault
+    sources:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
+    type: application
+    urls:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-connector-azure-vault-1.9.7-SNAPSHOT/agent-connector-azure-vault-1.9.7-SNAPSHOT.tgz
+    version: 1.9.7-SNAPSHOT
+  - apiVersion: v2
+    appVersion: 1.9.5-SNAPSHOT
     created: "2023-08-24T08:17:57.877086179Z"
     dependencies:
     - alias: postgresql
@@ -60,6 +120,33 @@ entries:
   agent-connector-memory:
   - apiVersion: v2
     appVersion: 1.9.5-SNAPSHOT
+    created: "2023-08-31T07:02:45.541015994Z"
+    dependencies:
+    - alias: vault
+      condition: install.vault
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.20.0
+    description: 'A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector
+      using In-Memory Persistence. This is a variant of [the Tractus-X In-Memory Connector
+      Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-memory)
+      which allows to deal with several data (and agent) planes. The connector deployment
+      consists of at least two runtime consists of a Control Plane and one or several
+      Data Planes. Note that _no_ external dependencies such as HashiCorp Vault are
+      included.  This chart is intended for use with an _existing_ HashiCorp Vault. '
+    digest: cc42f217ad784d68a9cde3c1b9262f0bbf8d0dbab32491190559d4cee8721ed6
+    home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
+    maintainers:
+    - name: Tractus-X Knowledge Agents Team
+    name: agent-connector-memory
+    sources:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
+    type: application
+    urls:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-connector-memory-1.9.7-SNAPSHOT/agent-connector-memory-1.9.7-SNAPSHOT.tgz
+    version: 1.9.7-SNAPSHOT
+  - apiVersion: v2
+    appVersion: 1.9.5-SNAPSHOT
     created: "2023-08-24T08:17:58.071696394Z"
     dependencies:
     - alias: vault
@@ -82,4 +169,4 @@ entries:
     urls:
     - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-connector-memory-1.9.6-SNAPSHOT/agent-connector-memory-1.9.6-SNAPSHOT.tgz
     version: 1.9.6-SNAPSHOT
-generated: "2023-08-24T08:17:58.071824895Z"
+generated: "2023-08-31T07:02:45.541039696Z"
