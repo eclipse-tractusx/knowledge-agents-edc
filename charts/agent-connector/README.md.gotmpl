@@ -38,9 +38,19 @@ You should set your BPNL in the folloing property:
 
 ## Setting up Hashicorp Vault
 
-You should set your BPNL in the folloing property:
+You should set configure access to required secrets as follows:
 - 'vault.hashicorp.url': URL of the vault API
 - 'vault.hashicorp.token': A valid, generated access token.
+- 'vault.hashicorp.paths.secret': Api path to the folder hosting the secrets (usually prepended with /v1)
+
+### Setting up the transfer token encryption
+
+Transfer tokens handed out from the provider to the consumer should be signed and encrypted. For that purpose
+you should setup a private/public certificate as well as a symmetric AES key.
+ 
+- 'vault.secretNames.transferProxyTokenSignerPrivateKey': 
+- 'vault.secretNames.transferProxyTokenSignerPublicKey':
+- 'vault.secretNames.transferProxyTokenEncryptionAesKey':
 
 ## Setting up SSI
 

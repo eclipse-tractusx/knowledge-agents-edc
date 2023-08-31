@@ -19,7 +19,7 @@
 {{- $root := . -}}
 {{- $allcommands := (dict "commands" (list)) -}}
 {{- range $dataplane_name, $dataplane := .Values.dataplanes -}}
-{{- printf "curl http://%s-%s:%v%s/check/readiness" $dataplane.name (include "txdc.fullname" $root ) $dataplane.endpoints.default.port $dataplane.endpoints.default.path  | append $allcommands.commands | set $allcommands "commands" -}}
+{{- printf "curl http://%s-%s:%v%s/check/readiness" (include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.default.port $dataplane.endpoints.default.path  | append $allcommands.commands | set $allcommands "commands" -}}
 {{- end }}
 
 ---
@@ -36,6 +36,6 @@ spec:
   containers:
     - name: wget
       image: curlimages/curl
-      command: [ '/bin/bash','-c' ]
+      command: [ '/bin/sh','-c' ]
       args: [ {{ join "&&" $allcommands.commands | quote }} ]
   restartPolicy: Never
