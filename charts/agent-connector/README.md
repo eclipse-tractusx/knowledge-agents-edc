@@ -20,7 +20,7 @@
 
 # agent-connector
 
-![Version: 1.9.7-SNAPSHOT](https://img.shields.io/badge/Version-1.9.7--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.9.8-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. This is a variant of [the Tractus-X Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -40,9 +40,19 @@ You should set your BPNL in the folloing property:
 
 ## Setting up Hashicorp Vault
 
-You should set your BPNL in the folloing property:
+You should set configure access to required secrets as follows:
 - 'vault.hashicorp.url': URL of the vault API
 - 'vault.hashicorp.token': A valid, generated access token.
+- 'vault.hashicorp.paths.secret': Api path to the folder hosting the secrets (usually prepended with /v1)
+
+### Setting up the transfer token encryption
+
+Transfer tokens handed out from the provider to the consumer should be signed and encrypted. For that purpose
+you should setup a private/public certificate as well as a symmetric AES key.
+
+- 'vault.secretNames.transferProxyTokenSignerPrivateKey':
+- 'vault.secretNames.transferProxyTokenSignerPublicKey':
+- 'vault.secretNames.transferProxyTokenEncryptionAesKey':
 
 ## Setting up SSI
 
@@ -98,7 +108,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector --version 1.9.7-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-connector --version 1.9.8-SNAPSHOT
 ```
 
 ## Maintainers
@@ -213,7 +223,7 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.7-SNAPSHO
 | controlplane.ssi.miw.authorityId | string | `""` | The BPN of the issuer authority |
 | controlplane.ssi.miw.url | string | `""` | MIW URL |
 | controlplane.ssi.oauth.client.id | string | `""` | The client ID for KeyCloak |
-| controlplane.ssi.oauth.client.secretAlias | string | `"client-secret"` | The alias under which the client secret is stored in the vault. |
+| controlplane.ssi.oauth.client.secretAlias | string | `""` | The alias under which the client secret is stored in the vault. |
 | controlplane.ssi.oauth.tokenurl | string | `""` | The URL (of KeyCloak), where access tokens can be obtained |
 | controlplane.tolerations | list | `[]` |  |
 | controlplane.url.protocol | string | `""` | Explicitly declared url for reaching the dsp api (e.g. if ingresses not used) |
@@ -336,7 +346,7 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.7-SNAPSHO
 | networkPolicy.dataplane.from | list | `[{"namespaceSelector":{}}]` | Specify from rule network policy for dp (defaults to all namespaces) |
 | networkPolicy.enabled | bool | `false` | If `true` network policy will be created to restrict access to control- and dataplane |
 | participant.id | string | `""` | BPN Number |
-| postgresql | object | `{"auth":{"database":"edc","password":"password","username":"user"},"jdbcUrl":"jdbc:postgresql://postgresql:5432/edc","primary":{"persistence":{"enabled":false}},"readReplicas":{"persistence":{"enabled":false}}}` | Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden |
+| postgresql | object | `{"auth":{"database":"edc","password":"password","username":"user"},"jdbcUrl":"jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/edc","primary":{"persistence":{"enabled":false}},"readReplicas":{"persistence":{"enabled":false}}}` | Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.imagePullSecrets | list | `[]` | Existing image pull secret bound to the service account to use to [obtain the container image from private registries](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry) |
@@ -345,15 +355,15 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.9.7-SNAPSHO
 | tests.hookDeletePolicy | string | `"before-hook-creation,hook-succeeded"` | Configure the hook-delete-policy for Helm tests |
 | vault.hashicorp.healthCheck.enabled | bool | `true` |  |
 | vault.hashicorp.healthCheck.standbyOk | bool | `true` |  |
-| vault.hashicorp.paths.health | string | `"/v1/sys/health"` |  |
-| vault.hashicorp.paths.secret | string | `"/v1/secret"` |  |
+| vault.hashicorp.paths.health | string | `"/v1/sys/health"` | Default health api |
+| vault.hashicorp.paths.secret | string | `"/v1/secret"` | Path to secrets needs to be changed if install.vault=false |
 | vault.hashicorp.timeout | int | `30` |  |
-| vault.hashicorp.token | string | `""` |  |
-| vault.hashicorp.url | string | `"http://{{ .Release.Name }}-vault:8200"` |  |
+| vault.hashicorp.token | string | `""` | Access token to the vault service needs to be changed if install.vault=false |
+| vault.hashicorp.url | string | `"http://{{ .Release.Name }}-vault:8200"` | URL to the vault service, needs to be changed if install.vault=false |
 | vault.injector.enabled | bool | `false` |  |
-| vault.secretNames.transferProxyTokenEncryptionAesKey | string | `"transfer-proxy-token-encryption-aes-key"` |  |
-| vault.secretNames.transferProxyTokenSignerPrivateKey | string | `nil` |  |
-| vault.secretNames.transferProxyTokenSignerPublicKey | string | `nil` |  |
+| vault.secretNames.transferProxyTokenEncryptionAesKey | string | `nil` | encrypt handed out tokens with this symmetric key |
+| vault.secretNames.transferProxyTokenSignerPrivateKey | string | `nil` | sign handed out tokens with this key |
+| vault.secretNames.transferProxyTokenSignerPublicKey | string | `nil` | sign handed out tokens with this certificate |
 | vault.server.dev.devRootToken | string | `"root"` |  |
 | vault.server.dev.enabled | bool | `true` |  |
 | vault.server.postStart | string | `nil` |  |

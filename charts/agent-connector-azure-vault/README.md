@@ -20,7 +20,7 @@
 
 # agent-connector-azure-vault
 
-![Version: 1.9.7-SNAPSHOT](https://img.shields.io/badge/Version-1.9.7--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.9.8-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector configured against Azure Vault. This is a variant of [the Tractus-X Azure Vault Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-azure-vault) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -45,6 +45,15 @@ You should set your BPNL in the folloing property:
 - 'vault.azure.client': Id of the registered application that this EDC represents
 - 'vault.azure.tenant': Id of the subscription that the vault runs into
 - 'vault.azure.secret' or 'vault.azure.certificate': the secret/credential to use when interacting with Azure Vault
+
+### Setting up the transfer token encryption
+
+Transfer tokens handed out from the provider to the consumer should be signed and encrypted. For that purpose
+you should setup a private/public certificate as well as a symmetric AES key.
+
+- 'vault.secretNames.transferProxyTokenSignerPrivateKey':
+- 'vault.secretNames.transferProxyTokenSignerPublicKey':
+- 'vault.secretNames.transferProxyTokenEncryptionAesKey':
 
 ## Setting up SSI
 
@@ -103,7 +112,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.9.7-SNAPSHOT\
+helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.9.8-SNAPSHOT\
      -f <path-to>/tractusx-connector-azure-vault-test.yaml \
      --set vault.azure.name=$AZURE_VAULT_NAME \
      --set vault.azure.client=$AZURE_CLIENT_ID \
@@ -222,7 +231,7 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | controlplane.ssi.miw.authorityId | string | `""` | The BPN of the issuer authority |
 | controlplane.ssi.miw.url | string | `""` | MIW URL |
 | controlplane.ssi.oauth.client.id | string | `""` | The client ID for KeyCloak |
-| controlplane.ssi.oauth.client.secretAlias | string | `"client-secret"` | The alias under which the client secret is stored in the vault. |
+| controlplane.ssi.oauth.client.secretAlias | string | `""` | The alias under which the client secret is stored in the vault. |
 | controlplane.ssi.oauth.tokenurl | string | `""` | The URL (of KeyCloak), where access tokens can be obtained |
 | controlplane.tolerations | list | `[]` |  |
 | controlplane.url.protocol | string | `""` | Explicitly declared url for reaching the dsp api (e.g. if ingresses not used) |
@@ -344,7 +353,7 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | networkPolicy.dataplane.from | list | `[{"namespaceSelector":{}}]` | Specify from rule network policy for dp (defaults to all namespaces) |
 | networkPolicy.enabled | bool | `false` | If `true` network policy will be created to restrict access to control- and dataplane |
 | participant.id | string | `""` | BPN Number |
-| postgresql | object | `{"auth":{"database":"edc","password":"password","username":"user"},"jdbcUrl":"jdbc:postgresql://postgresql:5432/edc","primary":{"persistence":{"enabled":false}},"readReplicas":{"persistence":{"enabled":false}}}` | Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden |
+| postgresql | object | `{"auth":{"database":"edc","password":"password","username":"user"},"jdbcUrl":"jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/edc","primary":{"persistence":{"enabled":false}},"readReplicas":{"persistence":{"enabled":false}}}` | Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.imagePullSecrets | list | `[]` | Existing image pull secret bound to the service account to use to [obtain the container image from private registries](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry) |
@@ -356,7 +365,7 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | vault.azure.name | string | `""` |  |
 | vault.azure.secret | string | `nil` |  |
 | vault.azure.tenant | string | `""` |  |
-| vault.secretNames.transferProxyTokenEncryptionAesKey | string | `"transfer-proxy-token-encryption-aes-key"` |  |
+| vault.secretNames.transferProxyTokenEncryptionAesKey | string | `nil` |  |
 | vault.secretNames.transferProxyTokenSignerPrivateKey | string | `nil` |  |
 | vault.secretNames.transferProxyTokenSignerPublicKey | string | `nil` |  |
 

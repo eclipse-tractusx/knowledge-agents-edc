@@ -21,7 +21,6 @@
 #  SPDX-License-Identifier: Apache-2.0
 #
 
-
 ---
 # Default values for agent-connector.
 # This is a YAML-formatted file.
@@ -134,7 +133,7 @@ controlplane:
         # -- The client ID for KeyCloak
         id: ""
         # -- The alias under which the client secret is stored in the vault.
-        secretAlias: "client-secret"
+        secretAlias: ""
 
   service:
     # -- [Service type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to expose the running application on a set of Pods as a network service.
@@ -566,19 +565,26 @@ vault:
       devRootToken: "root"
     postStart:    # must be set externally!
   hashicorp:
+    # -- URL to the vault service, needs to be changed if install.vault=false
     url: "http://{{ .Release.Name }}-vault:8200"
+    # -- Access token to the vault service needs to be changed if install.vault=false
     token: ""
     timeout: 30
     healthCheck:
       enabled: true
       standbyOk: true
     paths:
+      # -- Path to secrets needs to be changed if install.vault=false
       secret: /v1/secret
+      # -- Default health api
       health: /v1/sys/health
   secretNames:
+    # -- sign handed out tokens with this key
     transferProxyTokenSignerPrivateKey:
+    # -- sign handed out tokens with this certificate
     transferProxyTokenSignerPublicKey:
-    transferProxyTokenEncryptionAesKey: transfer-proxy-token-encryption-aes-key
+    # -- encrypt handed out tokens with this symmetric key
+    transferProxyTokenEncryptionAesKey:
 backendService:
   httpProxyTokenReceiverUrl: ""
 

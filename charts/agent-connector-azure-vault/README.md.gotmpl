@@ -44,6 +44,15 @@ You should set your BPNL in the folloing property:
 - 'vault.azure.tenant': Id of the subscription that the vault runs into
 - 'vault.azure.secret' or 'vault.azure.certificate': the secret/credential to use when interacting with Azure Vault
 
+### Setting up the transfer token encryption
+
+Transfer tokens handed out from the provider to the consumer should be signed and encrypted. For that purpose
+you should setup a private/public certificate as well as a symmetric AES key.
+ 
+- 'vault.secretNames.transferProxyTokenSignerPrivateKey': 
+- 'vault.secretNames.transferProxyTokenSignerPublicKey':
+- 'vault.secretNames.transferProxyTokenEncryptionAesKey':
+
 ## Setting up SSI
 
 ### Preconditions
