@@ -579,11 +579,10 @@ vault:
     tenant: ""
     secret:
     certificate:
-
   secretNames:
     transferProxyTokenSignerPrivateKey:
     transferProxyTokenSignerPublicKey:
-    transferProxyTokenEncryptionAesKey: 
+    transferProxyTokenEncryptionAesKey:
 
 backendService:
   httpProxyTokenReceiverUrl: ""
