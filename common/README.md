@@ -28,7 +28,7 @@ may be used in any EDC plane/container for enabling a secure application/end use
 
 It consists of
 
-- [JWT Based Authentication](auth-jwt)
+- [(Not Only) JWT Based Authentication Stack](auth-jwt)
 
 ## Getting Started
 

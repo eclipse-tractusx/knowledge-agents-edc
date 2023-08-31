@@ -22,6 +22,7 @@ import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.runtime.metamodel.annotation.Provides;
 import org.eclipse.edc.runtime.metamodel.annotation.Setting;
+import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.system.configuration.Config;
@@ -75,6 +76,21 @@ public class AuthenticationExtension implements ServiceExtension {
     )
     public static String SERVICE_SETTING="service";
 
+    @Setting(
+            value = "api key in vault."
+    )
+    public static String VAULT_SETTING="vault-key";
+
+    @Setting(
+            value = "api key hashcode."
+    )
+    public static String API_CODE_SETTING="api-code";
+
+    @Setting(
+            value = "composite mode."
+    )
+    public static String MODE_SETTING="mode";
+
     /**
      * dependency injection part
      */
@@ -82,6 +98,9 @@ public class AuthenticationExtension implements ServiceExtension {
     protected WebService webService;
     @Inject
     protected TypeManager typeManager;
+    @Inject
+    protected Vault vault;
+
 
     @Override
     public void initialize(ServiceExtensionContext ctx) {
@@ -102,8 +121,17 @@ public class AuthenticationExtension implements ServiceExtension {
                     setVerifier(jwsVerifierBuilder.build()).
                     setCheckExpiry(authenticationServiceConfig.getBoolean(EXPIRE_SETTING, true)).
                     build();
+        } else if("api-key".equals(type)) {
+            int reference;
+            if(authenticationServiceConfig.hasKey(VAULT_SETTING)) {
+                reference=vault.resolveSecret(authenticationServiceConfig.getString(VAULT_SETTING)).hashCode();
+            } else {
+                reference=authenticationServiceConfig.getInteger(API_CODE_SETTING);
+            }
+            newService = new ApiKeyAuthenticationService.Builder().setReference(reference).build();
         } else if("composite".equals(type)) {
             CompositeAuthenticationService.Builder builder=new CompositeAuthenticationService.Builder();
+            builder.setMode(Enum.valueOf(CompositeAuthenticationMode.class,authenticationServiceConfig.getString(MODE_SETTING,CompositeAuthenticationMode.ALL.name())));
             authenticationServiceConfig.getConfig(SERVICE_SETTING).partition().forEach( subServiceConfig ->
                     builder.addService(createAuthenticationService(ctx, subServiceConfig))
             );

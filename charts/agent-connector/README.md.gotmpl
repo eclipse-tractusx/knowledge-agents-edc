@@ -28,6 +28,20 @@
 
 {{ template "chart.homepageLine" . }}
 
+## Setting up your BPNL and the Control Plane's Management API Key
+
+The secure API-Key that is shared between control and agent plane is configured in the following property:
+- 'controlplane.endpoints.management.authKey': Cleartext API Key as used to secure the control planes management api (and is used by the agent plane to synchronize assets and negotiate calls).
+
+You should set your BPNL in the folloing property:
+- 'participant.id': 'BPNL' followed by 12 alphanumerical characters as handed out to you during onboarding.
+
+## Setting up Hashicorp Vault
+
+You should set your BPNL in the folloing property:
+- 'vault.hashicorp.url': URL of the vault API
+- 'vault.hashicorp.token': A valid, generated access token.
+
 ## Setting up SSI
 
 ### Preconditions
@@ -44,7 +58,6 @@
 - store your KeyCloak client secret in the HashiCorp vault. The exact procedure will depend on your deployment of HashiCorp Vault and
   is out of scope of this document. But by default, Tractus-X EDC expects to find the secret under `secret/client-secret`.
 
-
 ### Configure the chart
 
 Be sure to provide the following configuration entries to your Tractus-X EDC Helm chart:
@@ -54,7 +67,22 @@ Be sure to provide the following configuration entries to your Tractus-X EDC Hel
 - `controlplane.ssi.oauth.client.id`: client ID for KeyCloak
 - `controlplane.ssi.oauth.client.secretAlias`: the alias under which the client secret is stored in the vault. Defaults to `client-secret`.
 
-Be sure to adapt the agent configuration 
+## Setting up the Agent Planes
+
+Make sure to adapt the Agent Plane's application-facing endpoint security:
+- 'dataplanes.agentplane.auth.default.type': The type of authentication service to use (defaults to api-key, you could also use jwt)
+- 'dataplanes.agentplane.auth.default.apiCode': If type is api-key, this is the hash of the accepted api key
+- 'dataplanes.agentplane.auth.default.vaultKey': If type is api-key, this is the key where the api key can be retrieved from the configured vault
+- 'dataplanes.agentplane.auth.default.publicKey': If type is jwt, this is a url where the public key to verify token with can be found
+- 'dataplanes.agentplane.auth.default.checkExpiry': If type is jwt, determines whether token expiry is checked (default: true)
+
+Be sure to review the Agent Plane's service delegation filter which regulates with which external Agent's (SERVICE) this instance may interact. These properties form typical allow/deny conditions. Because of the nature of SPARQL, interacting with such a service may not only mean to import data from there, but you must take into account bound variables in the SERVICE contexts are also exported to there. So you should be rather prohibitive here.  
+- 'dataplanes.agentplane.agent.services.allow': A regular expression of allowed Agent/Sparql SERVICE contexts in the default graph (federated data catalogue). The default graph only contains meta-data and can only be invoked by any in-house application, so usually you can be a bit more relaxed on this level. For example, you might be tempted to allow to mix your application logic and data with some universal service, such as Wikidata.
+- 'dataplanes.agentplane.agent.services.deny': A regular expression of denied outgoing Agent/Sparql SERVICE contexts in the default graph (federated data catalogue). Typically you would restrict any unsecured http call by this properties.
+- 'dataplanes.agentplane.agent.services.assets.allow': A regular expression of allowed Agent/Sparql SERVICE contexts when inside a data graph/asset (unless there are more specific settings in the asset itself). Since this affects how you can spice up your business data, you would only allow connections to trusted business partners connectors.
+- 'dataplanes.agentplane.agent.services.assets.deny': A regular expression of denied Agent/Sparql SERVICE contexts. Use this to filter out unsecure protocols such as edc and http as well as to implement blacklists.
+
+Be sure to adapt the agent configuration
 - 'dataplanes.agentplane.configs.dataspace.ttl': additional TTL text resource which lists the partner BPNs and their associated connectors.
 - 'dataplanes.agentplane.agent.maxbatchsize': Should be restricted to a smaller number of tuples (10-100) if you intend to communicate over larger datasets.
 - 'dataplanes.agentplane.agent.synchronization': Should be set to a positive number of seconds to activate the automatic synchronization of federated data catalogues.

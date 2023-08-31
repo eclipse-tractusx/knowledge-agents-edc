@@ -364,6 +364,24 @@ dataplanes:
       metrics:
         port: 9090
         path: /metrics
+    # -- Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries
+    auth:
+      # -- the default authentication service
+      default:
+        # -- the type of the default authentication service (api-key, jwt or composite)
+        type: api-key
+        # -- the context(s) of the default authentication service separated by commas
+        context: default
+        # -- controls whether this service should be registered as the default EDC authentication service globally
+        register: false
+        # -- specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead. Althugh this represents a number, remember to use quotes not to confuse rendering into the chart.
+        apiCode: "69609650"
+        # -- vault key for obtaining the API key, Set this when type=api-key or use the api-code property instead
+        vaultKey:
+        # -- public key for checking the validity of jwt tokens, set this when type=jwt
+        publicKey:
+        # -- controls whether the expiry date of jwt tokens is checked when type=jwt
+        checkExpiry: true
     aws:
       endpointOverride: ""
       accessKeyId: ""

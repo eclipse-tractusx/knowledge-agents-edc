@@ -25,8 +25,9 @@
 apiVersion: v2
 name: agent-connector-memory
 description: |
-  A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. The connector deployment consists of two runtime consists of a
-  Control Plane and a Data Plane. Note that _no_ external dependencies such as HashiCorp Vault are included.
+  A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector using In-Memory Persistence. This is a variant of [the Tractus-X In-Memory Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-memory) which allows
+  to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
+  Control Plane and one or several Data Planes. Note that _no_ external dependencies such as HashiCorp Vault are included.
 
   This chart is intended for use with an _existing_ HashiCorp Vault.
 # A chart can be either an 'application' or a 'library' chart.
@@ -41,7 +42,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.9.6-SNAPSHOT
+version: 1.9.7-SNAPSHOT
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.

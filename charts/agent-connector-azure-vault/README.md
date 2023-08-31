@@ -20,14 +20,31 @@
 
 # agent-connector-azure-vault
 
-![Version: 1.9.5-SNAPSHOT](https://img.shields.io/badge/Version-1.9.5--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.9.7-SNAPSHOT](https://img.shields.io/badge/Version-1.9.7--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
-A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. The connector deployment consists of two runtime consists of a
-Control Plane and a Data Plane. Note that _no_ external dependencies such as a PostgreSQL database and Azure KeyVault are included.
+A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector configured against Azure Vault. This is a variant of [the Tractus-X Azure Vault Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-azure-vault) which allows
+to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
+Control Plane and one or several Data Planes. Note that _no_ external dependencies such as a PostgreSQL database and Azure KeyVault are included.
 
 This chart is intended for use with an _existing_ PostgreSQL database and an _existing_ Azure KeyVault.
 
-**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector>
+**Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/>
+
+## Setting up your BPNL and the Control Plane's Management API Key
+
+The secure API-Key that is shared between control and agent plane is configured in the following property:
+- 'controlplane.endpoints.management.authKey': Cleartext API Key as used to secure the control planes management api (and is used by the agent plane to synchronize assets and negotiate calls).
+
+You should set your BPNL in the folloing property:
+- 'participant.id': 'BPNL' followed by 12 alphanumerical characters as handed out to you during onboarding.
+
+## Setting up Azure Vault
+
+You should set your BPNL in the folloing property:
+- 'vault.azure.name': Name of the vault
+- 'vault.azure.client': Id of the registered application that this EDC represents
+- 'vault.azure.tenant': Id of the subscription that the vault runs into
+- 'vault.azure.secret' or 'vault.azure.certificate': the secret/credential to use when interacting with Azure Vault
 
 ## Setting up SSI
 
@@ -57,6 +74,21 @@ Be sure to provide the following configuration entries to your Tractus-X EDC Hel
 - `controlplane.ssi.oauth.client.id`: client ID for KeyCloak
 - `controlplane.ssi.oauth.client.secretAlias`: the alias under which the client secret is stored in the vault. Defaults to `client-secret`.
 
+## Setting up the Agent Planes
+
+Make sure to adapt the Agent Plane's application-facing endpoint security:
+- 'dataplanes.agentplane.auth.default.type': The type of authentication service to use (defaults to api-key, you could also use jwt)
+- 'dataplanes.agentplane.auth.default.apiCode': If type is api-key, this is the hash of the accepted api key
+- 'dataplanes.agentplane.auth.default.vaultKey': If type is api-key, this is the key where the api key can be retrieved from the configured vault
+- 'dataplanes.agentplane.auth.default.publicKey': If type is jwt, this is a url where the public key to verify token with can be found
+- 'dataplanes.agentplane.auth.default.checkExpiry': If type is jwt, determines whether token expiry is checked (default: true)
+
+Be sure to review the Agent Plane's service delegation filter which regulates with which external Agent's (SERVICE) this instance may interact. These properties form typical allow/deny conditions. Because of the nature of SPARQL, interacting with such a service may not only mean to import data from there, but you must take into account bound variables in the SERVICE contexts are also exported to there. So you should be rather prohibitive here. 
+- 'dataplanes.agentplane.agent.services.allow': A regular expression of allowed Agent/Sparql SERVICE contexts in the default graph (federated data catalogue). The default graph only contains meta-data and can only be invoked by any in-house application, so usually you can be a bit more relaxed on this level. For example, you might be tempted to allow to mix your application logic and data with some universal service, such as Wikidata.
+- 'dataplanes.agentplane.agent.services.deny': A regular expression of denied outgoing Agent/Sparql SERVICE contexts in the default graph (federated data catalogue). Typically you would restrict any unsecured http call by this properties.
+- 'dataplanes.agentplane.agent.services.assets.allow': A regular expression of allowed Agent/Sparql SERVICE contexts when inside a data graph/asset (unless there are more specific settings in the asset itself). Since this affects how you can spice up your business data, you would only allow connections to trusted business partners connectors.
+- 'dataplanes.agentplane.agent.services.assets.deny': A regular expression of denied Agent/Sparql SERVICE contexts. Use this to filter out unsecure protocols such as edc and http as well as to implement blacklists.
+
 Be sure to adapt the agent configuration
 - 'dataplanes.agentplane.configs.dataspace.ttl': additional TTL text resource which lists the partner BPNs and their associated connectors.
 - 'dataplanes.agentplane.agent.maxbatchsize': Should be restricted to a smaller number of tuples (10-100) if you intend to communicate over larger datasets.
@@ -71,13 +103,19 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.9.5-SNAPSHOT\
+helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.9.7-SNAPSHOT\
      -f <path-to>/tractusx-connector-azure-vault-test.yaml \
      --set vault.azure.name=$AZURE_VAULT_NAME \
      --set vault.azure.client=$AZURE_CLIENT_ID \
      --set vault.azure.secret=$AZURE_CLIENT_SECRET \
      --set vault.azure.tenant=$AZURE_TENANT_ID
 ```
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| Tractus-X Knowledge Agents Team |  |  |
 
 ## Source Code
 
@@ -204,6 +242,15 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | dataplanes.dataplane.agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | dataplanes.dataplane.agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | dataplanes.dataplane.agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
+| dataplanes.dataplane.auth | object | `{"default":{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
+| dataplanes.dataplane.auth.default | object | `{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}` | the default authentication service |
+| dataplanes.dataplane.auth.default.apiCode | string | `"69609650"` | specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead. Althugh this represents a number, remember to use quotes not to confuse rendering into the chart. |
+| dataplanes.dataplane.auth.default.checkExpiry | bool | `true` | controls whether the expiry date of jwt tokens is checked when type=jwt |
+| dataplanes.dataplane.auth.default.context | string | `"default"` | the context(s) of the default authentication service separated by commas |
+| dataplanes.dataplane.auth.default.publicKey | string | `nil` | public key for checking the validity of jwt tokens, set this when type=jwt |
+| dataplanes.dataplane.auth.default.register | bool | `false` | controls whether this service should be registered as the default EDC authentication service globally |
+| dataplanes.dataplane.auth.default.type | string | `"api-key"` | the type of the default authentication service (api-key, jwt or composite) |
+| dataplanes.dataplane.auth.default.vaultKey | string | `nil` | vault key for obtaining the API key, Set this when type=api-key or use the api-code property instead |
 | dataplanes.dataplane.autoscaling.enabled | bool | `false` | Enables [horizontal pod autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) |
 | dataplanes.dataplane.autoscaling.maxReplicas | int | `100` | Maximum replicas if resource consumption exceeds resource threshholds |
 | dataplanes.dataplane.autoscaling.minReplicas | int | `1` | Minimal replicas if resource consumption falls below resource threshholds |
@@ -288,6 +335,7 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | dataplanes.dataplane.volumes | list | `[]` | [volume](https://kubernetes.io/docs/concepts/storage/volumes/) directories |
 | fullnameOverride | string | `""` |  |
 | imagePullSecrets | list | `[]` | Existing image pull secret to use to [obtain the container image from private registries](https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry) |
+| imageRegistry | string | `"docker.io/"` | Image registry to use |
 | install.postgresql | bool | `true` |  |
 | nameOverride | string | `""` |  |
 | networkPolicy.controlplane | object | `{"from":[{"namespaceSelector":{}}]}` | Configuration of the controlplane component |

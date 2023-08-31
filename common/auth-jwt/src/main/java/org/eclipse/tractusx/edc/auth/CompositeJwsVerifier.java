@@ -1,14 +1,19 @@
+// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
 //
-// Copyright (C) 2022-2023 Catena-X Association and others. 
-// 
+// See the NOTICE file(s) distributed with this work for additional
+// information regarding copyright ownership.
+//
 // This program and the accompanying materials are made available under the
-// terms of the Apache License 2.0 which is available at
-// http://www.apache.org/licenses/.
-//  
-// SPDX-FileType: SOURCE
-// SPDX-FileCopyrightText: 2022-2023 Catena-X Association
-// SPDX-License-Identifier: Apache-2.0
+// terms of the Apache License, Version 2.0 which is available at
+// https://www.apache.org/licenses/LICENSE-2.0.
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.edc.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,19 +50,40 @@ public class CompositeJwsVerifier implements JWSVerifier {
 
     final protected Map<JWSAlgorithm, JWSVerifier> verifierMap=new HashMap<>();
 
+    /**
+     * create a new verifier
+     */
     public CompositeJwsVerifier() {
     }
 
+    /**
+     * implement token verification by delegating to another jws verifier depending on the used algorithm
+     * @param jwsHeader       The JSON Web Signature (JWS) header. Must
+     *                     specify a supported JWS algorithm and must not
+     *                     be {@code null}.
+     * @param bytes The signing input. Must not be {@code null}.
+     * @param base64URL    The signature part of the JWS object. Must not
+     *                     be {@code null}.
+     *
+     * @return flag indicating verification success
+     * @throws JOSEException
+     */
     @Override
     public boolean verify(JWSHeader jwsHeader, byte[] bytes, Base64URL base64URL) throws JOSEException {
         return verifierMap.get(jwsHeader.getAlgorithm()).verify(jwsHeader,bytes,base64URL);
     }
 
+    /**
+     * @return the list of supported/delegated algorithms
+     */
     @Override
     public Set<JWSAlgorithm> supportedJWSAlgorithms() {
         return verifierMap.keySet();
     }
 
+    /**
+     * @return we obtain the jca context by delegating to the first existing delegation service, null if none is registered
+     */
     @Override
     public JCAContext getJCAContext() {
         return verifierMap.entrySet().stream().findFirst().map(e->e.getValue().getJCAContext()).orElse(null);
@@ -70,11 +96,20 @@ public class CompositeJwsVerifier implements JWSVerifier {
         protected CompositeJwsVerifier verifier;
         final protected ObjectMapper om;
 
+        /**
+         * create a new builder
+         * @param om objectmapper for json parsing
+         */
         public Builder(ObjectMapper om) {
             verifier=new CompositeJwsVerifier();
             this.om=om;
         }
 
+        /**
+         * add a new subverifier/delegating service
+         * @param subVerifier the subverifier instance
+         * @return this
+         */
         public Builder addVerifier(JWSVerifier subVerifier) {
             subVerifier.supportedJWSAlgorithms().forEach(algo -> verifier.verifierMap.put(algo,subVerifier));
             return this;
@@ -147,6 +182,10 @@ public class CompositeJwsVerifier implements JWSVerifier {
             return this;
         }
 
+        /**
+         * builds the composite verfifier from the builder state
+         * @return new composite verifier state
+         */
         public CompositeJwsVerifier build() {
             return verifier;
         }
