@@ -213,8 +213,8 @@ maven/mavencentral/org.eclipse.jetty/jetty-servlet/11.0.15, EPL-2.0 OR Apache-2.
 maven/mavencentral/org.eclipse.jetty/jetty-util/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
 maven/mavencentral/org.eclipse.jetty/jetty-webapp/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
 maven/mavencentral/org.eclipse.jetty/jetty-xml/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
-maven/mavencentral/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol/1.9.5-20230831.070321-5, Apache-2.0, approved, automotive.tractusx
-maven/mavencentral/org.eclipse.tractusx.edc/auth-jwt/1.9.5-20230831.070252-7, Apache-2.0, approved, automotive.tractusx
+maven/mavencentral/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol/1.9.8, Apache-2.0, approved, automotive.tractusx
+maven/mavencentral/org.eclipse.tractusx.edc/auth-jwt/1.9.8, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/core-spi/0.5.0, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/edc-dataplane-azure-vault/0.5.0, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/edc-dataplane-base/0.5.0, Apache-2.0, approved, automotive.tractusx
