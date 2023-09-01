@@ -25,14 +25,14 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
     paths:
       - .github/workflows/**
       - charts/**
   pull_request:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
     paths:
       - .github/workflows/**
       - charts/**

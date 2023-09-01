@@ -25,12 +25,12 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
   # Runs automatically on all code-related PRs to main and release branches
   pull_request:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
     paths-ignore:
       - 'charts/**'
       - 'docs/**'
