@@ -20,7 +20,7 @@
 
 # agent-connector-azure-vault
 
-![Version: 1.9.8-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.9.5-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.10.2-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.10.2-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector configured against Azure Vault. This is a variant of [the Tractus-X Azure Vault Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-azure-vault) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -112,7 +112,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.9.8-SNAPSHOT\
+helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.10.2-SNAPSHOT\
      -f <path-to>/tractusx-connector-azure-vault-test.yaml \
      --set vault.azure.name=$AZURE_VAULT_NAME \
      --set vault.azure.client=$AZURE_CLIENT_ID \

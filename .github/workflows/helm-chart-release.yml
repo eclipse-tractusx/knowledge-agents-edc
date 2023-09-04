@@ -22,9 +22,6 @@ name: Release Charts
 on:
   # May be invoked manually
   workflow_dispatch:
-    branches:
-      - main
-      - 'releases/**'
   # Or by pushing to the chart dir of some dev/ release branch
   push:
     # prevent unnecessary GH action runs for files outside of charts folder
@@ -32,7 +29,7 @@ on:
       - 'charts/**'
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
 
 jobs:
   release:

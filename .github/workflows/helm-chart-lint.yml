@@ -25,14 +25,14 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
     paths:
       - .github/workflows/**
       - charts/**
   pull_request:
     branches:
       - main
-      - 'releases/**'
+      - 'release/*'
     paths:
       - .github/workflows/**
       - charts/**
@@ -76,11 +76,11 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --target-branch ${{ github.base_ref || github.ref_name }})
           if [[ -n "$changed" ]]; then
             echo "CHART_CHANGED=true" >> $GITHUB_ENV
           fi
 
       # run chart linting
       - name: Run chart-testing (lint)
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --config charts/config/chart-testing-config.yaml
+        run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
