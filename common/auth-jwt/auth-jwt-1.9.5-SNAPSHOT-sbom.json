@@ -49,10 +49,10 @@
     "component" : {
       "group" : "org.eclipse.tractusx.edc",
       "name" : "auth-jwt",
-      "version" : "1.9.5-SNAPSHOT",
+      "version" : "1.9.8",
       "description" : "EDC Extension for authenticating against JWT-based Identity Providers (Oauth2/Open ID Connect).",
       "licenses" : [ ],
-      "purl" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.5-SNAPSHOT?type=jar",
+      "purl" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.8?type=jar",
       "externalReferences" : [
         {
           "type" : "distribution",
@@ -60,7 +60,7 @@
         }
       ],
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.5-SNAPSHOT?type=jar"
+      "bom-ref" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.8?type=jar"
     }
   },
   "components" : [
@@ -1826,46 +1826,46 @@
     {
       "group" : "org.eclipse.tractusx.agents.edc",
       "name" : "agent-plane",
-      "version" : "1.9.5-SNAPSHOT",
-      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.5-SNAPSHOT?type=pom",
+      "version" : "1.9.8",
+      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.8?type=pom",
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.5-SNAPSHOT?type=pom"
+      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.8?type=pom"
     },
     {
       "group" : "org.eclipse.tractusx.agents.edc.agent-plane",
       "name" : "agent-plane-protocol",
-      "version" : "1.9.5-SNAPSHOT",
-      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar",
+      "version" : "1.9.8",
+      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar",
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar"
+      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar"
     },
     {
       "group" : "org.eclipse.tractusx.agents.edc.agent-plane",
       "name" : "agentplane-azure-vault",
-      "version" : "1.9.5-SNAPSHOT",
-      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.5-SNAPSHOT?type=jar",
+      "version" : "1.9.8",
+      "purl" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.8?type=jar",
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.5-SNAPSHOT?type=jar"
+      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.8?type=jar"
     },
     {
       "group" : "org.eclipse.tractusx.agents.agent-plane",
       "name" : "agentplane-hashicorp",
-      "version" : "1.9.5-SNAPSHOT",
-      "purl" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.5-SNAPSHOT?type=jar",
+      "version" : "1.9.8",
+      "purl" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.8?type=jar",
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.5-SNAPSHOT?type=jar"
+      "bom-ref" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.8?type=jar"
     }
   ],
   "dependencies" : [
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.agents/edc@1.9.5-SNAPSHOT?type=pom",
+      "ref" : "pkg:maven/org.eclipse.tractusx.agents/edc@1.9.8?type=pom",
       "dependsOn" : [
-        "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.5-SNAPSHOT?type=jar",
-        "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.5-SNAPSHOT?type=pom"
+        "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.8?type=jar",
+        "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.8?type=pom"
       ]
     },
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.5-SNAPSHOT?type=jar",
+      "ref" : "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.8?type=jar",
       "dependsOn" : [
         "pkg:maven/org.eclipse.edc/auth-spi@0.1.3?type=jar",
         "pkg:maven/org.eclipse.edc/web-spi@0.1.3?type=jar",
@@ -2061,15 +2061,15 @@
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.5-SNAPSHOT?type=pom",
+      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc/agent-plane@1.9.8?type=pom",
       "dependsOn" : [
-        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar",
-        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.5-SNAPSHOT?type=jar",
-        "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.5-SNAPSHOT?type=jar"
+        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar",
+        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.8?type=jar",
+        "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.8?type=jar"
       ]
     },
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar",
+      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar",
       "dependsOn" : [
         "pkg:maven/org.eclipse.edc/web-spi@0.1.3?type=jar",
         "pkg:maven/jakarta.ws.rs/jakarta.ws.rs-api@3.1.0?type=jar",
@@ -2080,16 +2080,16 @@
       ]
     },
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.5-SNAPSHOT?type=jar",
+      "ref" : "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agentplane-azure-vault@1.9.8?type=jar",
       "dependsOn" : [
-        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar",
-        "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.5-SNAPSHOT?type=jar"
+        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar",
+        "pkg:maven/org.eclipse.tractusx.edc/auth-jwt@1.9.8?type=jar"
       ]
     },
     {
-      "ref" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.5-SNAPSHOT?type=jar",
+      "ref" : "pkg:maven/org.eclipse.tractusx.agents.agent-plane/agentplane-hashicorp@1.9.8?type=jar",
       "dependsOn" : [
-        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.5-SNAPSHOT?type=jar"
+        "pkg:maven/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol@1.9.8?type=jar"
       ]
     }
   ]

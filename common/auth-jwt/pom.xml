@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.eclipse.tractusx.agents</groupId>
         <artifactId>edc</artifactId>
-        <version>1.9.5-SNAPSHOT</version>
+        <version>1.9.8</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
