@@ -89,6 +89,15 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Run Maven Deploy (if either running on main or a version tag on a fork)
+      - name: Deploy Java via Maven
+        if: ${{ github.repository == 'catenax-ng/tx-knowledge-agents-edc' && ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
+        run: |
+          ./mvnw -s settings.xml deploy -Pwith-docker-image -Drepo=ghcr.io/catenax-ng/tx-knowledge-agents-edc
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Run Maven Install (otherwise)
       - name: Build Java via Maven
         if: ${{ github.repository != 'eclipse-tractusx/knowledge-agents-edc' || ( github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')) }}

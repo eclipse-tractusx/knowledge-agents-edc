@@ -139,10 +139,6 @@
                                     <argument>${platform}</argument>
                                     <argument>-f</argument>
                                     <argument>src/main/docker/Dockerfile</argument>
-                                    <argument>--build-arg</argument>
-                                    <argument>JAR=target/${project.artifactId}.jar</argument>
-                                    <argument>--build-arg</argument>
-                                    <argument>LIB=target/lib</argument>
                                     <argument>-t</argument>
                                     <argument>${repo}${project.artifactId}:${project.version}</argument>
                                     <argument>.</argument>
