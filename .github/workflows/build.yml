@@ -117,7 +117,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Hashicorp Container Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: agent-plane/agentplane-hashicorp
           file: agent-plane/agentplane-hashicorp/src/main/docker/Dockerfile
@@ -155,7 +155,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Azure Vault Container Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: agent-plane/agentplane-azure-vault/.
           file: agent-plane/agentplane-azure-vault/src/main/docker/Dockerfile
