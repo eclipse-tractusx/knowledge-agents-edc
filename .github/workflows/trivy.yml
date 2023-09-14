@@ -44,8 +44,8 @@ jobs:
       - name: Resolve git 7-chars sha
         id: git-sha7
         run: |
-          echo "SHA7=1.9.8" >> $GITHUB_OUTPUT
-          [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ] && echo "SHA7=sha-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "SHA7=sha-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          exit 0
           
   trivy-analyze-config:
     runs-on: ubuntu-latest
