@@ -63,8 +63,8 @@ jobs:
       - name: Check github repository and set docker repo
         id: set-docker-repo
         run: |
-          echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
-          [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ] && echo "REPO=tractusx" >> $GITHUB_OUTPUT
+          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; else echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT;  fi          
+          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REPO=tractusx" >> $GITHUB_OUTPUT; else echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT;  fi
           exit 0
 
       # Get the Code
@@ -78,19 +78,19 @@ jobs:
 
       # Enable deployment access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
-        if: ${{ github.repository == 'eclipse-tractusx/knowledge-agents-edc' && ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
+        if: ${{ ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         uses: docker/login-action@v2
         with:
+          registry: ${{ steps.set-docker-repo.outputs.REGISTRY }}
           # Use existing DockerHub credentials present as secrets
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USER || github.actor }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN || secrets.GITHUB_TOKEN }}
 
       # Run Maven Deploy (if either running on main or a version tag)
       - name: Deploy Java via Maven
         if: ${{ ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         run: |
-          [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ] && ./mvnw -s settings.xml deploy
-          [ "${{ github.repository }}" != "eclipse-tractusx/knowledge-agents-edc" ] && ./mvnw -s settings.xml deploy -Pwith-docker-image -Drepo=${{ steps.set-docker-repo.outputs.REPO }} -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
+          ./mvnw -s settings.xml deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
           context: agent-plane/agentplane-hashicorp
           file: agent-plane/agentplane-hashicorp/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
-          push: ${{ github.repository == 'eclipse-tractusx/knowledge-agents-edc'  && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
+          push: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-hash.outputs.tags }}
           labels: ${{ steps.meta-hash.outputs.labels }}
 
@@ -166,7 +166,7 @@ jobs:
           context: agent-plane/agentplane-azure-vault/.
           file: agent-plane/agentplane-azure-vault/src/main/docker/Dockerfile
           # Build image for verification purposes on every trigger event. Only push if event is not a PR
-          push: ${{ github.repository == 'eclipse-tractusx/knowledge-agents-edc'  && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
+          push: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
           tags: ${{ steps.meta-azr.outputs.tags }}
           labels: ${{ steps.meta-azr.outputs.labels }}
 
@@ -176,6 +176,6 @@ jobs:
         uses: peter-evans/dockerhub-description@v3
         with:
           readme-filepath: agent-plane/agentplane-azure-vault/README.md
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USER || github.actor }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN || secrets.GITHUB_TOKEN }}
           repository: ${{ steps.set-docker-repo.outputs.REPO }}/agentplane-azure-vault
