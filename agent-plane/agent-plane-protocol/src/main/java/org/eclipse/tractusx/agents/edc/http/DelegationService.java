@@ -47,7 +47,8 @@ import java.util.stream.Collectors;
  * A service that may delegate an incoming
  * agent http request ot another agent in the
  * dataspace
- * TODO deal with remote (textual) skills
+ * deals with the special case of remote/provided (textual) 
+ * skills which should be executed locally nevertheless
  */
 public class DelegationService implements IDelegationService {
 
@@ -77,16 +78,16 @@ public class DelegationService implements IDelegationService {
      * @param remoteUrl remote connector
      * @param skill target skill
      * @param graph target graph
-     * @return a response
+     * @return a wrapped response which indicates the runMode that the execution should be done
      */
-    public Response executeQueryRemote(String remoteUrl, String skill, String graph, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri)  {
+    public DelegationResponse executeQueryRemote(String remoteUrl, String skill, String graph, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri)  {
         Pattern serviceAllowPattern=config.getServiceAllowPattern();
         if(!serviceAllowPattern.matcher(remoteUrl).matches()) {
-            return HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s does not match the allowed service pattern %s",remoteUrl,serviceAllowPattern.pattern()),null);
+            return new DelegationResponse(HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s does not match the allowed service pattern %s",remoteUrl,serviceAllowPattern.pattern()),null));
         }
         Pattern serviceDenyPattern=config.getServiceDenyPattern();
         if(serviceDenyPattern.matcher(remoteUrl).matches()) {
-            return HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s matches the denied service pattern %s",remoteUrl,serviceDenyPattern.pattern()),null);
+        	return new DelegationResponse( HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s matches the denied service pattern %s",remoteUrl,serviceDenyPattern.pattern()),null));
         }
         String asset = skill != null ? skill : graph;
         EndpointDataReference endpoint = agreementController.get(asset);
@@ -94,37 +95,38 @@ public class DelegationService implements IDelegationService {
             try {
                 endpoint=agreementController.createAgreement(remoteUrl,asset);
             } catch(WebApplicationException e) {
-                return HttpUtils.respond(monitor,headers, e.getResponse().getStatus(),String.format("Could not get an agreement from connector %s to asset %s",remoteUrl,asset),e.getCause());
+            	return new DelegationResponse( HttpUtils.respond(monitor,headers, e.getResponse().getStatus(),String.format("Could not get an agreement from connector %s to asset %s",remoteUrl,asset),e.getCause()));
             }
         }
         if(endpoint==null) {
-            return HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Could not get an agreement from connector %s to asset %s",remoteUrl,asset),null);
+        	return new DelegationResponse(HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Could not get an agreement from connector %s to asset %s",remoteUrl,asset),null));
         }
         if("GET".equals(request.getMethod())) {
             try {
-                sendGETRequest(endpoint, "", headers, response, uri);
+                return sendGETRequest(endpoint, "", headers, response, uri);
             } catch(IOException e) {
-                return HttpUtils.respond(monitor,headers, HttpStatus.SC_INTERNAL_SERVER_ERROR,String.format("Could not delegate remote GET call to connector %s asset %s",remoteUrl,asset),e);
+            	return new DelegationResponse(HttpUtils.respond(monitor,headers, HttpStatus.SC_INTERNAL_SERVER_ERROR,String.format("Could not delegate remote GET call to connector %s asset %s",remoteUrl,asset),e));
             }
         } else if("POST".equals(request.getMethod())) {
             try {
-                sendPOSTRequest(endpoint, "", headers, request, response, uri);
+                return sendPOSTRequest(endpoint, "", headers, request, response, uri);
             } catch(IOException e) {
-                return HttpUtils.respond(monitor,headers, HttpStatus.SC_INTERNAL_SERVER_ERROR,String.format("Could not delegate remote POST call to connector %s asset %s",remoteUrl,asset),e);
+            	return new DelegationResponse( HttpUtils.respond(monitor,headers, HttpStatus.SC_INTERNAL_SERVER_ERROR,String.format("Could not delegate remote POST call to connector %s asset %s",remoteUrl,asset),e));
             }
         } else {
-            return HttpUtils.respond(monitor,headers, HttpStatus.SC_METHOD_NOT_ALLOWED,String.format("%s calls to connector %s asset %s are not allowed",request.getMethod(),remoteUrl,asset),null);
+        	return new DelegationResponse(HttpUtils.respond(monitor,headers, HttpStatus.SC_METHOD_NOT_ALLOWED,String.format("%s calls to connector %s asset %s are not allowed",request.getMethod(),remoteUrl,asset),null));
         }
-        return Response.status(response.getStatus()).build();
+
     }
 
     /**
      * route a get request
      * @param dataReference the encoded call embedding
      * @param subUrl protocol-specific part
+     * @return a wrapped response which indicates the runMode that the execution should be done
      * @throws IOException in case something strange happens
      */
-    public void sendGETRequest(EndpointDataReference dataReference, String subUrl, HttpHeaders headers, HttpServletResponse response, UriInfo uri) throws IOException {
+    public DelegationResponse sendGETRequest(EndpointDataReference dataReference, String subUrl, HttpHeaders headers, HttpServletResponse response, UriInfo uri) throws IOException {
         var url = getUrl(dataReference.getEndpoint(), subUrl, headers, uri);
 
         monitor.debug(String.format("About to delegate GET %s",url));
@@ -135,16 +137,17 @@ public class DelegationService implements IDelegationService {
 
         var newRequest = requestBuilder.build();
 
-        sendRequest(newRequest, response);
+		return new DelegationResponse(sendRequest(newRequest, response), Response.status(response.getStatus()).build());
     }
 
     /**
      * route a post request
      * @param dataReference the encoded call embedding
      * @param subUrl protocol-specific part
+     * @return a wrapped response which indicates the runMode that the execution should be done
      * @throws IOException in case something strange happens
      */
-    public void sendPOSTRequest(EndpointDataReference dataReference, String subUrl, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri) throws IOException {
+    public DelegationResponse sendPOSTRequest(EndpointDataReference dataReference, String subUrl, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri) throws IOException {
         var url = getUrl(dataReference.getEndpoint(), subUrl, headers, uri);
 
         String contentType=request.getContentType();
@@ -160,8 +163,8 @@ public class DelegationService implements IDelegationService {
         requestBuilder.post(okhttp3.RequestBody.create(request.getInputStream().readAllBytes(),parsedContentType));
 
         var newRequest = requestBuilder.build();
-
-        sendRequest(newRequest, response);
+        
+		return new DelegationResponse(sendRequest(newRequest, response), Response.status(response.getStatus()).build());
     }
 
     protected static Pattern PARAMETER_KEY_ALLOW = Pattern.compile("^(?!asset$)[^&?=]+$");
@@ -214,28 +217,18 @@ public class DelegationService implements IDelegationService {
     /**
      * generic sendRequest method which extracts the result string of textual responses
      * @param request predefined request
+     * @param response the final response
+     * @return the text of a downloaded skill if runMode = consumer, null otherwise
      * @throws IOException in case something goes wrong
      */
-    protected void sendRequest(okhttp3.Request request, HttpServletResponse response) throws IOException {
+    protected String sendRequest(okhttp3.Request request, HttpServletResponse response) throws IOException {
         try(var myResponse = client.newCall(request).execute()) {
 
             if(!myResponse.isSuccessful()) {
                 monitor.warning(String.format("Data plane call was not successful: %s", myResponse.code()));
             }
-
-            response.setStatus(myResponse.code());
-
+            
             Optional<List<CatenaxWarning>> warnings=Optional.empty();
-
-            for(String header : myResponse.headers().names()) {
-                for(String value : myResponse.headers().values(header)) {
-                    if(header.equals("cx_warnings")) {
-                        warnings=Optional.of(typeManager.getMapper().readValue(value,warningTypeReference ));
-                    } else if(!header.toLowerCase().equals("content-length")) {
-                        response.addHeader(header, value);
-                    }
-                }
-            }
 
             var body = myResponse.body();
 
@@ -289,7 +282,9 @@ public class DelegationService implements IDelegationService {
                     }
                     reader.close();
                     if(nextPart!=null && embeddedContentType!=null) {
-                        if(embeddedContentType.equals("application/cx-warnings+json")) {
+                    	if (embeddedContentType.equals("application/sparql-query")) {
+                    		return nextPart.toString();
+                    	} else if(embeddedContentType.equals("application/cx-warnings+json")) {
                             List<CatenaxWarning> nextWarnings=typeManager.readValue(nextPart.toString(), warningTypeReference);
                             if(warnings.isPresent()) {
                                 warnings.get().addAll(nextWarnings);
@@ -302,6 +297,24 @@ public class DelegationService implements IDelegationService {
                         }
                     }
                 }
+                response.setStatus(myResponse.code());
+
+                for(String header : myResponse.headers().names()) {
+                    for(String value : myResponse.headers().values(header)) {
+                        if(header.equals("cx_warnings")) {
+                        	List<CatenaxWarning> nextWarnings=typeManager.getMapper().readValue(value,warningTypeReference);
+                        	if (nextWarnings != null) {                           
+	                        	if(warnings.isPresent()) {
+	                                warnings.get().addAll(nextWarnings);
+	                            } else {
+	                                warnings=Optional.of(nextWarnings);
+	                            }
+                        	}
+                        } else if(!header.toLowerCase().equals("content-length")) {
+                            response.addHeader(header, value);
+                        }
+                    }
+                }
                 warnings.ifPresent(catenaxWarnings -> response.addHeader("cx_warnings", typeManager.writeValueAsString(catenaxWarnings)));
                 if(contentType!=null) {
                     response.setContentType(contentType.toString());
@@ -309,8 +322,10 @@ public class DelegationService implements IDelegationService {
                 IOUtils.copy(inputStream, response.getOutputStream());
                 inputStream.close();
                 //response.getOutputStream().close();
+
             }
         }
+        return null;
     }
 
 }
