@@ -20,6 +20,7 @@ import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParamsProvider;
 import org.eclipse.edc.runtime.metamodel.annotation.Requires;
 import org.eclipse.tractusx.agents.edc.http.AgentController;
 import org.eclipse.tractusx.agents.edc.http.DelegationService;
+import org.eclipse.tractusx.agents.edc.http.GraphController;
 import org.eclipse.tractusx.agents.edc.http.HttpClientFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceRequestParamsSupplier;
@@ -158,9 +159,14 @@ public class AgentExtension implements ServiceExtension {
         // stored procedure store and transport endpoint
         ISkillStore skillStore=new EdcSkillStore(catalogService,typeManager,config);
         DelegationService delegationService=new DelegationService(agreementController,monitor,httpClient,typeManager,config);
+
         AgentController agentController=new AgentController(monitor,agreementController,config,processor,skillStore,delegationService);
         monitor.debug(String.format("Registering agent controller %s",agentController));
         webService.registerResource(DEFAULT_CONTEXT_ALIAS, agentController);
+
+        GraphController graphController=new GraphController(monitor,rdfStore);
+        monitor.debug(String.format("Registering graph controller %s",graphController));
+        webService.registerResource(DEFAULT_CONTEXT_ALIAS, graphController);
 
         monitor.debug(String.format("Initialized %s",name()));
 

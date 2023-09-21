@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.rdf;
 
+import org.apache.jena.sparql.core.Quad;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.MonitorWrapper;
 import org.apache.jena.fuseki.server.DataAccessPoint;
@@ -33,6 +34,10 @@ import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.eclipse.edc.spi.monitor.Monitor;
+
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.Iterator;
 
 /**
  * a service sitting on a local RDF store/graph
@@ -85,6 +90,56 @@ public class RDFStore {
         } else {
             monitor.info(String.format("Initialised asset %s with 0 triples.",config.getDefaultAsset()));
         }
+    }
+
+    /**
+     * registers a new asset
+     * @param asset asset iri
+     * @param turtleSyntax stream for turtle syntax
+     * @return number of resulting triples
+     */
+    public long registerAsset(String asset, InputStream turtleSyntax) {
+        if(!asset.contains("/")) {
+            asset="http://server/unset-base/"+asset;
+        }
+        monitor.info(String.format("Upserting asset %s with turtle source.",asset));
+        startTx();
+        StreamRDF dest = StreamRDFLib.dataset(dataset);
+        StreamRDF graphDest = StreamRDFLib.extendTriplesToQuads(NodeFactory.createURI(asset),dest);
+        StreamRDFCounting countingDest = StreamRDFLib.count(graphDest);
+        ErrorHandler errorHandler = ErrorHandlerFactory.errorHandlerStd(monitorWrapper);
+        RDFParser.create()
+                    .errorHandler(errorHandler)
+                    .source(turtleSyntax)
+                    .lang(Lang.TTL)
+                    .parse(countingDest);
+        long numberOfTriples=countingDest.countTriples();
+        monitor.debug(String.format("Upserting asset %s resulted in %d triples",asset,numberOfTriples));
+        commit();
+        return numberOfTriples;
+    }
+
+    /**
+     * deletes an asset
+     * @param asset asset iri
+     * @return number of deleted triples
+     */
+    public long deleteAsset(String asset) {
+        if(!asset.contains("/")) {
+            asset="http://server/unset-base/"+asset;
+        }
+        monitor.info(String.format("Deleting asset %s.",asset));
+        startTx();
+        Quad findAssets = Quad.create(NodeFactory.createURI(asset),Node.ANY,Node.ANY,Node.ANY);
+        Iterator<Quad> assetQuads= getDataSet().find(findAssets);
+        int tupleCount=0;
+        while(assetQuads.hasNext()) {
+            getDataSet().delete(assetQuads.next());
+            tupleCount++;
+        }
+        monitor.debug(String.format("Deleting asset %s resulted in %d triples",asset,tupleCount));
+        commit();
+        return tupleCount;
     }
 
     /**
