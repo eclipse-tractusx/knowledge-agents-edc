@@ -90,15 +90,19 @@ jobs:
       - name: Check github repository and set docker repo
         id: set-docker-repo
         run: |
-          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; else echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT;  fi          
-          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REPO=tractusx" >> $GITHUB_OUTPUT; else echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT;  fi
+          echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; 
+          echo "REPO=tractusx" >> $GITHUB_OUTPUT; 
+          if [ "${{ github.repository }}" != "eclipse-tractusx/knowledge-agents-edc" ]; 
+          then 
+            echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT
+            echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+          fi          
           exit 0
 
       - uses: actions/checkout@v3.5.2
 
       # Enable repository access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
-        if: ${{ ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         uses: docker/login-action@v2
         with:
           registry: ${{ steps.set-docker-repo.outputs.REGISTRY }}
