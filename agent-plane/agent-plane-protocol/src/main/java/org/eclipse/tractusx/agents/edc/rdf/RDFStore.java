@@ -35,9 +35,12 @@ import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.eclipse.edc.spi.monitor.Monitor;
 
-import java.io.InputStream;
-import java.io.StringReader;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * a service sitting on a local RDF store/graph
@@ -92,13 +95,16 @@ public class RDFStore {
         }
     }
 
+    public final static String CSV_REGEX="(\"[^\"]*\")?([^%s]*)";
+
     /**
      * registers a new asset
      * @param asset asset iri
-     * @param turtleSyntax stream for turtle syntax
+     * @param stream stream for rdf data
+     * @param format the format of the stream
      * @return number of resulting triples
      */
-    public long registerAsset(String asset, InputStream turtleSyntax) {
+    public long registerAsset(String asset, InputStream stream, ExternalFormat format) {
         if(!asset.contains("/")) {
             asset="http://server/unset-base/"+asset;
         }
@@ -108,15 +114,68 @@ public class RDFStore {
         StreamRDF graphDest = StreamRDFLib.extendTriplesToQuads(NodeFactory.createURI(asset),dest);
         StreamRDFCounting countingDest = StreamRDFLib.count(graphDest);
         ErrorHandler errorHandler = ErrorHandlerFactory.errorHandlerStd(monitorWrapper);
-        RDFParser.create()
-                    .errorHandler(errorHandler)
-                    .source(turtleSyntax)
-                    .lang(Lang.TTL)
-                    .parse(countingDest);
+        switch(format) {
+            case TURTLE:
+                RDFParser.create()
+                        .errorHandler(errorHandler)
+                        .source(stream)
+                        .lang(Lang.TTL)
+                        .parse(countingDest);
+                break;
+            case CSV:
+                countingDest.start();
+                Pattern csvCell= Pattern.compile(String.format(CSV_REGEX,","));
+                try(BufferedReader reader=new BufferedReader(new InputStreamReader(stream)))  {
+                    String header=reader.readLine();
+                    List<Node> predicates=new ArrayList<>();
+                    if(header!=null) {
+                        int position=0;
+                        Matcher headerMatcher = csvCell.matcher(header);
+                        while(position<=header.length() && headerMatcher.find(position)) {
+                            predicates.add(NodeFactory.createURI(headerMatcher.group()));
+                            position=headerMatcher.end()+1;
+                        }
+                        reader.lines().forEach( factLine -> {
+                           int fposition=0;
+                           Matcher factMatcher =  csvCell.matcher(factLine);
+                           if(factMatcher.find(fposition)) {
+                               Node subject = NodeFactory.createURI(factMatcher.group());
+                               fposition=factMatcher.end()+1;
+                               for(int fact=1;fact<predicates.size() && fposition<=factLine.length() && factMatcher.find(fposition);fact++) {
+                                   Node object = parseObject(factMatcher.group());
+                                   countingDest.triple(NodeFactory.createTripleNode(subject,predicates.get(fact),object).getTriple());
+                                   fposition=factMatcher.end()+1;
+                               }
+                           }
+                        });
+                    }
+                } catch(IOException e) {
+                    monitor.warning("An exception has occurred while parsing a CSV stream. Ignoring some/all data.",e);
+                }
+                countingDest.finish();
+                break;
+        }
         long numberOfTriples=countingDest.countTriples();
         monitor.debug(String.format("Upserting asset %s resulted in %d triples",asset,numberOfTriples));
         commit();
         return numberOfTriples;
+    }
+
+    /**
+     * parses a given rdf snippet into a node
+     * @param group rdf snippet node
+     * @return a parsed node
+     */
+    private Node parseObject(String group) {
+        if(group.startsWith("<")) {
+            group=group.replaceAll("[\\<\\>]","");
+            return NodeFactory.createURI(group);
+        } else if(group.contains("^^")) {
+            int index = group.lastIndexOf("^^");
+            String type = group.substring(index + 2);
+            group = group.substring(0, index - 1);
+        }
+        return NodeFactory.createLiteral(group);
     }
 
     /**

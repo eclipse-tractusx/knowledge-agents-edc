@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.*;
 import org.apache.http.HttpStatus;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.tractusx.agents.edc.*;
+import org.eclipse.tractusx.agents.edc.rdf.ExternalFormat;
 import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 
@@ -67,16 +68,20 @@ public class GraphController {
      * @return response
      */
     @POST
-    @Consumes({"text/turtle"})
+    @Consumes({"text/turtle","text/csv"})
     public Response postAsset(@QueryParam("asset") String asset,
                               @Context HttpHeaders headers,
                               @Context HttpServletRequest request,
                               @Context HttpServletResponse response,
                               @Context UriInfo uri
     ) {
-        monitor.debug(String.format("Received a TTL POST request %s for asset %s", request, asset));
+        ExternalFormat format=ExternalFormat.valueOfFormat(request.getContentType());
+        monitor.debug(String.format("Received a POST request %s for asset %s in format %s", request, asset, format));
+        if(format==null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         try {
-            return Response.ok(store.registerAsset(asset, request.getInputStream()),MediaType.APPLICATION_JSON_TYPE).build();
+            return Response.ok(store.registerAsset(asset, request.getInputStream(),format),MediaType.APPLICATION_JSON_TYPE).build();
         } catch(IOException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
