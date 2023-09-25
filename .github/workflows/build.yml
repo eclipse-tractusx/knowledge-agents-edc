@@ -74,8 +74,13 @@ jobs:
       - name: Check github repository and set docker repo
         id: set-docker-repo
         run: |
-          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; else echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT;  fi          
-          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; then echo "REPO=tractusx" >> $GITHUB_OUTPUT; else echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT;  fi
+          echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT
+          echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; 
+          then 
+            echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; 
+            echo "REPO=tractusx" >> $GITHUB_OUTPUT; 
+          fi          
           exit 0
 
       # Get the Code
@@ -145,7 +150,7 @@ jobs:
 
       # Important step to push image description to DockerHub - since this is version independent, we always take it from main
       - name: Update Docker Hub description for Agent Plane Hashicorp
-        if: ${{ github.repository == 'eclipse-tractusx/knowledge-agents-edc'  && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.set-docker-repo.outputs.REPO == 'docker.io'  && github.ref == 'refs/heads/main' }}
         uses: peter-evans/dockerhub-description@v3
         with:
           readme-filepath: agent-plane/agentplane-hashicorp/README.md
@@ -183,7 +188,7 @@ jobs:
 
       # Important step to push image description to DockerHub - since this is version independent, we always take it from main
       - name: Update Docker Hub description for Agent Plane Azure Vault
-        if: ${{ github.repository == 'eclipse-tractusx/knowledge-agents-edc'  && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.set-docker-repo.outputs.REPO == 'docker.io'  && github.ref == 'refs/heads/main' }}
         uses: peter-evans/dockerhub-description@v3
         with:
           readme-filepath: agent-plane/agentplane-azure-vault/README.md
