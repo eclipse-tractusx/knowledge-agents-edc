@@ -94,6 +94,7 @@ jobs:
 
       # Enable deployment access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
+        if: ${{ ( github.event.inputs.deploy_docker == 'true' || github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
         uses: docker/login-action@v2
         with:
           registry: ${{ steps.set-docker-repo.outputs.REGISTRY }}
