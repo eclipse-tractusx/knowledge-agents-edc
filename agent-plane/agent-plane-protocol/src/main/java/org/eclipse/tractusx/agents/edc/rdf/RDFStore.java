@@ -17,6 +17,7 @@
 package org.eclipse.tractusx.agents.edc.rdf;
 
 import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.tdb.TDBFactory;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.MonitorWrapper;
 import org.apache.jena.fuseki.server.DataAccessPoint;
@@ -65,7 +66,12 @@ public class RDFStore {
      */
     public RDFStore(AgentConfig config, Monitor monitor) {
         this.config=config;
-        this.dataset = DatasetGraphFactory.createTxnMem();
+        String rdfStore = config.getRdfStore();
+        if (rdfStore == null) {
+        	this.dataset = DatasetGraphFactory.createTxnMem();
+        } else {
+        	this.dataset = TDBFactory.createDatasetGraph(rdfStore);
+        }
         DataService.Builder dataService = DataService.newBuilder(dataset);
         this.service=dataService.build();
         api=new DataAccessPoint(config.getAccessPoint(), service);

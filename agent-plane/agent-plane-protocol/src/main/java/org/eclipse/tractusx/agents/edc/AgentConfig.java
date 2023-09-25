@@ -57,6 +57,7 @@ public class AgentConfig {
     public static long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
     
     public static String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
+    public static String RDF_STORE = "cx.agent.rdf.store";
     
     public static String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
     
@@ -222,6 +223,10 @@ public class AgentConfig {
             return null;
         }
         return connectors;
+    }
+    
+    public String getRdfStore() {
+    	return config.getString(RDF_STORE, null);
     }
 
     /**
