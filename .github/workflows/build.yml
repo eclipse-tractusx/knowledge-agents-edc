@@ -1,3 +1,4 @@
+---
 #
 #  Copyright (c) 2023 T-Systems International GmbH
 #  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
@@ -74,13 +75,13 @@ jobs:
       - name: Check github repository and set docker repo
         id: set-docker-repo
         run: |
-          echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT
-          echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
-          if [ "${{ github.repository }}" == "eclipse-tractusx/knowledge-agents-edc" ]; 
-          then 
-            echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; 
-            echo "REPO=tractusx" >> $GITHUB_OUTPUT; 
-          fi          
+          echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT;
+          echo "REPO=tractusx" >> $GITHUB_OUTPUT;
+          if [ "${{ github.repository }}" != "eclipse-tractusx/knowledge-agents-edc" ];
+          then
+            echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT
+            echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+          fi
           exit 0
 
       # Get the Code
@@ -94,7 +95,6 @@ jobs:
 
       # Enable deployment access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
-        if: ${{ ( github.event.inputs.deploy_docker == 'true' || github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v') ) }}
         uses: docker/login-action@v2
         with:
           registry: ${{ steps.set-docker-repo.outputs.REGISTRY }}
