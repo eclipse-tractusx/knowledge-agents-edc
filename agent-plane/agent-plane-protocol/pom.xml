@@ -162,6 +162,32 @@
             <version>${edc.version}</version>
         </dependency>
 
+
+        <!-- Jersey Test -->
+        <dependency>
+            <groupId>org.eclipse.edc</groupId>
+            <artifactId>jersey-core</artifactId>
+            <version>${edc.version}</version>
+            <classifier>test-fixtures</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- EDC Test -->
+        <dependency>
+            <groupId>org.eclipse.edc</groupId>
+            <artifactId>junit</artifactId>
+            <version>${edc.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- EDC Test -->
+        <dependency>
+            <groupId>org.eclipse.edc</groupId>
+            <artifactId>json-ld</artifactId>
+            <version>${edc.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Controller Annotations -->
         <dependency>
             <groupId>jakarta.ws.rs</groupId>

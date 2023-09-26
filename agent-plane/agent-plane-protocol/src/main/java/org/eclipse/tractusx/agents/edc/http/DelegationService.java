@@ -36,6 +36,7 @@ import org.eclipse.tractusx.agents.edc.IAgreementController;
 import org.eclipse.tractusx.agents.edc.sparql.CatenaxWarning;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -132,8 +133,11 @@ public class DelegationService implements IDelegationService {
         monitor.debug(String.format("About to delegate GET %s",url));
 
         var requestBuilder = new okhttp3.Request.Builder()
-                .url(url)
-                .addHeader(Objects.requireNonNull(dataReference.getAuthKey()), Objects.requireNonNull(dataReference.getAuthCode()));
+                .url(url);
+
+        if(dataReference.getAuthKey()!=null) {
+            requestBuilder = requestBuilder.addHeader(dataReference.getAuthKey(), Objects.requireNonNull(dataReference.getAuthCode()));
+        }
 
         var newRequest = requestBuilder.build();
 
@@ -157,8 +161,11 @@ public class DelegationService implements IDelegationService {
 
         var requestBuilder = new okhttp3.Request.Builder()
                 .url(url)
-                .addHeader(Objects.requireNonNull(dataReference.getAuthKey()), Objects.requireNonNull(dataReference.getAuthCode()))
                 .addHeader("Content-Type", contentType);
+
+        if(dataReference.getAuthKey()!=null) {
+            requestBuilder = requestBuilder.addHeader(dataReference.getAuthKey(), Objects.requireNonNull(dataReference.getAuthCode()));
+        }
 
         requestBuilder.post(okhttp3.RequestBody.create(request.getInputStream().readAllBytes(),parsedContentType));
 
@@ -181,7 +188,7 @@ public class DelegationService implements IDelegationService {
         var url = connectorUrl;
 
         // EDC public api slash problem
-        if(!url.endsWith("/")) {
+        if(!url.endsWith("/") && !url.contains("#")) {
             url = url + "/";
         }
 
@@ -235,6 +242,11 @@ public class DelegationService implements IDelegationService {
             if (body != null) {
                 okhttp3.MediaType contentType=body.contentType();
                 InputStream inputStream=new BufferedInputStream(body.byteStream());
+
+                //
+                // Analyze whether this response contains a multipart body
+                // while maintaining the state of the inputstream (mark/reset approach)
+                //
                 inputStream.mark(2);
                 byte[] boundaryBytes=new byte[2];
                 String boundary="";
@@ -243,6 +255,9 @@ public class DelegationService implements IDelegationService {
                 }
                 inputStream.reset();
                 if("--".equals(boundary)) {
+                    //
+                    // Multipart Case separates the actual result (last part) from the warnings (first part)
+                    //
                     if(contentType!=null) {
                         int boundaryIndex;
                         boundaryIndex=contentType.toString().indexOf(";boundary=");
@@ -281,10 +296,14 @@ public class DelegationService implements IDelegationService {
                         }
                     }
                     reader.close();
+                    // multipart parsing through, now look at the actual result in the last part
                     if(nextPart!=null && embeddedContentType!=null) {
+                        // is it a downloaded skill text?
                     	if (embeddedContentType.equals("application/sparql-query")) {
+                            // immediately return
                     		return nextPart.toString();
                     	} else if(embeddedContentType.equals("application/cx-warnings+json")) {
+                            // is it a trailing warnings structure
                             List<CatenaxWarning> nextWarnings=typeManager.readValue(nextPart.toString(), warningTypeReference);
                             if(warnings.isPresent()) {
                                 warnings.get().addAll(nextWarnings);
@@ -292,13 +311,20 @@ public class DelegationService implements IDelegationService {
                                 warnings=Optional.of(nextWarnings);
                             }
                         } else {
+                            // it is a normal "result" that we take as the actual response
                             inputStream=new ByteArrayInputStream(nextPart.toString().getBytes());
                             contentType=okhttp3.MediaType.parse(embeddedContentType);
                         }
                     }
                 }
+                // if we got a simple skill text as answer (not multipart)
+                if (contentType.toString().equals("application/sparql-query")) {
+                    // return the skill text
+                    return IOUtils.toString(inputStream, Charset.defaultCharset());
+                }
+                // else set the response status a
                 response.setStatus(myResponse.code());
-
+                // and the response headers (including the completed warnings
                 for(String header : myResponse.headers().names()) {
                     for(String value : myResponse.headers().values(header)) {
                         if(header.equals("cx_warnings")) {
@@ -310,7 +336,7 @@ public class DelegationService implements IDelegationService {
 	                                warnings=Optional.of(nextWarnings);
 	                            }
                         	}
-                        } else if(!header.toLowerCase().equals("content-length")) {
+                        } else if(!header.equalsIgnoreCase("content-length")) {
                             response.addHeader(header, value);
                         }
                     }
@@ -319,10 +345,9 @@ public class DelegationService implements IDelegationService {
                 if(contentType!=null) {
                     response.setContentType(contentType.toString());
                 }
+                // and finally copy the body from intermediate response to final response
                 IOUtils.copy(inputStream, response.getOutputStream());
                 inputStream.close();
-                //response.getOutputStream().close();
-
             }
         }
         return null;
