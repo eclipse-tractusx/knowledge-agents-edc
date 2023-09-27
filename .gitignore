@@ -32,3 +32,6 @@ logs/
 .vscode
 .env
 __pycache__
+.project
+.settings/
+.classpath

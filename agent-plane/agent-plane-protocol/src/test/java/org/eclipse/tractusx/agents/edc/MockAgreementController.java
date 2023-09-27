@@ -21,16 +21,51 @@ import org.eclipse.edc.spi.types.domain.edr.EndpointDataReference;
 
 /**
  * mock agreement controller for testing purposes
+ * It will "fake" an agreement endpoint that will finally
+ * hit the given path/port on localhost
  */
 public class MockAgreementController implements IAgreementController {
 
+    String path;
+    int port;
+
+    /**
+     * specific mock controller
+     * @param path path of endpoint
+     * @param port port of endpoint
+     */
+    public MockAgreementController(String path, int port) {
+        this.path=path;
+        this.port=port;
+    }
+
+    /**
+     * default mock controller
+     */
+    public MockAgreementController() {
+        this.path="sparql";
+        this.port=8080;
+    }
+
+    /**
+     * create a faked endpoint reference
+     * @param assetId id of the asset
+     * @return a data reference pointing to the internal endpoint
+     */
     @Override
     public EndpointDataReference get(String assetId) {
         EndpointDataReference.Builder builder= EndpointDataReference.Builder.newInstance();
-        builder.endpoint("http://localhost:8080/sparql#"+assetId);
+        builder.endpoint(String.format("http://localhost:%d/%s#%s",port,path,assetId));
         return builder.build();
     }
 
+    /**
+     * negotiation case, delegates to get
+     * @param remoteUrl the connector
+     * @param asset id of the asset
+     * @return a data reference pointing to the internal endpoint
+     * @throws WebApplicationException in case something goes wrong
+     */
     @Override
     public EndpointDataReference createAgreement(String remoteUrl, String asset) throws WebApplicationException {
         return get(asset);

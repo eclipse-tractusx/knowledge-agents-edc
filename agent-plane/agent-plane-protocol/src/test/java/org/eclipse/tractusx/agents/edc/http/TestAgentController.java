@@ -16,6 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
 import org.eclipse.tractusx.agents.edc.service.InMemorySkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
@@ -36,11 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.jena.fuseki.Fuseki;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
@@ -56,21 +56,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.eclipse.edc.web.jersey.testfixtures.RestControllerTestBase;
 
 /**
  * Tests the agent controller
  */
-public class TestAgentController {
+public class TestAgentController extends RestControllerTestBase {
     
     ConsoleMonitor monitor=new ConsoleMonitor();
     TestConfig config=new TestConfig();
     AgentConfig agentConfig=new AgentConfig(monitor,config);
     ServiceExecutorRegistry serviceExecutorReg=new ServiceExecutorRegistry();
     OkHttpClient client=new OkHttpClient();
-    IAgreementController mockController = new MockAgreementController();
+    IAgreementController mockController = new MockAgreementController("test",port);
     ExecutorService threadedExecutor= Executors.newSingleThreadExecutor();
     TypeManager typeManager = new TypeManager();
     DataspaceServiceExecutor exec=new DataspaceServiceExecutor(monitor,mockController,agentConfig,client,threadedExecutor,typeManager);
@@ -80,11 +81,12 @@ public class TestAgentController {
     SparqlQueryProcessor processor=new SparqlQueryProcessor(serviceExecutorReg,monitor,agentConfig,store, typeManager);
     InMemorySkillStore skillStore=new InMemorySkillStore();
 
-
-    DelegationService delegationService=new DelegationService(mockController,monitor,null,typeManager,agentConfig);
+    DelegationService delegationService=new DelegationService(mockController,monitor,client,typeManager,agentConfig);
     AgentController agentController=new AgentController(monitor,mockController,agentConfig,processor,skillStore,delegationService);
 
     AutoCloseable mocks=null;
+
+    TestController testController=new TestController();
 
     @BeforeEach
     public void setUp()  {
@@ -102,7 +104,12 @@ public class TestAgentController {
             serviceExecutorReg.removeBulkLink(exec);
         }
     }
-    
+
+    @Override
+    protected Object controller() {
+        return testController;
+    }
+
     @Mock
     HttpServletRequest request;
  
@@ -111,6 +118,12 @@ public class TestAgentController {
 
     @Mock
     ServletContext context;
+
+    @Mock
+    HttpHeaders headers;
+
+    @Mock
+    UriInfo uriInfo;
 
     ObjectMapper mapper=new ObjectMapper();
 
@@ -125,6 +138,7 @@ public class TestAgentController {
      */
     protected String testExecute(String method, String query, String asset, String accepts, List<Map.Entry<String,String>> params) throws IOException {
         Map<String,String[]> fparams=new HashMap<>();
+        MultivaluedMap<String,String> mparams=new MultivaluedHashMap<>();
         StringBuilder queryString=new StringBuilder();
         boolean isFirst=true;
         for(Map.Entry<String,String> param : params) {
@@ -136,6 +150,7 @@ public class TestAgentController {
             queryString.append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8));
             queryString.append("=");
             queryString.append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
+            mparams.add(param.getKey(),param.getValue());
             if(fparams.containsKey(param.getKey())) {
                 String[] oarray=fparams.get(param.getKey());
                 String[] narray=new String[oarray.length+1];
@@ -157,8 +172,10 @@ public class TestAgentController {
             fparams.put("asset",new String[] { asset });
             when(request.getParameter("asset")).thenReturn(asset);
         }
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/sparql"));
         when(request.getParameterMap()).thenReturn(fparams);
         when(request.getServletContext()).thenReturn(context);
+        when(headers.getHeaderString("Accept")).thenReturn(accepts);
         when(request.getHeaders("Accept")).thenReturn(Collections.enumeration(List.of(accepts)));
         when(context.getAttribute(Fuseki.attrVerbose)).thenReturn(false);
         when(context.getAttribute(Fuseki.attrOperationRegistry)).thenReturn(processor.getOperationRegistry());
@@ -167,7 +184,8 @@ public class TestAgentController {
         ByteArrayOutputStream responseStream=new ByteArrayOutputStream();
         MockServletOutputStream mos=new MockServletOutputStream(responseStream);
         when(response.getOutputStream()).thenReturn(mos);
-        agentController.getQuery(asset,null,request,response,null);
+        when(uriInfo.getQueryParameters()).thenReturn(mparams);
+        agentController.getQuery(asset,headers,request,response,uriInfo);
         return responseStream.toString();
     }
 
@@ -363,11 +381,13 @@ public class TestAgentController {
     public void testParameterizedSkill() throws IOException {
         String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { VALUES (?what) { (\"@input\"^^xsd:int)} }";
         String asset="urn:cx:Skill:cx:Test";
-        agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null);
-        String result=testExecute("GET",null,asset,"*/*",List.of(new AbstractMap.SimpleEntry<>("input","84")));
-        JsonNode root=mapper.readTree(result);
-        JsonNode whatBinding0=root.get("results").get("bindings").get(0).get("what");
-        assertEquals("84",whatBinding0.get("value").asText(),"Correct binding");
+        try (var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null)) {
+            assertEquals(200,response.getStatus(),"post skill successful");
+            String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "84")));
+            JsonNode root = mapper.readTree(result);
+            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("what");
+            assertEquals("84", whatBinding0.get("value").asText(), "Correct binding");
+        }
     }
 
     /**
@@ -379,240 +399,26 @@ public class TestAgentController {
     public void testRemotingSkill() throws IOException {
         String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE<http://localhost:8080/sparql> { VALUES (?what) { (\"@input\"^^xsd:int)} } }";
         String asset="urn:cx:Skill:cx:Test";
-        agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null);
-        String result=testExecute("GET",null,asset,"*/*",List.of(new AbstractMap.SimpleEntry<>("input","84")));
+        try(var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null)) {
+            assertEquals(200,response.getStatus(),"post skill successful");
+            String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "84")));
+            JsonNode root = mapper.readTree(result);
+            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("what");
+            assertEquals("84", whatBinding0.get("value").asText(), "Correct binding");
+        }
+    }
+
+    /**
+     * test invocation of a remote skill
+     * @throws IOException in case of an error
+     */
+    @Test
+    public void testRemoteSkill() throws IOException {
+        String remoteSkill=String.format("http://localhost:%d/test/test#SkillAsset",port);
+        String result=testExecute("GET",null,remoteSkill,"application/sparql-results+json",List.of(new AbstractMap.SimpleEntry<>("input","84")));
         JsonNode root=mapper.readTree(result);
-        JsonNode whatBinding0=root.get("results").get("bindings").get(0).get("what");
-        assertEquals("84",whatBinding0.get("value").asText(),"Correct binding");
-    }
-
-    /**
-     * test federation call - will only work with a local oem provider running
-     * @throws IOException in case of an error
-     */
-    @Test
-    @Tag("online")
-    public void testFederatedGraph() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE<edc://localhost:8080/sparql> { " +
-                "GRAPH <urn:cx:Graph:4711> { VALUES (?what) { (\"42\"^^xsd:int)} } } }";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        JsonNode root=mapper.readTree(response.body().string());
-        JsonNode whatBinding0=root.get("results").get("bindings").get(0).get("what");
-        assertEquals("42",whatBinding0.get("value").asText(),"Correct binding");
-    }
-
-    /**
-     * test federation call - will only work with a local oem provider running
-     * @throws IOException in case of an error
-     */
-    @Test
-    @Tag("online")
-    public void testFederatedServiceChain() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { VALUES (?chain1) { (<http://localhost:8080/sparql#urn:cx:Graph:1>)} SERVICE ?chain1 { " +
-                "VALUES (?chain2) { (<http://localhost:8080/sparql>)} SERVICE ?chain2 { VALUES (?what) { (\"42\"^^xsd:int)} } } }";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Response was successful");
-        JsonNode root=mapper.readTree(response.body().string());
-        JsonNode whatBinding0=root.get("results").get("bindings").get(0).get("what");
-        assertEquals("84",whatBinding0.get("value").asText(),"Correct binding");
-    }
-
-    /**
-     * test remote call with non-existing target
-     * @throws IOException in case of an error
-     */
-    @Test
-    public void testRemoteError() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE <http://does-not-resolve/sparql#urn:cx:Graph:1> { VALUES (?what) { (\"42\"^^xsd:int) } } }";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Response was successful");
-        JsonNode root=mapper.readTree(response.body().string());
-        assertEquals(0,root.get("results").get("bindings").size());
-        String warnings=response.header("cx_warnings");
-        JsonNode warningsJson=mapper.readTree(warnings);
-        assertEquals(1,warningsJson.size(),"got remote warnings");
-    }
-
-    /**
-     * test remote call with matchmaking agent
-     * @throws IOException in case of an error
-     */
-    @Test
-    @Tag("online")
-    public void testRemoteWarning() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE <http://localhost:8898/match?asset=urn%3Acx%3AGraphAsset%23Test> { VALUES (?what) { (\"42\"^^xsd:int) } } }";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Response was successful");
-        JsonNode root=mapper.readTree(response.body().string());
-        assertEquals(1,root.get("results").get("bindings").size());
-        String warnings=response.header("cx_warnings");
-        JsonNode warningsJson=mapper.readTree(warnings);
-        assertEquals(1,warningsJson.size(),"got remote warnings");
-    }
-
-    /**
-     * test remote call with matchmaking agent
-     * @throws IOException in case of an error
-     */
-    @Test
-    @Tag("online")
-    public void testRemoteTransfer() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE <http://localhost:8898/transfer?asset=urn%3Acx%3AGraphAsset%23Test> { VALUES (?what) { (\"42\"^^xsd:int) } } }";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Response was successful");
-        JsonNode root=mapper.readTree(response.body().string());
-        assertEquals(1,root.get("results").get("bindings").size());
-        String warnings=response.header("cx_warnings");
-        JsonNode warningsJson=mapper.readTree(warnings);
-        assertEquals(1,warningsJson.size(),"got remote warnings");
-    }
-
-    /**
-     * test federation call - will only work with a local oem provider running
-     * @throws IOException in case of an error
-     */
-    @Test
-    @Tag("online")
-    public void testBatchFederation() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "+
-                "SELECT ?chain1 ?what ?output WHERE { " +
-                "  VALUES (?chain1 ?what) { "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"42\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:2> \"21\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"84\"^^xsd:int) "+
-                "  } "+
-                "  SERVICE ?chain1 { " +
-                "    BIND(?what as ?output) "+
-                "  } "+
-                "}";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Successful result");
-        JsonNode root=mapper.readTree(response.body().string());
-        JsonNode bindings=root.get("results").get("bindings");
-        assertEquals(3,bindings.size(),"Correct number of result bindings.");
-        JsonNode whatBinding0=bindings.get(0).get("output");
-        assertEquals("21",whatBinding0.get("value").asText(),"Correct binding");
-        JsonNode whatBinding1=bindings.get(1).get("output");
-        assertEquals("42",whatBinding1.get("value").asText(),"Correct binding");
-        JsonNode whatBinding2=bindings.get(2).get("output");
-        assertEquals("84",whatBinding2.get("value").asText(),"Correct binding");
-    }
-
-
-    /**
-     * test not allowed calls
-     * @throws IOException in case of an error
-     */
-    @Test
-    public void testNotAllowedService() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "+
-                "SELECT ?chain1 ?what ?output WHERE { " +
-                "  VALUES (?chain1 ?what) { "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"42\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:2> \"21\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"84\"^^xsd:int) "+
-                "  } "+
-                "  SERVICE ?chain1 { " +
-                "    BIND(?what as ?output) "+
-                "  } "+
-                "}";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol(),"https://.*"));
-        assertEquals(true,response.isSuccessful(),"Successful result");
-        JsonNode root=mapper.readTree(response.body().string());
-        JsonNode bindings=root.get("results").get("bindings");
-        assertEquals(0,bindings.size(),"Correct number of result bindings.");
-        JsonNode warnings=mapper.readTree(response.header("cx_warnings","[]"));
-        assertTrue(warnings.isArray(),"Got a warnings array");
-        assertEquals(warnings.size(),2,"Got correct service warnings number");
-    }
-
-    /**
-     * test not allowed calls
-     * @throws IOException in case of an error
-     */
-    @Test
-    public void testDeniedService() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "+
-                "SELECT ?chain1 ?what ?output WHERE { " +
-                "  VALUES (?chain1 ?what) { "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"42\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:2> \"21\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"84\"^^xsd:int) "+
-                "  } "+
-                "  SERVICE ?chain1 { " +
-                "    BIND(?what as ?output) "+
-                "  } "+
-                "}";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol(),"http://localhost.*"));
-        assertEquals(true,response.isSuccessful(),"Successful result");
-        JsonNode root=mapper.readTree(response.body().string());
-        JsonNode bindings=root.get("results").get("bindings");
-        assertEquals(0,bindings.size(),"Correct number of result bindings.");
-        JsonNode warnings=mapper.readTree(response.header("cx_warnings","[]"));
-        assertTrue(warnings.isArray(),"Got a warnings array");
-        assertEquals(warnings.size(),2,"Got correct service warnings number");
-    }
-
-     /**
-     * test standard allowance
-     * @throws IOException in case of an error
-     */
-    @Test
-    public void testDefaultService() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "+
-                "SELECT ?chain1 ?what ?output WHERE { " +
-                "  VALUES (?chain1 ?what) { "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"42\"^^xsd:int) "+
-                "   (<https://query.wikidata.org/sparql> \"21\"^^xsd:int) "+
-                "   (<http://localhost:8080/sparql#urn:cx:Graph:1> \"84\"^^xsd:int) "+
-                "  } "+
-                "  SERVICE ?chain1 { " +
-                "    BIND(?what as ?output) "+
-                "  } "+
-                "}";
-        Request.Builder builder=new Request.Builder();
-        builder.url("http://localhost:8080");
-        builder.addHeader("Accept","application/sparql-results+json");
-        builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        Response response=processor.execute(builder.build(),null,null,Map.of());
-        assertEquals(true,response.isSuccessful(),"Successful result");
-        JsonNode root=mapper.readTree(response.body().string());
         JsonNode bindings=root.get("results").get("bindings");
         assertEquals(1,bindings.size(),"Correct number of result bindings.");
-        JsonNode warnings=mapper.readTree(response.header("cx_warnings","[]"));
-        assertTrue(warnings.isArray(),"Got a warnings array");
-        assertEquals(warnings.size(),1,"Got correct service warnings number");
     }
+
 }
