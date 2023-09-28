@@ -20,7 +20,7 @@
 <!--
   Pom for building the agent plane protocols extensions
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.eclipse.tractusx.agents.edc</groupId>
@@ -36,7 +36,9 @@
     <packaging>jar</packaging>
 
     <name>Tractus-X Agent-Related Transfer Protocols</name>
-    <description>A Dataplane Extension with SparQL-Over-Http Endpoint, Delegation Capabilities and a Federated Graph-Based Data Catalogue.</description>
+    <description>A Dataplane Extension with SparQL-Over-Http Endpoint, Delegation Capabilities and a Federated
+        Graph-Based Data Catalogue.
+    </description>
     <url>http://catena-x.net/</url>
 
     <properties>
@@ -89,7 +91,7 @@
                     </archive>
                 </configuration>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -104,13 +106,13 @@
                     </execution>
                 </executions>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <!--<plugin>
                 <groupId>org.cyclonedx</groupId>
@@ -223,47 +225,47 @@
 
         <!-- everything for SparQL protocol -->
         <dependency>
-          <groupId>org.apache.jena</groupId>
-          <artifactId>jena-fuseki-core</artifactId>
-          <version>${org.apache.jena.version}</version>
-          <exclusions>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-fuseki-core</artifactId>
+            <version>${org.apache.jena.version}</version>
+            <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>jcl-over-slf4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-server</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-http</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-io</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-security</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-servlets</artifactId>
-                </exclusion>     
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-servlet</artifactId>
-                </exclusion>            
+                </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-servlet</artifactId>
-                </exclusion>            
-          </exclusions>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- maybe we need advanced storage capacities <dependency>
@@ -334,15 +336,15 @@
         </dependency>
         <!-- Test -->
         <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
-         <scope>test</scope>
-       </dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-       </dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>

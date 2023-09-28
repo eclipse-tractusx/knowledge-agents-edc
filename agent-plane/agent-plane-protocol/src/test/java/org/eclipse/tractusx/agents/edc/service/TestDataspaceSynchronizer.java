@@ -22,7 +22,7 @@ import org.eclipse.tractusx.agents.edc.TestConfig;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLd;
 import org.eclipse.tractusx.agents.edc.model.DcatCatalog;
 import org.eclipse.tractusx.agents.edc.model.DcatDataset;
-import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
+import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
 import okhttp3.*;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Quad;
@@ -55,7 +55,7 @@ public class TestDataspaceSynchronizer {
     AgentConfig agentConfig = new AgentConfig(monitor, config);
     OkHttpClient client = new OkHttpClient();
     ScheduledExecutorService threadedExecutor = Executors.newSingleThreadScheduledExecutor();
-    RDFStore store = new RDFStore(agentConfig, monitor);
+    RdfStore store = new RdfStore(agentConfig, monitor);
 
     TypeManager typeManager = new TypeManager();
 

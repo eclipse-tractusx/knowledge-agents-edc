@@ -28,65 +28,65 @@ import java.util.regex.Pattern;
  */
 public class AgentConfig {
 
-    public static String DEFAULT_ASSET_PROPERTY = "cx.agent.asset.default";
-    public static String DEFAULT_ASSET_NAME = "urn:x-arq:DefaultGraph";
+    public static final String DEFAULT_ASSET_PROPERTY = "cx.agent.asset.default";
+    public static final String DEFAULT_ASSET_NAME = "urn:x-arq:DefaultGraph";
 
-    public static String ASSET_FILE_PROPERTY = "cx.agent.asset.file";
+    public static final String ASSET_FILE_PROPERTY = "cx.agent.asset.file";
 
-    public static String ACCESS_POINT_PROPERTY = "cx.agent.accesspoint.name";
-    public static String DEFAULT_ACCESS_POINT = "api";
+    public static final String ACCESS_POINT_PROPERTY = "cx.agent.accesspoint.name";
+    public static final String DEFAULT_ACCESS_POINT = "api";
 
-    public static String VERBOSE_PROPERTY = "cx.agent.sparql.verbose";
-    public static boolean DEFAULT_VERBOSE_PROPERTY = false;
+    public static final String VERBOSE_PROPERTY = "cx.agent.sparql.verbose";
+    public static final boolean DEFAULT_VERBOSE_PROPERTY = false;
 
-    public static String CONTROL_PLANE_MANAGEMENT_PROVIDER = "cx.agent.controlplane.management.provider";
-    public static String CONTROL_PLANE_MANAGEMENT = "cx.agent.controlplane.management";
-    public static String CONTROL_PLANE_IDS = "cx.agent.controlplane.protocol";
+    public static final String CONTROL_PLANE_MANAGEMENT_PROVIDER = "cx.agent.controlplane.management.provider";
+    public static final String CONTROL_PLANE_MANAGEMENT = "cx.agent.controlplane.management";
+    public static final String CONTROL_PLANE_IDS = "cx.agent.controlplane.protocol";
 
-    public static String BUSINESS_PARTNER_NUMBER = "edc.participant.id";
-    public static String CONTROL_PLANE_AUTH_HEADER = "edc.api.auth.header";
-    public static String CONTROL_PLANE_AUTH_VALUE = "edc.api.auth.key";
+    public static final String BUSINESS_PARTNER_NUMBER = "edc.participant.id";
+    public static final String CONTROL_PLANE_AUTH_HEADER = "edc.api.auth.header";
+    public static final String CONTROL_PLANE_AUTH_VALUE = "edc.api.auth.key";
 
-    public static String NEGOTIATION_TIMEOUT_PROPERTY = "cx.agent.negotiation.timeout";
-    public static long DEFAULT_NEGOTIATION_TIMEOUT = 30000;
+    public static final String NEGOTIATION_TIMEOUT_PROPERTY = "cx.agent.negotiation.timeout";
+    public static final long DEFAULT_NEGOTIATION_TIMEOUT = 30000;
     
-    public static String NEGOTIATION_POLLINTERVAL_PROPERTY = "cx.agent.negotiation.poll";
-    public static long DEFAULT_NEGOTIATION_POLLINTERVAL = 1000;
+    public static final String NEGOTIATION_POLLINTERVAL_PROPERTY = "cx.agent.negotiation.poll";
+    public static final long DEFAULT_NEGOTIATION_POLLINTERVAL = 1000;
     
-    public static String DATASPACE_SYNCINTERVAL_PROPERTY = "cx.agent.dataspace.synchronization";
-    public static long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
+    public static final String DATASPACE_SYNCINTERVAL_PROPERTY = "cx.agent.dataspace.synchronization";
+    public static final long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
     
-    public static String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
+    public static final String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
     
-    public static String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
+    public static final String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
     
-    public static String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
-    public static long DEFAULT_FEDERATION_SERVICE_BATCH_SIZE = Long.MAX_VALUE;
+    public static final String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
+    public static final long DEFAULT_FEDERATION_SERVICE_BATCH_SIZE = Long.MAX_VALUE;
     
-    public static String THREAD_POOL_SIZE = "cx.agent.threadpool.size";
-    public static int DEFAULT_THREAD_POOL_SIZE = 4;
+    public static final String THREAD_POOL_SIZE = "cx.agent.threadpool.size";
+    public static final int DEFAULT_THREAD_POOL_SIZE = 4;
 
-    public static String CONNECT_TIMEOUT_PROPERTY = "cx.agent.connect.timeout";
-    public static String WRITE_TIMEOUT_PROPERTY = "cx.agent.write.timeout";
-    public static String CALL_TIMEOUT_PROPERTY = "cx.agent.call.timeout";
-    public static String READ_TIMEOUT_PROPERTY = "cx.agent.read.timeout";
-    public static int DEFAULT_READ_TIMEOUT=1080000;
+    public static final String CONNECT_TIMEOUT_PROPERTY = "cx.agent.connect.timeout";
+    public static final String WRITE_TIMEOUT_PROPERTY = "cx.agent.write.timeout";
+    public static final String CALL_TIMEOUT_PROPERTY = "cx.agent.call.timeout";
+    public static final String READ_TIMEOUT_PROPERTY = "cx.agent.read.timeout";
+    public static final int DEFAULT_READ_TIMEOUT = 1080000;
 
-    public static String CALLBACK_ENDPOINT="cx.agent.callback";
+    public static final String CALLBACK_ENDPOINT = "cx.agent.callback";
 
-    public static String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
+    public static final String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
 
-    public static String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
-    public static String DEFAULT_SERVICE_ALLOW_PATTERN = "(http|edc)s?://.*";
+    public static final String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
+    public static final String DEFAULT_SERVICE_ALLOW_PATTERN = "(http|edc)s?://.*";
 
-    public static String SERVICE_DENY_PROPERTY = "cx.agent.service.deny";
-    public static String DEFAULT_SERVICE_DENY_PATTERN = "^$";
+    public static final String SERVICE_DENY_PROPERTY = "cx.agent.service.deny";
+    public static final String DEFAULT_SERVICE_DENY_PATTERN = "^$";
 
-    public static String SERVICE_ALLOW_ASSET_PROPERTY = "cx.agent.service.asset.allow";
-    public static String DEFAULT_SERVICE_ALLOW_ASSET_PATTERN = "(http|edc)s://.*";
+    public static final String SERVICE_ALLOW_ASSET_PROPERTY = "cx.agent.service.asset.allow";
+    public static final String DEFAULT_SERVICE_ALLOW_ASSET_PATTERN = "(http|edc)s://.*";
 
-    public static String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
-    public static String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
+    public static final String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
+    public static final String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
     /**
      * precompiled stuff
@@ -104,19 +104,22 @@ public class AgentConfig {
 
     /**
      * creates the typed config
+     *
      * @param monitor logger
      * @param config untyped config
      */
     public AgentConfig(Monitor monitor, Config config) {
         this.monitor = monitor;
         this.config = config;
-        serviceAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_PROPERTY,DEFAULT_SERVICE_ALLOW_PATTERN));
-        serviceDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_PROPERTY,DEFAULT_SERVICE_DENY_PATTERN));
-        serviceAssetAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_ASSET_PROPERTY,DEFAULT_SERVICE_ALLOW_ASSET_PATTERN));
-        serviceAssetDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_ASSET_PROPERTY,DEFAULT_SERVICE_DENY_ASSET_PATTERN));
+        serviceAllowPattern = Pattern.compile(config.getString(SERVICE_ALLOW_PROPERTY, DEFAULT_SERVICE_ALLOW_PATTERN));
+        serviceDenyPattern = Pattern.compile(config.getString(SERVICE_DENY_PROPERTY, DEFAULT_SERVICE_DENY_PATTERN));
+        serviceAssetAllowPattern = Pattern.compile(config.getString(SERVICE_ALLOW_ASSET_PROPERTY, DEFAULT_SERVICE_ALLOW_ASSET_PATTERN));
+        serviceAssetDenyPattern = Pattern.compile(config.getString(SERVICE_DENY_ASSET_PROPERTY, DEFAULT_SERVICE_DENY_ASSET_PATTERN));
     }
 
     /**
+     * access
+     *
      * @return callback endpoint
      */
     public String getCallbackEndpoint() {
@@ -124,6 +127,8 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return the name of the default asset/graph
      */
     public String getDefaultAsset() {
@@ -135,17 +140,21 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return initial file to load
      */
     public String[] getAssetFiles() {
-        String[] files= config.getString(ASSET_FILE_PROPERTY,"").split(",");
-        if(files.length==1 && (files[0]==null || files[0].length()==0)) {
+        String[] files = config.getString(ASSET_FILE_PROPERTY, "").split(",");
+        if (files.length == 1 && (files[0] == null || files[0].length() == 0)) {
             return null;
         }
         return files;
     }
 
     /**
+     * access
+     *
      * @return name of the sparql access point
      */
     public String getAccessPoint() {
@@ -153,32 +162,40 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return uri of the control plane management endpoint (without concrete api)
      */
     public String getControlPlaneManagementUrl() {
-        return config.getString(CONTROL_PLANE_MANAGEMENT,null);
+        return config.getString(CONTROL_PLANE_MANAGEMENT, null);
     }
 
     /**
+     * access
+     *
      * @return uri of the control plane management endpoint (without concrete api)
      */
     public String getControlPlaneManagementProviderUrl() {
-        return config.getString(CONTROL_PLANE_MANAGEMENT_PROVIDER,config.getString(CONTROL_PLANE_MANAGEMENT,null));
+        return config.getString(CONTROL_PLANE_MANAGEMENT_PROVIDER, config.getString(CONTROL_PLANE_MANAGEMENT, null));
     }
 
     /**
+     * access
+     *
      * @return uri of the control plane ids endpoint (without concrete api)
      */
     public String getControlPlaneIdsUrl() {
-        return config.getString(CONTROL_PLANE_IDS,null);
+        return config.getString(CONTROL_PLANE_IDS, null);
     }
 
     /**
+     * access
+     *
      * @return a map of key/value paris to be used when interacting with the control plane management endpoint
      */
     public Map<String, String> getControlPlaneManagementHeaders() {
-        String key = config.getString(CONTROL_PLANE_AUTH_HEADER,"X-Api-Key");
-        String value = config.getString(CONTROL_PLANE_AUTH_VALUE,null);
+        String key = config.getString(CONTROL_PLANE_AUTH_HEADER, "X-Api-Key");
+        String value = config.getString(CONTROL_PLANE_AUTH_VALUE, null);
         if (key != null && value != null) {
             return Map.of(key, value);
         }
@@ -186,45 +203,57 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return the default overall timeout when waiting for a negotation result
      */
     public long getNegotiationTimeout() {
-        return config.getLong(NEGOTIATION_TIMEOUT_PROPERTY,DEFAULT_NEGOTIATION_TIMEOUT);
+        return config.getLong(NEGOTIATION_TIMEOUT_PROPERTY, DEFAULT_NEGOTIATION_TIMEOUT);
     }
 
     /**
+     * access
+     *
      * @return the thread pool size of the agent executors
      */
     public int getThreadPoolSize() {
-        return config.getInteger(THREAD_POOL_SIZE,DEFAULT_THREAD_POOL_SIZE);
+        return config.getInteger(THREAD_POOL_SIZE, DEFAULT_THREAD_POOL_SIZE);
     }
 
     /**
+     * access
+     *
      * @return the default overall timeout when waiting for a negotation result
      */
     public long getNegotiationPollInterval() {
-        return config.getLong(NEGOTIATION_POLLINTERVAL_PROPERTY,DEFAULT_NEGOTIATION_POLLINTERVAL);
+        return config.getLong(NEGOTIATION_POLLINTERVAL_PROPERTY, DEFAULT_NEGOTIATION_POLLINTERVAL);
     }
 
     /**
+     * access
+     *
      * @return the synchronization interval between individual sync calls, -1 if no sync
      */
     public long getDataspaceSynchronizationInterval() {
-        return config.getLong(DATASPACE_SYNCINTERVAL_PROPERTY,DEFAULT_DATASPACE_SYNCINTERVAL);
+        return config.getLong(DATASPACE_SYNCINTERVAL_PROPERTY, DEFAULT_DATASPACE_SYNCINTERVAL);
     }
 
     /**
+     * access
+     *
      * @return array of connector urls to synchronize, null if no sync
      */
     public String[] getDataspaceSynchronizationConnectors() {
-        String[] connectors= config.getString(DATASPACE_SYNCCONNECTORS_PROPERTY,"").split(",");
-        if(connectors.length==1 && (connectors[0]==null || connectors[0].length()==0)) {
+        String[] connectors = config.getString(DATASPACE_SYNCCONNECTORS_PROPERTY, "").split(",");
+        if (connectors.length == 1 && (connectors[0] == null || connectors[0].length() == 0)) {
             return null;
         }
         return connectors;
     }
 
     /**
+     * access
+     *
      * @return array of validation endpoints
      */
     public String[] getValidatorEndpoints() {
@@ -232,55 +261,71 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return whether sparql engine is set to verbose
      */
     public boolean isSparqlVerbose() {
-        return config.getBoolean(VERBOSE_PROPERTY,DEFAULT_VERBOSE_PROPERTY);
+        return config.getBoolean(VERBOSE_PROPERTY, DEFAULT_VERBOSE_PROPERTY);
     }
 
     /**
+     * access
+     *
      * @return maximal batch size for remote service calls
      */
     public long getFederationServiceBatchSize() {
-        return config.getLong(FEDERATION_SERVICE_BATCH_SIZE,DEFAULT_FEDERATION_SERVICE_BATCH_SIZE);
+        return config.getLong(FEDERATION_SERVICE_BATCH_SIZE, DEFAULT_FEDERATION_SERVICE_BATCH_SIZE);
     }
 
     /**
+     * access
+     *
      * @return outgoing socket connect timeout
      */
     public Integer getConnectTimeout() {
-        return config.getInteger(CONNECT_TIMEOUT_PROPERTY,null);
+        return config.getInteger(CONNECT_TIMEOUT_PROPERTY, null);
     }
 
     /**
+     * access
+     *
      * @return outgoing socket read timeout
      */
     public Integer getReadTimeout() {
-        return config.getInteger(READ_TIMEOUT_PROPERTY,DEFAULT_READ_TIMEOUT);
+        return config.getInteger(READ_TIMEOUT_PROPERTY, DEFAULT_READ_TIMEOUT);
     }
 
     /**
+     * access
+     *
      * @return outgoing socket write timeout
      */
     public Integer getWriteTimeout() {
-        return config.getInteger(WRITE_TIMEOUT_PROPERTY,null);
+        return config.getInteger(WRITE_TIMEOUT_PROPERTY, null);
     }
 
     /**
+     * access
+     *
      * @return outgoing socket write timeout
      */
     public Integer getCallTimeout() {
-        return config.getInteger(CALL_TIMEOUT_PROPERTY,null);
+        return config.getInteger(CALL_TIMEOUT_PROPERTY, null);
     }
 
     /**
+     * access
+     *
      * @return default skill contract
      */
     public String getDefaultSkillContract() {
-        return config.getString(DEFAULT_SKILL_CONTRACT_PROPERTY,null);
+        return config.getString(DEFAULT_SKILL_CONTRACT_PROPERTY, null);
     }
 
     /**
+     * access
+     *
      * @return regular expression for allowed service URLs
      */
     public Pattern getServiceAllowPattern() {
@@ -288,13 +333,17 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return regular expression for denied service URLs
      */
     public Pattern getServiceDenyPattern() {
         return serviceDenyPattern;
     }
 
-        /**
+    /**
+     * access
+     *
      * @return regular expression for allowed service URLs in assets
      */
     public Pattern getServiceAssetAllowPattern() {
@@ -302,6 +351,8 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return regular expression for denied service URLs in assets
      */
     public Pattern getServiceAssetDenyPattern() {

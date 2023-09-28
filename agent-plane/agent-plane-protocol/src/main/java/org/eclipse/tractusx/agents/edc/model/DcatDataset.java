@@ -28,7 +28,7 @@ public class DcatDataset extends JsonLdObject {
 
     public DcatDataset(JsonObject node) {
         super(node);
-        policy=new OdrlPolicy(node.getJsonObject("http://www.w3.org/ns/odrl/2/hasPolicy"));
+        policy = new OdrlPolicy(node.getJsonObject("http://www.w3.org/ns/odrl/2/hasPolicy"));
     }
 
     public OdrlPolicy hasPolicy() {

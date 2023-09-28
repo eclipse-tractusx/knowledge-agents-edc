@@ -24,7 +24,7 @@ import org.eclipse.edc.spi.types.domain.edr.EndpointDataReference;
  * It will "fake" an agreement endpoint that will finally
  * hit the given path/port on localhost
  */
-public class MockAgreementController implements IAgreementController {
+public class MockAgreementController implements AgreementController {
 
     String path;
     int port;

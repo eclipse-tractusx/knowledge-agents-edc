@@ -26,7 +26,10 @@ import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.expr.Expr;
-import org.apache.jena.sparql.serializer.*;
+import org.apache.jena.sparql.serializer.FmtExprSPARQL;
+import org.apache.jena.sparql.serializer.FormatterTemplate;
+import org.apache.jena.sparql.serializer.PrologueSerializer;
+import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.syntax.Template;
 import org.apache.jena.sparql.util.FmtUtils;
@@ -49,8 +52,8 @@ public class SparqlQuerySerializer implements QueryVisitor {
     protected IndentedWriter out;
     protected Prologue prologue;
 
-    public SparqlQuerySerializer(OutputStream _out, StratifiedFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
-        this(new IndentedWriter(_out), formatterElement, formatterExpr, formatterTemplate);
+    public SparqlQuerySerializer(OutputStream outStream, StratifiedFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
+        this(new IndentedWriter(outStream), formatterElement, formatterExpr, formatterTemplate);
     }
 
     public SparqlQuerySerializer(IndentedWriter iwriter, StratifiedFormatterElement formatterElement, FmtExprSPARQL formatterExpr, FormatterTemplate formatterTemplate) {
@@ -122,7 +125,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
                 this.out.print(" ");
             }
 
-            appendURIList(query, this.out, query.getResultURIs());
+            appendUriList(query, this.out, query.getResultURIs());
         }
 
         this.out.newline();
@@ -170,7 +173,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
         if (query.getGraphURIs() != null && query.getGraphURIs().size() != 0) {
             var2 = query.getGraphURIs().iterator();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 uri = var2.next();
                 this.out.print("FROM ");
                 this.out.print(FmtUtils.stringForURI(uri, query));
@@ -181,7 +184,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
         if (query.getNamedGraphURIs() != null && query.getNamedGraphURIs().size() != 0) {
             var2 = query.getNamedGraphURIs().iterator();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 uri = var2.next();
                 this.out.print("FROM NAMED ");
                 this.out.print(FmtUtils.stringForURI(uri, query));
@@ -236,7 +239,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
             this.out.print("ORDER BY ");
             boolean first = true;
 
-            for(Iterator<SortCondition> var3 = query.getOrderBy().iterator(); var3.hasNext(); first = false) {
+            for (Iterator<SortCondition> var3 = query.getOrderBy().iterator(); var3.hasNext(); first = false) {
                 SortCondition sc = var3.next();
                 if (!first) {
                     this.out.print(" ");
@@ -341,7 +344,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
     void appendVarList(IndentedWriter sb, List<String> vars) {
         boolean first = true;
 
-        for(Iterator<String> var5 = vars.iterator(); var5.hasNext(); first = false) {
+        for (Iterator<String> var5 = vars.iterator(); var5.hasNext(); first = false) {
             String varName = var5.next();
             Var var = Var.alloc(varName);
             if (!first) {
@@ -356,7 +359,7 @@ public class SparqlQuerySerializer implements QueryVisitor {
     void appendNamedExprList(IndentedWriter sb, VarExprList namedExprs) {
         boolean first = true;
 
-        for(Iterator<Var> var5 = namedExprs.getVars().iterator(); var5.hasNext(); first = false) {
+        for (Iterator<Var> var5 = namedExprs.getVars().iterator(); var5.hasNext(); first = false) {
             Var var = var5.next();
             Expr expr = namedExprs.getExpr(var);
             if (!first) {
@@ -395,11 +398,11 @@ public class SparqlQuerySerializer implements QueryVisitor {
 
     }
 
-    static void appendURIList(Query query, IndentedWriter sb, List<Node> vars) {
+    static void appendUriList(Query query, IndentedWriter sb, List<Node> vars) {
         SerializationContext cxt = new SerializationContext(query);
         boolean first = true;
 
-        for(Iterator<Node> var5 = vars.iterator(); var5.hasNext(); first = false) {
+        for (Iterator<Node> var5 = vars.iterator(); var5.hasNext(); first = false) {
             Node node = var5.next();
             if (!first) {
                 sb.print(" ");
