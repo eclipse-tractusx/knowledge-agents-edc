@@ -25,6 +25,7 @@ import org.eclipse.tractusx.agents.edc.http.HttpClientFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceRequestParamsSupplier;
 import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
+import org.eclipse.tractusx.agents.edc.service.DataManagement;
 import org.eclipse.tractusx.agents.edc.service.DataspaceSynchronizer;
 import org.eclipse.tractusx.agents.edc.service.EdcSkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
@@ -43,7 +44,7 @@ import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import okhttp3.OkHttpClient;
-import org.eclipse.tractusx.agents.edc.service.DataManagement;
+import org.eclipse.tractusx.agents.edc.service.DataManagementImpl;
 
 import org.eclipse.edc.connector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.edc.spi.types.TypeManager;
@@ -124,7 +125,7 @@ public class AgentExtension implements ServiceExtension {
         edcHttpClient=instance.getKey();
         httpClient=instance.getValue();
 
-        DataManagement catalogService=new DataManagement(monitor,typeManager,httpClient,config);
+        DataManagement catalogService=new DataManagementImpl(monitor,typeManager,httpClient,config);
 
         AgreementController agreementController=new AgreementController(monitor,config,catalogService);
         monitor.debug(String.format("Registering agreement controller %s",agreementController));
@@ -164,7 +165,7 @@ public class AgentExtension implements ServiceExtension {
         monitor.debug(String.format("Registering agent controller %s",agentController));
         webService.registerResource(DEFAULT_CONTEXT_ALIAS, agentController);
 
-        GraphController graphController=new GraphController(monitor,rdfStore);
+        GraphController graphController = new GraphController(monitor, rdfStore, catalogService, config);
         monitor.debug(String.format("Registering graph controller %s",graphController));
         webService.registerResource(DEFAULT_CONTEXT_ALIAS, graphController);
 

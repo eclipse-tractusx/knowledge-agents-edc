@@ -59,7 +59,7 @@ public class TestDataspaceSynchronizer {
 
     TypeManager typeManager = new TypeManager();
 
-    DataManagement dm = new DataManagement(monitor, typeManager, client, agentConfig);
+    DataManagementImpl dm = new DataManagementImpl(monitor, typeManager, client, agentConfig);
     DataspaceSynchronizer synchronizer = new DataspaceSynchronizer(threadedExecutor, agentConfig, dm, store, monitor);
 
     AutoCloseable mocks = null;

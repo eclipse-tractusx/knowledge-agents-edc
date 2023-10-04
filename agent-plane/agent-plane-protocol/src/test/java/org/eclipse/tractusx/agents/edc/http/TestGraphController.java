@@ -24,6 +24,7 @@ import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.eclipse.tractusx.agents.edc.*;
 import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
 import org.eclipse.tractusx.agents.edc.rdf.TestRdfStore;
+import org.eclipse.tractusx.agents.edc.service.DataManagement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,8 +53,10 @@ public class TestGraphController {
     AgentConfig agentConfig=new AgentConfig(monitor,config);
     RDFStore store = new RDFStore(agentConfig,monitor);
 
+    DataManagement management = new MockDataManagement();
 
-    GraphController graphController=new GraphController(monitor,store);
+
+    GraphController graphController=new GraphController(monitor, store, management, agentConfig);
 
     AutoCloseable mocks=null;
 
@@ -129,7 +132,7 @@ public class TestGraphController {
         MockServletOutputStream mos=new MockServletOutputStream(responseStream);
         when(response.getOutputStream()).thenReturn(mos);
         if(method.equals("POST")) {
-            return graphController.postAsset(asset, null, request, response, null).getEntity().toString();
+            return graphController.postAsset(body, asset, null, null, null, null, null, true, new String[0], request).getEntity().toString();
         } else {
             return graphController.deleteAsset(asset, null, request, response, null).getEntity().toString();
         }

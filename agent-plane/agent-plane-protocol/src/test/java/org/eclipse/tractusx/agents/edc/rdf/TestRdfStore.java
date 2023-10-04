@@ -16,21 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.rdf;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObjectBuilder;
-import okhttp3.OkHttpClient;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Quad;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
-import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.TestConfig;
-import org.eclipse.tractusx.agents.edc.jsonld.JsonLd;
-import org.eclipse.tractusx.agents.edc.model.DcatCatalog;
-import org.eclipse.tractusx.agents.edc.model.DcatDataset;
-import org.eclipse.tractusx.agents.edc.service.DataManagement;
-import org.eclipse.tractusx.agents.edc.service.DataspaceSynchronizer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,11 +30,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -78,7 +65,7 @@ public class TestRdfStore {
     @Test
     public void testImportTurtleSuccess() {
         String turtle = getTestTurtle();
-        long noTuples=store.registerAsset("GraphAsset?consumer=Upload",new ByteArrayInputStream(turtle.getBytes()),ExternalFormat.TURTLE);
+        long noTuples=store.registerAsset("GraphAsset?consumer=Upload", turtle, ExternalFormat.TURTLE);
         assertEquals(4, noTuples,"Inserted the correct number of tuples");
         checkAsset(noTuples);
     }
@@ -106,7 +93,7 @@ public class TestRdfStore {
     @Test
     public void testImportCsvSuccess() {
         String csv = getTestCsv();
-        long noTuples=store.registerAsset("GraphAsset?consumer=Upload",new ByteArrayInputStream(csv.getBytes()),ExternalFormat.CSV);
+        long noTuples=store.registerAsset("GraphAsset?consumer=Upload", csv, ExternalFormat.CSV);
         assertEquals(11, noTuples,"Inserted the correct number of tuples");
         checkAsset(noTuples);
     }

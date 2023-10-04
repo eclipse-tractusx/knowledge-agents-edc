@@ -20,17 +20,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import org.apache.http.HttpStatus;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.tractusx.agents.edc.*;
 import org.eclipse.tractusx.agents.edc.rdf.ExternalFormat;
 import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
-import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
+import org.eclipse.tractusx.agents.edc.service.DataManagement;
+import org.eclipse.tractusx.agents.edc.service.DataManagementImpl;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Optional;
-import java.util.regex.Matcher;
 
 /**
  * The Graph Controller exposes a REST API endpoint
@@ -43,15 +40,19 @@ public class GraphController {
     // EDC services
     protected final Monitor monitor;
     protected final RDFStore store;
+    protected final DataManagement management;
+    protected final AgentConfig config;
 
     /**
      * creates a new agent controller
      * @param monitor logging subsystem
      * @param store the rdf store to extend
      */
-    public GraphController(Monitor monitor, RDFStore store) {
+    public GraphController(Monitor monitor, RDFStore store, DataManagement management, AgentConfig config) {
         this.monitor = monitor;
-        this.store=store;
+        this.store = store;
+        this.management = management;
+        this.config = config;
     }
 
     /**
@@ -64,24 +65,54 @@ public class GraphController {
 
     /**
      * endpoint for posting a ttl into a local graph asset
-     * @param asset can be a named graph for executing a query or a skill asset
-     * @return response
+     * @param content mandatory content
+     * @param asset asset key
+     * @param name asset name
+     * @param description asset description
+     * @param version asset version
+     * @param contract asset contract
+     * @param shape asset shape
+     * @param isFederated whether it appears in fed catalogue
+     * @param ontologies list of ontologies
+     * @return response indicating the number of triples updated
      */
     @POST
     @Consumes({"text/turtle","text/csv"})
-    public Response postAsset(@QueryParam("asset") String asset,
-                              @Context HttpHeaders headers,
-                              @Context HttpServletRequest request,
-                              @Context HttpServletResponse response,
-                              @Context UriInfo uri
+    public Response postAsset(String content,
+                              @QueryParam("asset") String asset,
+                              @QueryParam("assetName") String name,
+                              @QueryParam("assetDescription") String description,
+                              @QueryParam("assetVersion") String version,
+                              @QueryParam("contract") String contract,
+                              @QueryParam("shape") String shape,
+                              @QueryParam("isFederated") boolean isFederated,
+                              @QueryParam("ontology") String[] ontologies,
+                              @Context HttpServletRequest request
     ) {
         ExternalFormat format=ExternalFormat.valueOfFormat(request.getContentType());
-        monitor.debug(String.format("Received a POST request %s for asset %s in format %s", request, asset, format));
+        monitor.debug(String.format("Received a POST asset request %s %s %s %s %s %b in format %s",asset,name,description,version,contract,shape,isFederated,format));
         if(format==null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         try {
-            return Response.ok(store.registerAsset(asset, request.getInputStream(),format),MediaType.APPLICATION_JSON_TYPE).build();
+            if(name==null) {
+                name="No name given";
+            }
+            if(description==null) {
+                description="No description given";
+            }
+            if(version==null) {
+                version="unknown version";
+            }
+            if(contract==null) {
+                contract=config.getDefaultGraphContract();
+            }
+            String ontologiesString=String.join(",",ontologies);
+            if(shape==null) {
+                shape=String.format("@prefix : <%s#> .\\n",asset);
+            }
+            management.createOrUpdateGraph(asset,name,description,version,contract,ontologiesString,shape,isFederated);
+            return Response.ok(store.registerAsset(asset, content, format),MediaType.APPLICATION_JSON_TYPE).build();
         } catch(IOException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -100,7 +131,12 @@ public class GraphController {
                               @Context UriInfo uri
     ) {
         monitor.debug(String.format("Received a DELETE request %s for asset %s", request, asset));
-        return Response.ok(store.deleteAsset(asset),MediaType.APPLICATION_JSON_TYPE).build();
+        try {
+            management.deleteAsset(asset);
+            return Response.ok(store.deleteAsset(asset), MediaType.APPLICATION_JSON_TYPE).build();
+        } catch(IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
 }

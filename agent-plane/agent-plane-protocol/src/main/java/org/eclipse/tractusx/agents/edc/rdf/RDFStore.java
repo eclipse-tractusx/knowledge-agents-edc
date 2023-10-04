@@ -106,11 +106,11 @@ public class RDFStore {
     /**
      * registers a new asset
      * @param asset asset iri
-     * @param stream stream for rdf data
+     * @param content stream for rdf data
      * @param format the format of the stream
      * @return number of resulting triples
      */
-    public long registerAsset(String asset, InputStream stream, ExternalFormat format) {
+    public long registerAsset(String asset, String content, ExternalFormat format) {
         if(!asset.contains("/")) {
             asset="http://server/unset-base/"+asset;
         }
@@ -124,14 +124,14 @@ public class RDFStore {
             case TURTLE:
                 RDFParser.create()
                         .errorHandler(errorHandler)
-                        .source(stream)
+                        .source(new ByteArrayInputStream(content.getBytes()))
                         .lang(Lang.TTL)
                         .parse(countingDest);
                 break;
             case CSV:
                 countingDest.start();
                 Pattern csvCell= Pattern.compile(String.format(CSV_REGEX,","));
-                try(BufferedReader reader=new BufferedReader(new InputStreamReader(stream)))  {
+                try(BufferedReader reader=new BufferedReader(new StringReader(content))) {
                     String header=reader.readLine();
                     List<Node> predicates=new ArrayList<>();
                     if(header!=null) {
