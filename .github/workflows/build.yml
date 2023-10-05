@@ -85,7 +85,7 @@ jobs:
 
       # Get the Code
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -123,7 +123,7 @@ jobs:
       # Create SemVer or ref tags dependent of trigger event
       - name: Docker Meta Agent Plane Hashicorp
         id: meta-hash
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             ${{ steps.set-docker-repo.outputs.REPO }}/agentplane-hashicorp
@@ -139,7 +139,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Hashicorp Container Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: agent-plane/agentplane-hashicorp
           file: agent-plane/agentplane-hashicorp/src/main/docker/Dockerfile
@@ -161,7 +161,7 @@ jobs:
       # Create SemVer or ref tags dependent of trigger event
       - name: Docker Meta Agent Plane Azure Vault
         id: meta-azr
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             ${{ steps.set-docker-repo.outputs.REPO }}/agentplane-azure-vault
@@ -177,7 +177,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Azure Vault Container Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: agent-plane/agentplane-azure-vault/.
           file: agent-plane/agentplane-azure-vault/src/main/docker/Dockerfile

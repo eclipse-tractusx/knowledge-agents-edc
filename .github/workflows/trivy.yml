@@ -54,7 +54,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v4
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
         with:
@@ -99,7 +99,7 @@ jobs:
           fi          
           exit 0
 
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v4
 
       # Enable repository access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
@@ -129,6 +129,7 @@ jobs:
           exit-code: "1"
           severity: "CRITICAL,HIGH"
           timeout: "10m0s"
+          
       - name: Upload Trivy scan results to GitHub Security tab
         if: success() && steps.imageCheck.outcome != 'failure'
         uses: github/codeql-action/upload-sarif@v2
