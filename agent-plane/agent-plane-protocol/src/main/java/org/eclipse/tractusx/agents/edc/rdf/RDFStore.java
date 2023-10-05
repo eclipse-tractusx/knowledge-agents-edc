@@ -104,7 +104,7 @@ public class RDFStore {
     public final static String CSV_REGEX="(\"[^\"]*\")?([^%s]*)";
 
     /**
-     * registers a new asset
+     * registers (overwrites/extends) an asset
      * @param asset asset iri
      * @param content stream for rdf data
      * @param format the format of the stream

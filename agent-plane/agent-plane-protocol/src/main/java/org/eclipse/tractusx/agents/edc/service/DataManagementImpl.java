@@ -50,8 +50,9 @@ public class DataManagementImpl implements DataManagement {
     public static final String CATALOG_REQUEST_BODY="{" +
             "\"@context\": {}," +
             "\"protocol\": \"dataspace-protocol-http\"," +
-            "\"providerUrl\": \"%s\", " +
-            "\"querySpec\": %s }";
+            "\"providerUrl\": \"%1$s\", " +
+            "\"counterPartyAddress\": \"%1$s\", " +
+            "\"querySpec\": %2$s }";
 
     public static final String ASSET_CREATE_CALL = "%s/assets";
     public static final String ASSET_UPDATE_CALL = "%s/assets/%s";
@@ -257,7 +258,7 @@ public class DataManagementImpl implements DataManagement {
 
         var url = String.format(ASSET_CALL,config.getControlPlaneManagementProviderUrl());
         var assetObject=(ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(spec));
-        assetObject.put("@context",objectMapper.createObjectNode());
+        assetObject.set("@context",objectMapper.createObjectNode());
         var assetSpec = objectMapper.writeValueAsString(assetObject);
 
         var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec,MediaType.parse("application/json")));
@@ -279,26 +280,20 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * helper to create or update assets
-     * @param contract contract specification, if any
      * @param assetSpec json text of the asset description
      * @return a response listing the id of the created/updated asset
      * @throws IOException in case something goes wrong
      */
-    @NotNull
-    protected IdResponse createOrUpdateAsset(String contract, String assetId, String assetSpec) throws IOException {
+    protected IdResponse createOrUpdateAsset(String assetId, String assetSpec) throws IOException {
         var url = String.format(ASSET_CREATE_CALL,config.getControlPlaneManagementProviderUrl());
-        if(contract !=null) {
-            contract =String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
-        } else {
-            contract ="";
-        }
         var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec,MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
 
         try (var response = httpClient.newCall(request.build()).execute()) {
             ResponseBody body = response.body();
 
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful() || body == null) {
+
                 if(response.code()!=409 || body == null) {
                     throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                 }
@@ -337,8 +332,13 @@ public class DataManagementImpl implements DataManagement {
      * @throws IOException in case interaction with EDC went wrong
      */
     public IdResponse createOrUpdateSkill(String assetId, String name, String description, String version, String contract, String ontologies, String distributionMode, boolean isFederated, String query) throws IOException {
+        if(contract !=null) {
+            contract =String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
+        } else {
+            contract ="";
+        }
         var assetSpec = String.format(SKILL_ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,distributionMode,isFederated,query);
-        return createOrUpdateAsset(contract, assetId, assetSpec);
+        return createOrUpdateAsset(assetId, assetSpec);
     }
 
     /**
@@ -355,8 +355,13 @@ public class DataManagementImpl implements DataManagement {
      * @throws IOException in case interaction with EDC went wrong
      */
     public IdResponse createOrUpdateGraph(String assetId, String name, String description, String version, String contract, String ontologies, String shape, boolean isFederated) throws IOException {
-        var assetSpec = String.format(SKILL_ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,shape,isFederated);
-        return createOrUpdateAsset(contract, assetId, assetSpec);
+        if(contract !=null) {
+            contract =String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
+        } else {
+            contract ="";
+        }
+        var assetSpec = String.format(GRAPH_ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,shape,isFederated);
+        return createOrUpdateAsset(assetId, assetSpec);
     }
 
     /**
