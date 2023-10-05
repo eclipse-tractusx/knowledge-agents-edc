@@ -101,7 +101,7 @@ jobs:
       # Create SemVer or ref tags dependent of trigger event
       - name: Docker Meta Agent Plane Hashicorp
         id: meta-hash
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             ${{ env.IMAGE_NAMESPACE }}/agentplane-hashicorp
@@ -139,7 +139,7 @@ jobs:
       # Create SemVer or ref tags dependent of trigger event
       - name: Docker Meta Agent Plane Azure Vault
         id: meta-azr
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             ${{ env.IMAGE_NAMESPACE }}/agentplane-azure-vault
