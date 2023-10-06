@@ -22,12 +22,10 @@ ENV OTEL_AGENT_LOCATION "https://github.com/open-telemetry/opentelemetry-java-in
 
 HEALTHCHECK NONE
 
-RUN apk update && apk add curl=8.2.1-r0 --no-cache
+RUN apk update && apk add curl=8.3.0-r0 --no-cache
 RUN curl -L --proto "=https" -sSf ${OTEL_AGENT_LOCATION} --output /tmp/opentelemetry-javaagent.jar
 
 FROM eclipse-temurin:17-jre-alpine
-ARG JAR
-ARG LIB
 
 ARG APP_USER=docker
 ARG APP_UID=10100
@@ -48,8 +46,8 @@ USER "$APP_USER"
 WORKDIR /app
 
 COPY --from=otel /tmp/opentelemetry-javaagent.jar .
-COPY ${JAR} edc-dataplane.jar
-COPY ${LIB} ./lib/
+COPY target/agentplane-azure-vault.jar edc-dataplane.jar
+COPY target/lib ./lib/
 
 HEALTHCHECK NONE
 

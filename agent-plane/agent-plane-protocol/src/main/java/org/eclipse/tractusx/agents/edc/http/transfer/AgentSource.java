@@ -100,9 +100,9 @@ public class AgentSource implements DataSource {
                 SkillDistribution distribution=skillStore.getDistribution(asset);
                 String params=request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
                 SkillDistribution runMode=SkillDistribution.ALL;
-                if(params.contains("runMode=provider")) {
+                if(params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
                     runMode=SkillDistribution.PROVIDER;
-                } else if(params.contains("runMode=consumer")) {
+                } else if(params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
                     runMode=SkillDistribution.CONSUMER;
                 }
                 if(runMode==SkillDistribution.CONSUMER) {
@@ -113,7 +113,7 @@ public class AgentSource implements DataSource {
                 } else if(runMode==SkillDistribution.PROVIDER && distribution==SkillDistribution.CONSUMER) {
                     return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
                 }
-                skill=skillText.get();
+                skill=skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
             }
         }
         try (Response response = processor.execute(this.requestFactory.toRequest(params),skill,graph,request.getSourceDataAddress().getProperties())) {

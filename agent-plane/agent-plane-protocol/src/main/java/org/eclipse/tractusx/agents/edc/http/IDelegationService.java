@@ -37,7 +37,7 @@ public interface IDelegationService {
      * @param request url request
      * @param response final response
      * @param uri original uri
-     * @return an intermediate response (the actual result will be put into the final response state)
+     * @return an intermediate response which may contain a textual skill to be executed locally otherwise the actual result has already been put into the final response's state
      */
-    Response executeQueryRemote(String remoteUrl, String skill, String graph, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri);
+    DelegationResponse executeQueryRemote(String remoteUrl, String skill, String graph, HttpHeaders headers, HttpServletRequest request, HttpServletResponse response, UriInfo uri);
 }

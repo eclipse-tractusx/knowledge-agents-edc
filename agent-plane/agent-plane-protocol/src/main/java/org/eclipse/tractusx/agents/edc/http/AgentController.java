@@ -397,7 +397,16 @@ public class AgentController {
         }
 
         if(remoteUrl!=null) {
-            return delegationService.executeQueryRemote(remoteUrl,skill,graph, headers, request, response, uri);
+        	// we need to delegate to the agent under remote URL 
+        	DelegationResponse intermediateResponse = delegationService.executeQueryRemote(remoteUrl,skill,graph, headers, request, response, uri);
+        	// in case runMode = provider the response already contains the final result
+        	if (intermediateResponse.getQueryString() == null) {
+        		return intermediateResponse.getResponse();
+        	} else {
+        		// in case runMode = consumer we set the skill text to the downloaded text and advance 
+        		skill = intermediateResponse.getQueryString();
+        		asset = null;
+        	}
         }
 
         try {
