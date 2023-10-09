@@ -210,7 +210,7 @@
                 <plugin>
                     <groupId>org.eclipse.dash</groupId>
                     <artifactId>license-tool-plugin</artifactId>
-                    <version>0.0.1-SNAPSHOT</version>
+                    <version>1.0.3-SNAPSHOT</version>
                     <configuration>
                         <projectId>automotive.tractusx</projectId>
                         <summary>DEPENDENCIES</summary>
