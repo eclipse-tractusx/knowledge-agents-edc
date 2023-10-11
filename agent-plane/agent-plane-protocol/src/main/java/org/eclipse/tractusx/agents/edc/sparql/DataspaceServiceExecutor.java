@@ -260,16 +260,20 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
      public QueryIterator createExecution(OpService opOriginal, String serviceURL, Set<String> boundVars, List<Binding> bindings, ExecutionContext execCxt) {
         Context context = execCxt.getContext();
 
-        // check whether the service url is allowed (in the context, in the default)
-        Pattern allowPattern = context.get(ALLOW_SYMBOL,config.getServiceAllowPattern());
-        if(!allowPattern.matcher(serviceURL).matches())  {
-            throw new QueryExecException(String.format("The service %s does not match the allowed pattern %s. Aborted execution.",serviceURL,allowPattern.pattern()));
-        }
+        // we have to only check outgoing URLs which have not already been checked
+        String targetUrl=context.get(DataspaceServiceExecutor.TARGET_URL_SYMBOL);
+        if (!serviceURL.equalsIgnoreCase(targetUrl)) {
+             // check whether the service url is allowed (in the context, in the default)
+             Pattern allowPattern = context.get(ALLOW_SYMBOL, config.getServiceAllowPattern());
+             if (!allowPattern.matcher(serviceURL).matches()) {
+                 throw new QueryExecException(String.format("The service %s does not match the allowed pattern %s. Aborted execution.", serviceURL, allowPattern.pattern()));
+             }
 
-        // check whether the service url is denied (in the context, in the default)
-        Pattern denyPattern = context.get(DENY_SYMBOL,config.getServiceDenyPattern());
-        if(denyPattern.matcher(serviceURL).matches()) {
-            throw new QueryExecException(String.format("The service %s matches the denied pattern %s. Aborted execution.",serviceURL,denyPattern.pattern()));
+             // check whether the service url is denied (in the context, in the default)
+             Pattern denyPattern = context.get(DENY_SYMBOL, config.getServiceDenyPattern());
+             if (denyPattern.matcher(serviceURL).matches()) {
+                 throw new QueryExecException(String.format("The service %s matches the denied pattern %s. Aborted execution.", serviceURL, denyPattern.pattern()));
+             }
         }
 
         boolean silent = opOriginal.getSilent();
