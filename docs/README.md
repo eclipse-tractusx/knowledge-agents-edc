@@ -76,7 +76,7 @@ dependencies:
   
     - name: agent-connector-memory
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.10.2-SNAPSHOT
+      version: 1.10.5-SNAPSHOT
       alias: my-connector
 ```
 
@@ -87,7 +87,7 @@ dependencies:
   
     - name: agent-connector-azure-vault
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.10.2-SNAPSHOT
+      version: 1.10.5-SNAPSHOT
       alias: my-connector
 ```
 
@@ -98,7 +98,7 @@ dependencies:
   
     - name: agent-connector
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.10.2-SNAPSHOT
+      version: 1.10.5-SNAPSHOT
       alias: my-connector
 ```
 
