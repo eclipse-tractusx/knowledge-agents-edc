@@ -139,8 +139,8 @@ spec:
             - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
               value: {{ $authDef.context | required "Authentication Service needs a context" | quote }}
           {{- if $authDef.exclude }}
-          - name: {{ printf "TRACTUSX_AUTH_%s_EXCLUDE" (upper $auth) | quote }}
-            value: {{ $authDef.exclude | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_EXCLUDE" (upper $auth) | quote }}
+              value: {{ $authDef.exclude | quote }}
           {{- end }}
           {{- if $authDef.register }}
             - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
@@ -184,6 +184,11 @@ spec:
               value: {{ printf "http://%s-controlplane:%v" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.protocol.port | quote }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
               value: {{ printf "http://%s-controlplane:%v%s%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path "/v2" | quote }}
+          {{- end }}
+
+          {{- if $dataplane.agent }}
+            - name: "CX_AGENT_EDC_VERSION"
+              value: {{ $dataplane.agent.edcVersion | default $root.Values.controlplane.image.tag | quote }}
           {{- end }}
 
           {{- if $dataplane.agent.default }}
