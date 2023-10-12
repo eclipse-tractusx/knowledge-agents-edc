@@ -186,6 +186,11 @@ spec:
               value: {{ printf "http://%s-controlplane:%v%s%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path "/v2" | quote }}
           {{- end }}
 
+          {{- if $dataplane.agent }}
+          - name: "CX_AGENT_EDC_VERSION"
+            value: {{ $dataplane.agent.edcVersion | default $root.Values.controlplane.image.tag | quote }}
+          {{- end }}
+
           {{- if $dataplane.agent.default }}
 
             ###############

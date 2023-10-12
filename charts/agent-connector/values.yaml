@@ -610,12 +610,12 @@ networkPolicy:
   controlplane:
     # -- Specify from rule network policy for cp (defaults to all namespaces)
     from:
-    - namespaceSelector: {}
+      - namespaceSelector: {}
   # -- Configuration of the dataplane component
   dataplane:
     # -- Specify from rule network policy for dp (defaults to all namespaces)
     from:
-    - namespaceSelector: {}
+      - namespaceSelector: {}
 
 serviceAccount:
   # Specifies whether a service account should be created
