@@ -135,24 +135,24 @@ spec:
           {{- if $dataplane.auth }}
           {{- range $auth, $authDef := $dataplane.auth }} 
             - name: {{ printf "TRACTUSX_AUTH_%s_TYPE" (upper $auth) | quote }}
-              value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
+               value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
             - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
               value: {{ $authDef.context | required "Authentication Service needs a context" | quote }}
           {{- if $authDef.exclude }}
-          - name: {{ printf "TRACTUSX_AUTH_%s_EXCLUDE" (upper $auth) | quote }}
-            value: {{ $authDef.exclude | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_EXCLUDE" (upper $auth) | quote }}
+              value: {{ $authDef.exclude | quote }}
           {{- end }}
           {{- if $authDef.register }}
-          - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
-            value: {{ $authDef.register | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
+              value: {{ $authDef.register | quote }}
           {{- end }}
           {{- if $authDef.apiCode }}
-          - name: {{ printf "TRACTUSX_AUTH_%s_APICODE" (upper $auth) | quote }}
-            value: {{ $authDef.apiCode | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_APICODE" (upper $auth) | quote }}
+              value: {{ $authDef.apiCode | quote }}
           {{- end }}
           {{- if $authDef.vaultKey }}
-          - name: {{ printf "TRACTUSX_AUTH_%s_VAULTKEY" (upper $auth) | quote }}
-            value: {{ $authDef.vaultKey | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_VAULTKEY" (upper $auth) | quote }}
+              value: {{ $authDef.vaultKey | quote }}
           {{- end }}
           {{- if $authDef.publicKey }}   
             - name: {{ printf "TRACTUSX_AUTH_%s_PUBLICKEY" (upper $auth) | quote }}
@@ -187,8 +187,8 @@ spec:
           {{- end }}
 
           {{- if $dataplane.agent }}
-          - name: "CX_AGENT_EDC_VERSION"
-            value: {{ $dataplane.agent.edcVersion | default $root.Values.controlplane.image.tag | quote }}
+            - name: "CX_AGENT_EDC_VERSION"
+              value: {{ $dataplane.agent.edcVersion | default $root.Values.controlplane.image.tag | quote }}
           {{- end }}
 
           {{- if $dataplane.agent.default }}
