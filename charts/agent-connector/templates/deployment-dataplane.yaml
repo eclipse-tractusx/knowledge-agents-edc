@@ -135,7 +135,7 @@ spec:
           {{- if $dataplane.auth }}
           {{- range $auth, $authDef := $dataplane.auth }} 
             - name: {{ printf "TRACTUSX_AUTH_%s_TYPE" (upper $auth) | quote }}
-               value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
+              value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
             - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
               value: {{ $authDef.context | required "Authentication Service needs a context" | quote }}
           {{- if $authDef.exclude }}
