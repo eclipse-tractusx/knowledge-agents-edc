@@ -18,6 +18,11 @@ package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 import okhttp3.*;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import jakarta.ws.rs.InternalServerErrorException;
@@ -27,11 +32,16 @@ import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLd;
 import org.eclipse.tractusx.agents.edc.model.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -120,7 +130,7 @@ public class DataManagement {
             "    },\n" +
             "    \"privateProperties\": {\n" +
             "        \"cx-common:query\":%9$s\n" +
-            "    }\n" +
+            "    },\n" +
             "    \"dataAddress\": {\n" +
             "        \"id\":\"%1$s\",\n" +
             "        \"@type\": \"DataAddress\",\n" +
@@ -336,11 +346,12 @@ public class DataManagement {
                 var putRequest=new Request.Builder().url(url).put(RequestBody.create(assetSpec,MediaType.parse("application/json")));
                 config.getControlPlaneManagementHeaders().forEach(putRequest::addHeader);
 
-                try (var patchResponse = httpClient.newCall(putRequest.build()).execute()) {
-                    body=patchResponse.body();
-                    if(!patchResponse.isSuccessful() || body==null) {
+                try (var putResponse = httpClient.newCall(putRequest.build()).execute()) {
+                    body=putResponse.body();
+                    if(!putResponse.isSuccessful() || body==null) {
                         throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                     }
+                    return new IdResponse(jakarta.json.Json.createObjectBuilder().add("@id","assetId").build());
                 }
             }
 
