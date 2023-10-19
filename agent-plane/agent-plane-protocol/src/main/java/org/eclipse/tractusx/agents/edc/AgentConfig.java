@@ -88,6 +88,8 @@ public class AgentConfig {
     public static String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
     public static String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
+    public static final String TX_EDC_VERSION_PROPERTY = "cx.agent.edc.version";
+
     /**
      * precompiled stuff
      */
@@ -308,5 +310,18 @@ public class AgentConfig {
         return serviceAssetDenyPattern;
     }
 
+    /**
+     * @return tx edc version as a string
+     */
+    public String getEdcVersion() {
+        return config.getString(TX_EDC_VERSION_PROPERTY, "0.5.0");
+    }
+
+    /**
+     * @return whether the edc version is less than 23.09
+     */
+    public boolean isPrerelease() {
+        return getEdcVersion().compareTo("0.5.0") <= 0;
+    }
 
 }
