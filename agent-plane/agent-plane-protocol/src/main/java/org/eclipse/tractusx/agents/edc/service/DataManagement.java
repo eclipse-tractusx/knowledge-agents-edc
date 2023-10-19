@@ -111,7 +111,7 @@ public class DataManagement {
     public static final String ASSET_CALL = "%s/assets/request";
 
     // negotiation request 0.5.>=1
-    public static final String NEGOTIATION_REQUEST_BODY="{\n" +
+    public static final String NEGOTIATION_REQUEST_BODY = "{\n" +
             "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
             "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
             "\"connectorAddress\": \"%1$s\",\n" +
@@ -126,7 +126,7 @@ public class DataManagement {
             "}";
 
     // negotiation request 0.5.0 - roles of provider and connector are wrong
-    public static final String NEGOTIATION_REQUEST_BODY_PRERELEASE="{\n" +
+    public static final String NEGOTIATION_REQUEST_BODY_PRERELEASE = "{\n" +
             "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
             "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
             "\"connectorAddress\": \"%1$s\",\n" +
@@ -222,7 +222,7 @@ public class DataManagement {
         // use a version specific call
         String template = config.isPrerelease() ? CATALOG_REQUEST_BODY_PRERELEASE : CATALOG_REQUEST_BODY;
 
-        var catalogSpec =String.format(template,
+        var catalogSpec = String.format(template,
                 String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
 
         var request = new Request.Builder().url(url).post(RequestBody.create(catalogSpec, MediaType.parse("application/json")));
@@ -341,7 +341,7 @@ public class DataManagement {
         // use a version specific call
         String template = config.isPrerelease() ? NEGOTIATION_REQUEST_BODY_PRERELEASE : NEGOTIATION_REQUEST_BODY;
 
-        var negotiateSpec =String.format(template,
+        var negotiateSpec = String.format(template,
                 negotiationRequest.getConnectorAddress(),
                 negotiationRequest.getLocalBusinessPartnerNumber(),
                 negotiationRequest.getRemoteBusinessPartnerNumber(),

@@ -362,6 +362,8 @@ public class AgentConfig {
     }
 
     /**
+     * access
+     *
      * @return tx edc version as a string
      */
     public String getEdcVersion() {
@@ -369,6 +371,8 @@ public class AgentConfig {
     }
 
     /**
+     * check
+     *
      * @return whether the edc version is less than 23.09
      */
     public boolean isPrerelease() {
