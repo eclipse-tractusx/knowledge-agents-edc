@@ -359,8 +359,11 @@ public class AgreementController implements IAgreementController {
 
         startTime = System.currentTimeMillis();
 
+        // EDC 0.5.1 has a problem with the checker configuration and wont process to COMPLETED
+        String expectedTransferState = config.isPrerelease() ? "COMPLETED" : "STARTED";
+
         try {
-            while ((System.currentTimeMillis() - startTime < config.getNegotiationTimeout()) && (process == null || !process.getState().equals("COMPLETED"))) {
+            while ((System.currentTimeMillis() - startTime < config.getNegotiationTimeout()) && (process == null || !process.getState().equals(expectedTransferState))) {
                 Thread.sleep(config.getNegotiationPollInterval());
                 process = dataManagement.getTransfer(
                         transferId
@@ -373,7 +376,7 @@ public class AgreementController implements IAgreementController {
             monitor.warning(String.format("Process thread for asset %s transfer %s run into problem. Giving up.", asset, transferId),e);
         }
 
-        if (process == null || !process.getState().equals("COMPLETED")) {
+        if (process == null || !process.getState().equals(expectedTransferState)) {
             deactivate(asset);
             throw new InternalServerErrorException(String.format("Transfer process %s for agreement %s and asset %s could not be provisioned.", transferId, agreement.getId(), asset));
         }
