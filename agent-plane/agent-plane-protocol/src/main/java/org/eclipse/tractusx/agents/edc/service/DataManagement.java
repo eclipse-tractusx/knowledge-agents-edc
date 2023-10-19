@@ -57,7 +57,14 @@ public class DataManagement {
      */
     public static final String DSP_PATH = "%s/api/v1/dsp";
     public static final String CATALOG_CALL = "%s/catalog/request";
+    // catalog request 0.5.>=1
     public static final String CATALOG_REQUEST_BODY = "{" +
+            "\"@context\": {}," +
+            "\"protocol\": \"dataspace-protocol-http\"," +
+            "\"counterPartyAddress\": \"%s\", " +
+            "\"querySpec\": %s }";
+    // catalog request 0.5.0
+    public static final String CATALOG_REQUEST_BODY_PRERELEASE = "{" +
             "\"@context\": {}," +
             "\"protocol\": \"dataspace-protocol-http\"," +
             "\"providerUrl\": \"%s\", " +
@@ -103,7 +110,23 @@ public class DataManagement {
             "}\n";
     public static final String ASSET_CALL = "%s/assets/request";
 
-    public static final String NEGOTIATION_REQUEST_BODY = "{\n" +
+    // negotiation request 0.5.>=1
+    public static final String NEGOTIATION_REQUEST_BODY="{\n" +
+            "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
+            "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
+            "\"connectorAddress\": \"%1$s\",\n" +
+            "\"protocol\": \"dataspace-protocol-http\",\n" +
+            "\"providerId\": \"%3$s\",\n" +
+            "\"connectorId\": \"%2$s\",\n" +
+            "\"offer\": {\n" +
+            "  \"offerId\": \"%4$s\",\n" +
+            "  \"assetId\": \"%5$s\",\n" +
+            "  \"policy\": %6$s\n" +
+            "}\n" +
+            "}";
+
+    // negotiation request 0.5.0 - roles of provider and connector are wrong
+    public static final String NEGOTIATION_REQUEST_BODY_PRERELEASE="{\n" +
             "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
             "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
             "\"connectorAddress\": \"%1$s\",\n" +
@@ -194,9 +217,13 @@ public class DataManagement {
      * @throws IOException in case something went wrong
      */
     public DcatCatalog getCatalog(String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
-
         var url = String.format(CATALOG_CALL, config.getControlPlaneManagementUrl());
-        var catalogSpec = String.format(CATALOG_REQUEST_BODY, String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
+
+        // use a version specific call
+        String template = config.isPrerelease() ? CATALOG_REQUEST_BODY_PRERELEASE : CATALOG_REQUEST_BODY;
+
+        var catalogSpec =String.format(template,
+                String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
 
         var request = new Request.Builder().url(url).post(RequestBody.create(catalogSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
@@ -311,7 +338,10 @@ public class DataManagement {
     public String initiateNegotiation(ContractNegotiationRequest negotiationRequest) throws IOException {
         var url = String.format(NEGOTIATION_INITIATE_CALL, config.getControlPlaneManagementUrl());
 
-        var negotiateSpec = String.format(NEGOTIATION_REQUEST_BODY,
+        // use a version specific call
+        String template = config.isPrerelease() ? NEGOTIATION_REQUEST_BODY_PRERELEASE : NEGOTIATION_REQUEST_BODY;
+
+        var negotiateSpec =String.format(template,
                 negotiationRequest.getConnectorAddress(),
                 negotiationRequest.getLocalBusinessPartnerNumber(),
                 negotiationRequest.getRemoteBusinessPartnerNumber(),
