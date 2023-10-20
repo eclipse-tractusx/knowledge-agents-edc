@@ -179,7 +179,7 @@ spec:
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
               value: {{ printf "http://%s-controlplane:%v" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.protocol.port | quote }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
-              value: {{ printf "http://%s-controlplane:%v%s%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path "/v2" | quote }}
+              value: {{ printf "http://%s-controlplane:%v%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path | quote }}
           {{- end }}
 
           {{- if $dataplane.agent.default }}
