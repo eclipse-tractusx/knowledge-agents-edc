@@ -189,7 +189,7 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
      * @param targetProperties a set of address properties of the asset to invoke
      * @return simulated ok response
      */
-    public Response execute(Request request, String skill, String graph, Map<String,String> targetProperties) {
+    public Response execute(Request request, String skill, String graph, Map<String,Object> targetProperties) {
 
         // wrap jakarta into java.servlet
         HttpServletContextAdapter contextAdapter=new HttpServletContextAdapter(request);
@@ -208,12 +208,14 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         action.getContext().set(DataspaceServiceExecutor.AUTH_CODE_SYMBOL,targetProperties.getOrDefault(DataspaceServiceExecutor.AUTH_CODE_SYMBOL.getSymbol(),null));
         action.getContext().set(ARQConstants.sysOptimizerFactory,optimizerFactory);
         if(targetProperties.containsKey(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())) {
-            action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol())));
+            action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,
+                    Pattern.compile(String.valueOf(targetProperties.get(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol()))));
         } else {
             action.getContext().set(DataspaceServiceExecutor.ALLOW_SYMBOL,config.getServiceAssetAllowPattern());
         }
         if(targetProperties.containsKey(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())) {
-            action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,Pattern.compile(targetProperties.get(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol())));
+            action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,
+                    Pattern.compile(String.valueOf(targetProperties.get(DataspaceServiceExecutor.DENY_SYMBOL.getSymbol()))));
         } else {
             action.getContext().set(DataspaceServiceExecutor.DENY_SYMBOL,config.getServiceAssetDenyPattern());
         }

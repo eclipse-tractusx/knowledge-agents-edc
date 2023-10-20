@@ -141,13 +141,13 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
         Map<String,List<String>> queryParams=parseParams("?"+getRequestQueryParams(address,request));
 
         if(isTransferRequest(request)) {
-            if(!address.getProperty(BASE_URL).endsWith(SLASH)) {
-                params.baseUrl(address.getProperty(BASE_URL)+SLASH);
+            if(!address.getStringProperty(BASE_URL).endsWith(SLASH)) {
+                params.baseUrl(address.getStringProperty(BASE_URL)+SLASH);
             }
         } else {
             // we need to annotate the base url "pure" because we do not directly hit the endpoint
             params.baseUrl("https://w3id.org/catenax");
-            params.header(DataspaceServiceExecutor.TARGET_URL_SYMBOL.getSymbol(), address.getProperty(BASE_URL));
+            params.header(DataspaceServiceExecutor.TARGET_URL_SYMBOL.getSymbol(), address.getStringProperty(BASE_URL));
 
             // there is the case where a KA-BIND protocol call is
             // one-to-one routed through the transfer plane ... in which case
@@ -165,7 +165,7 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
                 queryParams.remove(QUERY_PARAM);
                 mergeParams(queryParams,bodyParams);
             }
-            String accept=address.getProperty(ACCEPT_HEADER,null);
+            String accept=address.getStringProperty(ACCEPT_HEADER,null);
             List<String> cxAccepts=queryParams.getOrDefault(CX_ACCEPT_PARAM,List.of());
             queryParams.remove(CX_ACCEPT_PARAM);
             if(accept==null) {

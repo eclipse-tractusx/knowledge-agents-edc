@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.jena.ext.com.google.common.collect.ArrayListMultimap;
+import com.github.jsonldjava.shaded.com.google.common.collect.ArrayListMultimap;
 
 /**
  * Implementation of a compact representation of
@@ -33,7 +33,7 @@ import org.apache.jena.ext.com.google.common.collect.ArrayListMultimap;
  */
 public class TupleSet {
     
-    ArrayListMultimap<String,String> bindings=ArrayListMultimap.create();
+    ArrayListMultimap<String,String> bindings= ArrayListMultimap.create();
     List<TupleSet> explodes=new ArrayList<>();
 
     /**
