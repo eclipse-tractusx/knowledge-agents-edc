@@ -90,6 +90,12 @@ public class DelegationService implements IDelegationService {
         if(serviceDenyPattern.matcher(remoteUrl).matches()) {
         	return new DelegationResponse( HttpUtils.respond(monitor,headers, HttpStatus.SC_FORBIDDEN,String.format("Service %s matches the denied service pattern %s",remoteUrl,serviceDenyPattern.pattern()),null));
         }
+        // replace edc addresses with their real underlying protocol
+        if (remoteUrl.startsWith("edc://")) {
+            remoteUrl="http://"+remoteUrl.substring(6);
+        } else if (remoteUrl.startsWith("edcs://")) {
+            remoteUrl="https://"+remoteUrl.substring(7);
+        }
         String asset = skill != null ? skill : graph;
         EndpointDataReference endpoint = agreementController.get(asset);
         if(endpoint==null) {
