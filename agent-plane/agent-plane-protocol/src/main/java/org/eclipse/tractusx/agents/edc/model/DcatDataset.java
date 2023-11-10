@@ -17,22 +17,44 @@
 package org.eclipse.tractusx.agents.edc.model;
 
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLdObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * represents a dcat data set
  */
 public class DcatDataset extends JsonLdObject {
 
-    OdrlPolicy policy;
+    List<OdrlPolicy> policies = new ArrayList<>();
 
     public DcatDataset(JsonObject node) {
         super(node);
-        policy=new OdrlPolicy(node.getJsonObject("http://www.w3.org/ns/odrl/2/hasPolicy"));
+        JsonValue jpolicies = node.get("http://www.w3.org/ns/odrl/2/hasPolicy");
+        if (jpolicies != null) {
+            if (jpolicies.getValueType() == JsonValue.ValueType.ARRAY) {
+                for (JsonValue policy : jpolicies.asJsonArray()) {
+                    policies.add(new OdrlPolicy(policy.asJsonObject()));
+                }
+            } else {
+                policies.add(new OdrlPolicy(jpolicies.asJsonObject()));
+            }
+        }
     }
 
+    /**
+     * access default policy
+     *
+     * @return null, if no policy exists
+     */
     public OdrlPolicy hasPolicy() {
-        return policy;
+        if (policies.isEmpty()) {
+            return null;
+        } else {
+            return policies.get(0);
+        }
     }
 }
 
