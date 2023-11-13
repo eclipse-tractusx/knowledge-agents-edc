@@ -139,7 +139,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Hashicorp Container Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5
         with:
           context: agent-plane/agentplane-hashicorp
           file: agent-plane/agentplane-hashicorp/src/main/docker/Dockerfile
@@ -151,7 +151,7 @@ jobs:
       # Important step to push image description to DockerHub - since this is version independent, we always take it from main
       - name: Update Docker Hub description for Agent Plane Hashicorp
         if: ${{ steps.set-docker-repo.outputs.REPO == 'docker.io' && github.ref == 'refs/heads/main' }}
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@dc67fad7001ef9e8e3c124cb7a64e16d0a63d864 # v3.4.2
         with:
           readme-filepath: agent-plane/agentplane-hashicorp/README.md
           username: ${{ secrets.DOCKER_HUB_USER }}
