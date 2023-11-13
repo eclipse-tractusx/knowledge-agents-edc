@@ -18,6 +18,11 @@ package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 import okhttp3.*;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import jakarta.ws.rs.InternalServerErrorException;
@@ -27,11 +32,16 @@ import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLd;
 import org.eclipse.tractusx.agents.edc.model.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -45,7 +55,7 @@ public class DataManagement {
      * some constants when interacting with control plane
      */
     public static final String DSP_PATH="%s/api/v1/dsp";
-    public static final String CATALOG_CALL = "%s/catalog/request";
+    public static final String CATALOG_CALL = "%s%s/catalog/request";
     // catalog request 0.5.>=1
     public static final String CATALOG_REQUEST_BODY = "{" +
             "\"@context\": {}," +
@@ -59,7 +69,7 @@ public class DataManagement {
             "\"providerUrl\": \"%s\", " +
             "\"querySpec\": %s }";
 
-    public static final String ASSET_CREATE_CALL = "%s/assets";
+    public static final String ASSET_CREATE_CALL = "%s%s/assets";
     public static final String ASSET_CREATE_BODY="{\n" +
             "    \"@context\": {\n" +
             "        \"rdf\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
@@ -97,7 +107,43 @@ public class DataManagement {
             "        \"proxyBody\": \"true\"\n" +
             "    }\n" +
             "}\n";
-    public static final String ASSET_CALL = "%s/assets/request";
+
+    public static final String SKILL_ASSET_CREATE_BODY_V3 = "{\n" +
+            "    \"@context\": {\n" +
+            "        \"rdf\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
+            "        \"rdfs\": \"http://www.w3.org/2000/01/rdf-schema#\",\n" +
+            "        \"cx-common\": \"https://w3id.org/catenax/ontology/common#\",\n" +
+            "        \"sh\": \"http://www.w3.org/ns/shacl#\"\n" +
+            "    },\n" +
+            "    \"@id\": \"%1$s\", \n" +
+            "    \"properties\": {\n" +
+            "        \"name\": \"%2$s\",\n" +
+            "        \"description\": \"%3$s\",\n" +
+            "        \"version\": \"%4$s\",\n" +
+            "        \"contenttype\": \"application/json, application/xml\",\n" +
+            "%5$s" +
+            "        \"rdf:type\": \"cx-common:SkillAsset\",\n" +
+            "        \"rdfs:isDefinedBy\": \"%6$s\",\n" +
+            "        \"cx-common:implementsProtocol\": \"cx-common:Protocol?w3c:http:SKILL\",\n" +
+            "        \"cx-common:distributionMode\": \"%7$s\",\n" +
+            "        \"cx-common:isFederated\": \"%8$b^^xsd:boolean\"\n" +
+            "    },\n" +
+            "    \"privateProperties\": {\n" +
+            "        \"cx-common:query\":%9$s\n" +
+            "    },\n" +
+            "    \"dataAddress\": {\n" +
+            "        \"id\":\"%1$s\",\n" +
+            "        \"@type\": \"DataAddress\",\n" +
+            "        \"type\": \"cx-common:Protocol?w3c:http:SKILL\",\n" +
+            "        \"baseUrl\":\"https://w3id.org/catenax\",\n" +
+            "        \"proxyPath\": \"false\",\n" +
+            "        \"proxyMethod\": \"true\",\n" +
+            "        \"proxyQueryParams\": \"true\",\n" +
+            "        \"proxyBody\": \"true\"\n" +
+            "    }\n" +
+            "}\n";
+
+    public static final String ASSET_CALL = "%s%s/assets/request";
 
     // negotiation request 0.5.>=1
     public static final String NEGOTIATION_REQUEST_BODY="{\n" +
@@ -129,9 +175,9 @@ public class DataManagement {
             "}\n" +
             "}";
 
-    public static final String NEGOTIATION_INITIATE_CALL = "%s/contractnegotiations";
-    public static final String NEGOTIATION_CHECK_CALL = "%s/contractnegotiations/%s";
-    public static final String TRANSFER_INITIATE_CALL = "%s/transferprocesses";
+    public static final String NEGOTIATION_INITIATE_CALL = "%s/v2/contractnegotiations";
+    public static final String NEGOTIATION_CHECK_CALL = "%s/v2/contractnegotiations/%s";
+    public static final String TRANSFER_INITIATE_CALL = "%s/v2/transferprocesses";
 
     public static final String TRANSFER_REQUEST_BODY="{\n" +
             "    \"@context\": {\n" +
@@ -154,8 +200,8 @@ public class DataManagement {
             "        \"isFinite\": true\n" +
             "    }\n" +
             "}";
-    public static final String TRANSFER_CHECK_CALL = "%s/transferprocesses/%s";
-    public static final String AGREEMENT_CHECK_CALL = "%s/contractagreements/%s";
+    public static final String TRANSFER_CHECK_CALL = "%s/v2/transferprocesses/%s";
+    public static final String AGREEMENT_CHECK_CALL = "%s/v2/contractagreements/%s";
 
     /**
      * references to EDC services
@@ -203,7 +249,7 @@ public class DataManagement {
      * @throws IOException in case something went wrong
      */
     public DcatCatalog getCatalog(String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
-        var url = String.format(CATALOG_CALL,config.getControlPlaneManagementUrl());
+        var url = String.format(CATALOG_CALL,config.getControlPlaneManagementUrl(),"/v2");
 
         // use a version specific call
         String template = config.isPrerelease() ? CATALOG_REQUEST_BODY_PRERELEASE : CATALOG_REQUEST_BODY;
@@ -236,7 +282,8 @@ public class DataManagement {
      */
     public List<Asset> listAssets(QuerySpec spec) throws IOException {
 
-        var url = String.format(ASSET_CALL,config.getControlPlaneManagementProviderUrl());
+        String version = config.isPrerelease() ? "/v2" : "/v3";
+        var url = String.format(ASSET_CALL, config.getControlPlaneManagementProviderUrl(), version);
         var assetObject=(ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(spec));
         assetObject.put("@context",objectMapper.createObjectNode());
         var assetSpec = objectMapper.writeValueAsString(assetObject);
@@ -274,13 +321,16 @@ public class DataManagement {
      */
     public IdResponse createOrUpdateSkill(String assetId, String name, String description, String version, String contract, String ontologies, String distributionMode, boolean isFederated, String query) throws IOException {
 
-        var url = String.format(ASSET_CREATE_CALL,config.getControlPlaneManagementProviderUrl());
+        String apiVersion = config.isPrerelease() ? "/v2" : "/v3";
+        var url = String.format(ASSET_CREATE_CALL, config.getControlPlaneManagementProviderUrl(), apiVersion);
         if(contract!=null) {
             contract=String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n",contract);
         } else {
             contract="";
         }
-        var assetSpec = String.format(ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,distributionMode,isFederated,query);
+        String spec = config.isPrerelease() ? ASSET_CREATE_BODY : SKILL_ASSET_CREATE_BODY_V3;
+
+        var assetSpec = String.format(spec, assetId, name, description, version, contract, ontologies, distributionMode, isFederated, query);
 
         var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec,MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
@@ -293,14 +343,15 @@ public class DataManagement {
                     throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                 }
 
-                var patchRequest=new Request.Builder().url(url).patch(RequestBody.create(assetSpec,MediaType.parse("application/json")));
-                config.getControlPlaneManagementHeaders().forEach(patchRequest::addHeader);
+                var putRequest=new Request.Builder().url(url).put(RequestBody.create(assetSpec,MediaType.parse("application/json")));
+                config.getControlPlaneManagementHeaders().forEach(putRequest::addHeader);
 
-                try (var patchResponse = httpClient.newCall(patchRequest.build()).execute()) {
-                    body=patchResponse.body();
-                    if(!patchResponse.isSuccessful() || body==null) {
+                try (var putResponse = httpClient.newCall(putRequest.build()).execute()) {
+                    body=putResponse.body();
+                    if(!putResponse.isSuccessful() || body==null) {
                         throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                     }
+                    return new IdResponse(jakarta.json.Json.createObjectBuilder().add("@id","assetId").build());
                 }
             }
 
