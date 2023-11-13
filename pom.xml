@@ -226,18 +226,6 @@
             <name>Maven Central</name>
             <url>https://repo1.maven.org/maven2</url>
         </repository>
-        <repository> <!-- To be able to use product edc releases -->
-            <id>edc</id>
-            <url>https://maven.pkg.github.com/eclipse-tractusx/tractusx-edc</url>
-        </repository>
-        <repository> <!-- runtime meta-model -->
-            <id>oss</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-        <repository> <!-- ids -->
-            <id>ids</id>
-            <url>https://maven.iais.fraunhofer.de/artifactory/eis-ids-public/</url>
-        </repository>
     </repositories>
 
     <pluginRepositories>
