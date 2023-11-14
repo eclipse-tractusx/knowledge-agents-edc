@@ -371,6 +371,8 @@ dataplanes:
         type: api-key
         # -- the context(s) of the default authentication service separated by commas
         context: default
+        # -- excluded paths for liveness checks and validation
+        exclude: ".*/(check|validation).*"
         # -- controls whether this service should be registered as the default EDC authentication service globally
         register: false
         # -- specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead. Althugh this represents a number, remember to use quotes not to confuse rendering into the chart.
@@ -595,12 +597,12 @@ networkPolicy:
   controlplane:
     # -- Specify from rule network policy for cp (defaults to all namespaces)
     from:
-    - namespaceSelector: {}
+      - namespaceSelector: {}
   # -- Configuration of the dataplane component
   dataplane:
     # -- Specify from rule network policy for dp (defaults to all namespaces)
     from:
-    - namespaceSelector: {}
+      - namespaceSelector: {}
 
 serviceAccount:
   # Specifies whether a service account should be created
