@@ -18,11 +18,6 @@ package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonNumber;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonString;
-import jakarta.json.JsonValue;
 import jakarta.ws.rs.InternalServerErrorException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,10 +42,7 @@ import org.eclipse.tractusx.agents.edc.model.TransferRequest;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -337,8 +329,8 @@ public class DataManagement {
 
         String apiVersion = config.isPrerelease() ? "/v2" : "/v3";
         var url = String.format(ASSET_CREATE_CALL, config.getControlPlaneManagementProviderUrl(), apiVersion);
-        if(contract!=null) {
-            contract=String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n",contract);
+        if (contract != null) {
+            contract = String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
         } else {
             contract = "";
         }
@@ -362,10 +354,10 @@ public class DataManagement {
 
                 try (var putResponse = httpClient.newCall(putRequest.build()).execute()) {
                     body = putResponse.body();
-                    if(!putResponse.isSuccessful() || body == null) {
+                    if (!putResponse.isSuccessful() || body == null) {
                         throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                     }
-                    return new IdResponse(jakarta.json.Json.createObjectBuilder().add("@id","assetId").build());
+                    return new IdResponse(jakarta.json.Json.createObjectBuilder().add("@id", "assetId").build());
                 }
             }
 
