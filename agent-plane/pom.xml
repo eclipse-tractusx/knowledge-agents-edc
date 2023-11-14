@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.eclipse.tractusx.agents</groupId>
         <artifactId>edc</artifactId>
-        <version>1.10.2-SNAPSHOT</version>
+        <version>1.10.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>    
     </parent>
     <name>Tractus-X EDC Agent Plane</name>
