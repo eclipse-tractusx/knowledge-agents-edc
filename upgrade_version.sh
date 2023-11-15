@@ -16,7 +16,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-echo Upgrading from 10.1.6-SNAPSHOT to $1
-PATTERN=s/10.1.6-SNAPSHOT/$1/g
+OLD_VERSION=1.10.15-SNAPSHOT
+echo Upgrading from $OLD_VERSION to $1
+PATTERN=s/$OLD_VERSION/$1/g
 LC_ALL=C
 find ./ -type f \( -iname "*.xml" -o -iname "*.sh"  -o -iname "*.yml"  -o -iname "*.yaml"  -o -iname "*.md"  -o -iname "*.java" -o -iname "*.properties" \) -exec sed -i.bak $PATTERN {} \;
