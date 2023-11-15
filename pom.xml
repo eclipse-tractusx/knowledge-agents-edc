@@ -59,7 +59,7 @@
         <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
         <jetbrains.kotlin.version>1.8.0</jetbrains.kotlin.version>
         <io.micrometer.version>1.11.3</io.micrometer.version>
-        <netty.nio.core-http2.version>4.1.100.Final</netty.nio.core-http2.version>
+        <netty.nio.core-http2.version>4.1.101.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.24.0</commons.compress.version>
         <jetty.version>11.0.16</jetty.version>
 
