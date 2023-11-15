@@ -86,8 +86,8 @@ maven/mavencentral/io.prometheus/simpleclient_tracer_otel/0.16.0, Apache-2.0, ap
 maven/mavencentral/io.prometheus/simpleclient_tracer_otel_agent/0.16.0, Apache-2.0, approved, clearlydefined
 maven/mavencentral/io.swagger.core.v3/swagger-annotations-jakarta/2.2.2, Apache-2.0, approved, #5947
 maven/mavencentral/io.swagger.core.v3/swagger-core-jakarta/2.2.2, Apache-2.0, approved, #5929
-maven/mavencentral/io.swagger.core.v3/swagger-integration-jakarta/2.2.2, Apache-2.0, approved, clearlydefined
-maven/mavencentral/io.swagger.core.v3/swagger-jaxrs2-jakarta/2.2.2, Apache-2.0, approved, clearlydefined
+maven/mavencentral/io.swagger.core.v3/swagger-integration-jakarta/2.2.2, Apache-2.0, approved, #11475
+maven/mavencentral/io.swagger.core.v3/swagger-jaxrs2-jakarta/2.2.2, Apache-2.0, approved, #11477
 maven/mavencentral/io.swagger.core.v3/swagger-models-jakarta/2.2.2, Apache-2.0, approved, #5919
 maven/mavencentral/jakarta.activation/jakarta.activation-api/2.1.0, EPL-2.0 OR BSD-3-Clause OR GPL-2.0-only with Classpath-exception-2.0, approved, ee4j.jaf
 maven/mavencentral/jakarta.annotation/jakarta.annotation-api/2.1.1, EPL-2.0 OR GPL-2.0-only with Classpath-exception-2.0, approved, ee4j.ca
@@ -216,8 +216,8 @@ maven/mavencentral/org.eclipse.jetty/jetty-servlet/11.0.15, EPL-2.0 OR Apache-2.
 maven/mavencentral/org.eclipse.jetty/jetty-util/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
 maven/mavencentral/org.eclipse.jetty/jetty-webapp/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
 maven/mavencentral/org.eclipse.jetty/jetty-xml/11.0.15, EPL-2.0 OR Apache-2.0, approved, rt.jetty
-maven/mavencentral/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol/1.10.2-20231006.062144-7, Apache-2.0, approved, automotive.tractusx
-maven/mavencentral/org.eclipse.tractusx.edc/auth-jwt/1.10.2-20231006.062053-7, Apache-2.0, approved, automotive.tractusx
+maven/mavencentral/org.eclipse.tractusx.agents.edc.agent-plane/agent-plane-protocol/1.10.6-SNAPSHOT, Apache-2.0, approved, automotive.tractusx
+maven/mavencentral/org.eclipse.tractusx.edc/auth-jwt/1.10.6-SNAPSHOT, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/core-spi/0.5.0, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/edc-dataplane-azure-vault/0.5.0, Apache-2.0, approved, automotive.tractusx
 maven/mavencentral/org.eclipse.tractusx.edc/edc-dataplane-base/0.5.0, Apache-2.0, approved, automotive.tractusx
