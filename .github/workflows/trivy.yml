@@ -1,3 +1,4 @@
+---
 #
 #  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
 #
@@ -17,7 +18,6 @@
 #  SPDX-License-Identifier: Apache-2.0
 #
 
----
 name: "Trivy"
 
 on:
@@ -25,7 +25,7 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
   workflow_run:
-    workflows: [ "Build" ]
+    workflows: ["Build"]
     branches:
       - main
     tags:
@@ -45,8 +45,7 @@ jobs:
         id: git-sha7
         run: |
           echo "SHA7=sha-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          exit 0
-          
+
   trivy-analyze-config:
     runs-on: ubuntu-latest
     permissions:
@@ -54,10 +53,9 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # 0.14.0
+        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # v0.14.0
         with:
           scan-type: "config"
           # ignore-unfixed: true
@@ -66,22 +64,22 @@ jobs:
           format: "sarif"
           output: "trivy-results-config.sarif"
           severity: "CRITICAL,HIGH"
-
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@689fdc5193eeb735ecb2e52e819e3382876f93f4 # v2.22.6
         if: always()
         with:
           sarif_file: "trivy-results-config.sarif"
 
   trivy:
-    needs: [ git-sha7 ]
+    needs: [git-sha7]
     permissions:
       actions: read
       contents: read
       security-events: write
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # continue scanning other images although if the other has been vulnerable
+      # continue scanning other images although if the other has been vulnerable
+      fail-fast: false
       matrix:
         image:
           - agentplane-azure-vault
@@ -92,38 +90,38 @@ jobs:
       - name: Check github repository and set docker repo
         id: set-docker-repo
         run: |
-          echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT; 
-          echo "REPO=tractusx" >> $GITHUB_OUTPUT; 
-          if [ "${{ github.repository }}" != "eclipse-tractusx/knowledge-agents-edc" ]; 
-          then 
+          echo "REGISTRY=docker.io" >> $GITHUB_OUTPUT;
+          echo "REPO=tractusx" >> $GITHUB_OUTPUT;
+          if [ "${{ github.repository }}" != "eclipse-tractusx/knowledge-agents-edc" ];
+          then
             echo "REGISTRY=ghcr.io" >> $GITHUB_OUTPUT
             echo "REPO=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
-          fi          
+          fi
           exit 0
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       # Enable repository access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
-        if: ${{ ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v')) }}
-        uses: docker/login-action@v2
+        if: ${{ ( github.ref == 'refs/heads/main' ||  startsWith(github.ref, 'refs/tags/v') ) }}
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ steps.set-docker-repo.outputs.REGISTRY }}
           # Use existing DockerHub credentials present as secrets
           username: ${{ secrets.DOCKER_HUB_USER || github.actor }}
           password: ${{ secrets.DOCKER_HUB_TOKEN || secrets.GITHUB_TOKEN }}
 
-      ## This step will fail if the docker images is not found
+      # This step will fail if the docker images is not found
       - name: "Check if image exists"
         id: imageCheck
         run: |
           docker manifest inspect ${{ steps.set-docker-repo.outputs.REPO }}/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}
         continue-on-error: true
 
-      ## the next two steps will only execute if the image exists check was successful
+      # the next two steps will only execute if the image exists check was successful
       - name: Run Trivy vulnerability scanner
         if: success() && steps.imageCheck.outcome != 'failure'
-        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # 0.14.0
+        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # v0.14.0
         with:
           image-ref: "${{ steps.set-docker-repo.outputs.REPO }}/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}"
           format: "sarif"
@@ -131,9 +129,9 @@ jobs:
           exit-code: "1"
           severity: "CRITICAL,HIGH"
           timeout: "10m0s"
-          
+
       - name: Upload Trivy scan results to GitHub Security tab
         if: success() && steps.imageCheck.outcome != 'failure'
-        uses: github/codeql-action/upload-sarif@74483a38d39275f33fcff5f35b679b5ca4a26a99 # v2.22.5
+        uses: github/codeql-action/upload-sarif@689fdc5193eeb735ecb2e52e819e3382876f93f4 # v2.22.6
         with:
           sarif_file: "trivy-results-${{ matrix.image }}.sarif"
