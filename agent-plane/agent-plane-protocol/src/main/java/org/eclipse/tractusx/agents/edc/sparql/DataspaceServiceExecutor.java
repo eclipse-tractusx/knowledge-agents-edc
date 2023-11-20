@@ -327,7 +327,7 @@ public class DataspaceServiceExecutor implements ServiceExecutor, ChainingServic
                 }
             }
             // the asset type should be annotated in the rdf type property
-            assetType=endpoint.getProperties().getOrDefault("http://www.w3.org/1999/02/22-rdf-syntax-ns#type",assetType);
+            assetType = String.valueOf(endpoint.getProperties().getOrDefault("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", assetType));
 
             // put the endpoint information into a new service operator
             // and cater for the EDC public api slash problem

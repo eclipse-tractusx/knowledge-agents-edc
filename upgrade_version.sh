@@ -1,6 +1,6 @@
-###############################################################
-# Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
-#
+#!/bin/sh
+
+# Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
 #
@@ -15,7 +15,9 @@
 # under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-###############################################################
 
-product: "Tractus-X Knowledge Agents EDC Extensions (KA-EDC)"
-leadingRepository: "https://github.com/eclipse-tractusx/knowledge-agents"
+OLD_VERSION=1.10.15-SNAPSHOT
+echo Upgrading from $OLD_VERSION to $1
+PATTERN=s/$OLD_VERSION/$1/g
+LC_ALL=C
+find ./ -type f \( -iname "*.xml" -o -iname "*.sh"  -o -iname "*.yml"  -o -iname "*.yaml"  -o -iname "*.md"  -o -iname "*.java" -o -iname "*.properties" \) -exec sed -i.bak $PATTERN {} \;
