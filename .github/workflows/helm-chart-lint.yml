@@ -1,3 +1,4 @@
+---
 #
 #  Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 #
@@ -41,13 +42,12 @@ on:
     inputs:
       node_image:
         description: 'kindest/node image for k8s kind cluster'
-        # k8s version from 3.1 release as default
-        default: 'kindest/node:v1.24.6'
+        # k8s version from 3.3 release as default
+        default: 'kindest/node:v1.27.3'
         required: false
         type: string
       upgrade_from:
         description: 'chart version to upgrade from'
-        # chart version from 3.2 release as default
         default: 'x.x.x'
         required: false
         type: string
@@ -57,21 +57,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v3.5
         with:
           version: v3.10.3
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4.7.1
         with:
           python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.4.0
+        uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
 
       - name: Run chart-testing (list-changed)
         id: list-changed
