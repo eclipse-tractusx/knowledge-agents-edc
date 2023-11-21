@@ -52,7 +52,7 @@
         <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.8.0</org.apache.jena.version>
         <com.azure.azure-identity.version>1.10.0</com.azure.azure-identity.version>
-        <com.azure.azure-security-keyvault-secrets.version>4.6.2</com.azure.azure-security-keyvault-secrets.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.7.1</com.azure.azure-security-keyvault-secrets.version>
         <org.yaml.snakeyaml.version>2.0</org.yaml.snakeyaml.version>
         <net.minidev.jsonsmart.version>2.4.11</net.minidev.jsonsmart.version>
         <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
