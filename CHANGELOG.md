@@ -24,7 +24,7 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
-## [1.10.15] - 
+## [1.10.15] - 2023-11-22
 
 ### Added
 
@@ -46,7 +46,7 @@ All notable changes to this product will be documented in this file.
 - Cyclone DX BOMs (we have Dash)
 - Deprecate some configuration property names as not being compatible with environment variable standards
 
-## [1.9.8] - 
+## [1.9.8] - 2023-09-04
 
 ### Added
 
