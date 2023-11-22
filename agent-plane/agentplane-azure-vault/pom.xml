@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.eclipse.tractusx.agents.edc</groupId>
         <artifactId>agent-plane</artifactId>
-        <version>1.10.15-SNAPSHOT</version>
+        <version>1.10.15</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -185,6 +185,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <version>${reactor.netty.version}</version> <!-- {x-version-update;io.projectreactor.netty:reactor-netty-http;external_dependency} -->
+        </dependency>
+
+        <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
             <version>${org.reactivestreams.version}</version>
@@ -210,6 +216,7 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
