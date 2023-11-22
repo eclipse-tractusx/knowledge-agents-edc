@@ -24,7 +24,6 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
-
 ## [1.10.15] - 2023-11-22
 
 ### Added
