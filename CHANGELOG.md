@@ -24,7 +24,29 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
-## [1.9.8] - 
+## [1.10.15] - 2023-11-22
+
+### Added
+
+- Transfer: Possibility to download skill asset code
+- Matchmaking Agent: Update of already registered Skill Assets
+- Federated Catalogue: Support multiple offers of same asset
+- Auth JWT: allow to exclude certain paths (e.g. liveness)
+
+### Changed
+
+- Adapted to Tractus-X EDC 0.5.3 and the new Asset Management v3
+- Avoid double checking (allow/deny) of target service urls
+- Possibility to run against older EDC versions
+- Upgraded to the latest possible version of dependent libraries
+- Introduce new configuration property compatible with environment variable standards
+
+### Removed
+
+- Cyclone DX BOMs (we have Dash)
+- Deprecate some configuration property names as not being compatible with environment variable standards
+
+## [1.9.8] - 2023-09-04
 
 ### Added
 
