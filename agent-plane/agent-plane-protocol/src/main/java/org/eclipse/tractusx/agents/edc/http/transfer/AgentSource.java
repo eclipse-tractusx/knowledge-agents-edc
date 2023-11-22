@@ -88,7 +88,7 @@ public class AgentSource implements DataSource {
         // Agent call, we translate from KA-MATCH to KA-TRANSFER
         String skill = null;
         String graph = null;
-        String asset = request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID);
+        String asset = String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
         if (asset != null && asset.length() > 0) {
             Matcher graphMatcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
             if (graphMatcher.matches()) {
