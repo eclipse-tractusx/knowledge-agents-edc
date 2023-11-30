@@ -62,6 +62,7 @@
         <netty.nio.core-http2.version>4.1.101.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.24.0</commons.compress.version>
         <jetty.version>11.0.16</jetty.version>
+        <reactor.netty.version>1.0.39</reactor.netty.version>
 
         <!-- Source characteristics -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
