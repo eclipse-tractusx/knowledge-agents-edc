@@ -57,6 +57,8 @@ public class AgentConfig {
     public static final long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
     
     public static final String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
+
+    public static final String RDF_STORE = "cx.agent.rdf.store";
     
     public static final String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
     
@@ -75,6 +77,8 @@ public class AgentConfig {
     public static final String CALLBACK_ENDPOINT = "cx.agent.callback";
 
     public static final String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
+
+    public static final String DEFAULT_GRAPH_CONTRACT_PROPERTY = "cx.agent.graph.contract.default";
 
     public static final String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
     public static final String DEFAULT_SERVICE_ALLOW_PATTERN = "(http|edc)s?://.*";
@@ -252,6 +256,10 @@ public class AgentConfig {
         }
         return connectors;
     }
+    
+    public String getRdfStore() {
+    	return config.getString(RDF_STORE, null);
+    }
 
     /**
      * access
@@ -327,6 +335,15 @@ public class AgentConfig {
 
     /**
      * access
+     *
+     * @return default graph contract
+     */
+    public String getDefaultGraphContract() {
+        return config.getString(DEFAULT_GRAPH_CONTRACT_PROPERTY, null);
+    }
+
+    /**
+     *      * access
      *
      * @return regular expression for allowed service URLs
      */

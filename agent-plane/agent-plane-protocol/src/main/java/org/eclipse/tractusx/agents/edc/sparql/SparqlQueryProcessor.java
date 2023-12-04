@@ -381,21 +381,31 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
         } catch (Exception e) {
             throw new BadRequestException(String.format("Error: Could not bind variables"), e);
         }
+
+        //
+        // Matchmaking Agent As Proxy:
+        // Replace any Graph <Asset> occurrence by SERVICE <DataAddress>
+        // as long as the DataAddress does not point to a local graph
+        //
         if (action.getContext().isDefined(DataspaceServiceExecutor.ASSET_SYMBOL)) {
             String targetUrl = action.getContext().get(DataspaceServiceExecutor.TARGET_URL_SYMBOL);
-            String asset = action.getContext().get(DataspaceServiceExecutor.ASSET_SYMBOL);
-            asset = asset.replace("?", "\\?");
-            String graphPattern = String.format("GRAPH\\s*\\<?(%s)?%s\\>?", UNSET_BASE, asset);
-            Matcher graphMatcher = Pattern.compile(graphPattern).matcher(queryString);
-            replaceQuery = new StringBuilder();
-            lastStart = 0;
-            while (graphMatcher.find()) {
-                replaceQuery.append(queryString.substring(lastStart, graphMatcher.start() - 1));
-                replaceQuery.append(String.format("SERVICE <%s>", targetUrl));
-                lastStart = graphMatcher.end();
+            // local graphs have this fixed base url
+            if (!targetUrl.equals("https://w3id.org/catenax")) {
+                String asset = action.getContext().get(DataspaceServiceExecutor.ASSET_SYMBOL);
+                asset = asset.replace("?", "\\?");
+                String graphPattern = String.format("GRAPH\\s*\\<?(%s)?%s\\>?", UNSET_BASE, asset);
+                Matcher graphMatcher = Pattern.compile(graphPattern).matcher(queryString);
+                replaceQuery = new StringBuilder();
+                lastStart = 0;
+                while (graphMatcher.find()) {
+                    replaceQuery.append(queryString.substring(lastStart, graphMatcher.start() - 1));
+                    replaceQuery.append(String.format("SERVICE <%s>", targetUrl));
+                    lastStart = graphMatcher.end();
+                }
+                replaceQuery.append(queryString.substring(lastStart));
+                queryString = replaceQuery.toString();
             }
-            replaceQuery.append(queryString.substring(lastStart));
-            queryString = replaceQuery.toString();
+
         }
         super.execute(queryString, action);
     }

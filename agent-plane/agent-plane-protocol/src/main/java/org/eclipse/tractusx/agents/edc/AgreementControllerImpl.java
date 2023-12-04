@@ -42,6 +42,7 @@ import org.eclipse.tractusx.agents.edc.model.OdrlPolicy;
 import org.eclipse.tractusx.agents.edc.model.TransferProcess;
 import org.eclipse.tractusx.agents.edc.model.TransferRequest;
 import org.eclipse.tractusx.agents.edc.service.DataManagement;
+import org.eclipse.tractusx.agents.edc.service.DataManagementImpl;
 import org.eclipse.tractusx.agents.edc.service.DataspaceSynchronizer;
 
 import java.io.IOException;
@@ -282,7 +283,7 @@ public class AgreementControllerImpl implements AgreementController {
         var contractNegotiationRequest = ContractNegotiationRequest.Builder.newInstance()
                 .offerId(contractOfferDescription)
                 .connectorId("provider")
-                .connectorAddress(String.format(DataManagement.DSP_PATH, remoteUrl))
+                .connectorAddress(String.format(DataManagementImpl.DSP_PATH, remoteUrl))
                 .protocol("dataspace-protocol-http")
                 .localBusinessPartnerNumber(config.getBusinessPartnerNumber())
                 .remoteBusinessPartnerNumber(contractOffers.getParticipantId())
@@ -358,7 +359,7 @@ public class AgreementControllerImpl implements AgreementController {
                 .assetId(asset)
                 .contractId(agreement.getId())
                 .connectorId(config.getBusinessPartnerNumber())
-                .connectorAddress(String.format(DataManagement.DSP_PATH, remoteUrl))
+                .connectorAddress(String.format(DataManagementImpl.DSP_PATH, remoteUrl))
                 .protocol("dataspace-protocol-http")
                 .dataDestination(dataDestination)
                 .managedResources(false)

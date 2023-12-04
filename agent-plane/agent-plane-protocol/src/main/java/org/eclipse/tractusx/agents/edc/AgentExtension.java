@@ -38,7 +38,7 @@ import org.eclipse.tractusx.agents.edc.http.HttpClientFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceFactory;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceRequestParamsSupplier;
 import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
-import org.eclipse.tractusx.agents.edc.service.DataManagement;
+import org.eclipse.tractusx.agents.edc.service.DataManagementImpl;
 import org.eclipse.tractusx.agents.edc.service.DataspaceSynchronizer;
 import org.eclipse.tractusx.agents.edc.service.EdcSkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
@@ -125,7 +125,7 @@ public class AgentExtension implements ServiceExtension {
         edcHttpClient = instance.getKey();
         httpClient = instance.getValue();
 
-        DataManagement catalogService = new DataManagement(monitor, typeManager, httpClient, config);
+        DataManagementImpl catalogService = new DataManagementImpl(monitor, typeManager, httpClient, config);
 
         AgreementControllerImpl agreementController = new AgreementControllerImpl(monitor, config, catalogService);
         monitor.debug(String.format("Registering agreement controller %s", agreementController));
