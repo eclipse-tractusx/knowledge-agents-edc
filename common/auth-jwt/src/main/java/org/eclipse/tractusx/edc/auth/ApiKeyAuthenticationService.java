@@ -27,19 +27,19 @@ import java.util.Map;
  * in clear text in memory
  */
 public class ApiKeyAuthenticationService implements AuthenticationService {
-    public static String AUTHENTICATION_HEADER="x-api-key";
-    final protected int reference;
+    public static final String AUTHENTICATIONHEADER = "x-api-key";
+    protected final int reference;
 
     public ApiKeyAuthenticationService(int reference) {
-        this.reference=reference;
+        this.reference = reference;
     }
 
     @Override
     public boolean isAuthenticated(Map<String, List<String>> map) {
         return map.entrySet().stream()
-                .filter( e->e.getKey().equalsIgnoreCase(AUTHENTICATION_HEADER))
-                .flatMap( e->e.getValue().stream().map( v -> reference==v.hashCode()))
-                .anyMatch(b->b);
+                .filter(e -> e.getKey().equalsIgnoreCase(AUTHENTICATIONHEADER))
+                .flatMap(e -> e.getValue().stream().map(v -> reference == v.hashCode()))
+                .anyMatch(b -> b);
     }
 
     /**
@@ -52,7 +52,7 @@ public class ApiKeyAuthenticationService implements AuthenticationService {
         }
 
         public Builder setReference(int reference) {
-            this.reference=reference;
+            this.reference = reference;
             return this;
         }
 

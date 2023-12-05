@@ -20,7 +20,10 @@ import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.query.QueryVisitor;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.Prologue;
-import org.apache.jena.sparql.serializer.*;
+import org.apache.jena.sparql.serializer.FmtExprSPARQL;
+import org.apache.jena.sparql.serializer.FmtTemplate;
+import org.apache.jena.sparql.serializer.QuerySerializerFactory;
+import org.apache.jena.sparql.serializer.SerializationContext;
 import org.apache.jena.sparql.util.NodeToLabelMapBNode;
 
 /**

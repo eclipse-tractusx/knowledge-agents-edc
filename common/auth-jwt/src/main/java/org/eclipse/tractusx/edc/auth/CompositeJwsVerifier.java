@@ -27,10 +27,10 @@ import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jca.JCAContext;
 import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jose.util.IOUtils;
+import org.eclipse.edc.spi.monitor.Monitor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +48,7 @@ import java.util.Set;
  */
 public class CompositeJwsVerifier implements JWSVerifier {
 
-    final protected Map<JWSAlgorithm, JWSVerifier> verifierMap=new HashMap<>();
+    protected final Map<JWSAlgorithm, JWSVerifier> verifierMap = new HashMap<>();
 
     /**
      * create a new verifier
@@ -58,22 +58,24 @@ public class CompositeJwsVerifier implements JWSVerifier {
 
     /**
      * implement token verification by delegating to another jws verifier depending on the used algorithm
-     * @param jwsHeader       The JSON Web Signature (JWS) header. Must
-     *                     specify a supported JWS algorithm and must not
-     *                     be {@code null}.
-     * @param bytes The signing input. Must not be {@code null}.
-     * @param base64URL    The signature part of the JWS object. Must not
-     *                     be {@code null}.
      *
+     * @param jwsHeader The JSON Web Signature (JWS) header. Must
+     *                  specify a supported JWS algorithm and must not
+     *                  be {@code null}.
+     * @param bytes     The signing input. Must not be {@code null}.
+     * @param base64Url The signature part of the JWS object. Must not
+     *                  be {@code null}.
      * @return flag indicating verification success
-     * @throws JOSEException
+     * @throws JOSEException in case an error occured
      */
     @Override
-    public boolean verify(JWSHeader jwsHeader, byte[] bytes, Base64URL base64URL) throws JOSEException {
-        return verifierMap.get(jwsHeader.getAlgorithm()).verify(jwsHeader,bytes,base64URL);
+    public boolean verify(JWSHeader jwsHeader, byte[] bytes, Base64URL base64Url) throws JOSEException {
+        return verifierMap.get(jwsHeader.getAlgorithm()).verify(jwsHeader, bytes, base64Url);
     }
 
     /**
+     * access list of algos
+     *
      * @return the list of supported/delegated algorithms
      */
     @Override
@@ -82,41 +84,49 @@ public class CompositeJwsVerifier implements JWSVerifier {
     }
 
     /**
+     * access current context
+     *
      * @return we obtain the jca context by delegating to the first existing delegation service, null if none is registered
      */
     @Override
     public JCAContext getJCAContext() {
-        return verifierMap.entrySet().stream().findFirst().map(e->e.getValue().getJCAContext()).orElse(null);
+        return verifierMap.entrySet().stream().findFirst().map(e -> e.getValue().getJCAContext()).orElse(null);
     }
 
     /**
      * a builder for composite jws verifiers
      */
     public static class Builder {
+        protected final ObjectMapper om;
+        protected final Monitor monitor;
         protected CompositeJwsVerifier verifier;
-        final protected ObjectMapper om;
 
         /**
          * create a new builder
+         *
          * @param om objectmapper for json parsing
+         * @param monitor logging facility
          */
-        public Builder(ObjectMapper om) {
-            verifier=new CompositeJwsVerifier();
-            this.om=om;
+        public Builder(ObjectMapper om, Monitor monitor) {
+            verifier = new CompositeJwsVerifier();
+            this.om = om;
+            this.monitor = monitor;
         }
 
         /**
          * add a new subverifier/delegating service
+         *
          * @param subVerifier the subverifier instance
          * @return this
          */
         public Builder addVerifier(JWSVerifier subVerifier) {
-            subVerifier.supportedJWSAlgorithms().forEach(algo -> verifier.verifierMap.put(algo,subVerifier));
+            subVerifier.supportedJWSAlgorithms().forEach(algo -> verifier.verifierMap.put(algo, subVerifier));
             return this;
         }
 
         /**
          * adds a key as a json node
+         *
          * @param key json representation of keys
          * @return this builder
          */
@@ -127,28 +137,32 @@ public class CompositeJwsVerifier implements JWSVerifier {
             if (key.isArray()) {
                 var keyIterator = key.elements();
                 while (keyIterator.hasNext()) {
-                    JsonNode nextKey= keyIterator.next();
-                    if(nextKey.has("use") && nextKey.get("use").asText().equals("sig")) {
+                    JsonNode nextKey = keyIterator.next();
+                    if (nextKey.has("use") && nextKey.get("use").asText().equals("sig")) {
                         addKey(nextKey);
                     }
                 }
                 return this;
             }
-            if ( key.has("kty")) {
+            if (key.has("kty")) {
                 var kty = key.get("kty");
                 switch (kty.asText()) {
                     case "RSA":
                         try {
                             var rsaKey = RSAKey.parse(om.writeValueAsString(key));
                             return addVerifier(new RSASSAVerifier(rsaKey));
-                        } catch(JOSEException | JsonProcessingException | ParseException e) {
+                        } catch (JOSEException | JsonProcessingException | ParseException e) {
+                            monitor.warning("Trying to parse RSA key run into error. Ignoring", e);
                         }
+                        break;
                     case "EC":
                         try {
                             var ecKey = ECKey.parse(om.writeValueAsString(key));
                             return addVerifier(new ECDSAVerifier(ecKey));
-                        } catch(JOSEException | JsonProcessingException | ParseException e) {
+                        } catch (JOSEException | JsonProcessingException | ParseException e) {
+                            monitor.warning("Trying to parse EC key run into error. Ignoring", e);
                         }
+                        break;
                     default:
                         break;
                 }
@@ -158,11 +172,12 @@ public class CompositeJwsVerifier implements JWSVerifier {
 
         /**
          * adds s given key
+         *
          * @param key maybe a a json definition for a single key or multiple keys, or a url to download a key
          * @return this instance
          */
         public Builder addKey(String key) {
-            if(key!=null) {
+            if (key != null) {
                 try {
                     URL keyUrl = new URL(key);
                     try (InputStream keyStream = keyUrl.openStream()) {
@@ -171,12 +186,14 @@ public class CompositeJwsVerifier implements JWSVerifier {
                         key = null;
                     }
                 } catch (MalformedURLException e) {
+                    monitor.warning("Trying to parse key URL run into error. Ignoring", e);
                 }
             }
-            if(key!=null) {
+            if (key != null) {
                 try {
                     return addKey(om.readTree(key));
                 } catch (JsonProcessingException e) {
+                    monitor.warning("Trying to parse key json run into error. Ignoring", e);
                 }
             }
             return this;
@@ -184,6 +201,7 @@ public class CompositeJwsVerifier implements JWSVerifier {
 
         /**
          * builds the composite verfifier from the builder state
+         *
          * @return new composite verifier state
          */
         public CompositeJwsVerifier build() {

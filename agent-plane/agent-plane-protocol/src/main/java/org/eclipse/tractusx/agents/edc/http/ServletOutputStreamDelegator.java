@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 /**
  * delegates a servlet output stream to a simple outputstream
@@ -29,7 +29,7 @@ public class ServletOutputStreamDelegator extends ServletOutputStream {
     final OutputStream delegate;
 
     public ServletOutputStreamDelegator(OutputStream delegate) {
-           this.delegate=delegate;
+        this.delegate = delegate;
     }
 
     @Override

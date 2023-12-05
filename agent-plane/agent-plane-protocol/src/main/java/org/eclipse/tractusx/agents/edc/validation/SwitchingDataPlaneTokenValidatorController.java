@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.validation;
 
-import org.eclipse.tractusx.agents.edc.AgentConfig;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
@@ -27,6 +26,7 @@ import jakarta.ws.rs.core.Response;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
 
 import java.io.IOException;
 
@@ -43,22 +43,25 @@ public class SwitchingDataPlaneTokenValidatorController implements DataPlaneToke
 
     /**
      * creates a new controller
+     *
      * @param httpClient to use
-     * @param config to obey
-     * @param monitor to log
+     * @param config     to obey
+     * @param monitor    to log
      */
     public SwitchingDataPlaneTokenValidatorController(OkHttpClient httpClient, AgentConfig config, Monitor monitor) {
-        this.httpClient=httpClient;
-        this.config=config;
-        this.monitor=monitor;
-        this.endpoints=config.getValidatorEndpoints();
+        this.httpClient = httpClient;
+        this.config = config;
+        this.monitor = monitor;
+        this.endpoints = config.getValidatorEndpoints();
     }
 
     /**
+     * access
+     *
      * @return a flag indicating whether this endpoint is enabled
      */
     public boolean isEnabled() {
-        return endpoints!=null && endpoints.length>0;
+        return endpoints != null && endpoints.length > 0;
     }
 
     /**
@@ -71,8 +74,8 @@ public class SwitchingDataPlaneTokenValidatorController implements DataPlaneToke
     @Produces({ MediaType.APPLICATION_JSON })
     @Override
     public Response validate(@HeaderParam(HttpHeaders.AUTHORIZATION) String token) {
-        Response result=Response.status(400,"No validation endpoint could be found to switch to.").build();
-        if(isEnabled()) {
+        Response result = Response.status(400, "No validation endpoint could be found to switch to.").build();
+        if (isEnabled()) {
             for (String endpoint : endpoints) {
                 var request = new Request.Builder().url(endpoint).header(HttpHeaders.AUTHORIZATION, token).get().build();
                 try (var response = httpClient.newCall(request).execute()) {

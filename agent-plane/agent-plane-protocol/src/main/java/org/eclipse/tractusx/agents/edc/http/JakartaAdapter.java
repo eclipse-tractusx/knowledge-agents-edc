@@ -16,46 +16,77 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import java.lang.reflect.*;
-
 import org.eclipse.edc.spi.monitor.Monitor;
+
+import java.lang.reflect.Proxy;
 
 /**
  * An invocation handler which maps all jakarta objects
  * to a javax.servlet level
  */
-public class JakartaAdapter implements InvocationHandler, IJakartaAdapter<Object> {
-    
-    Object jakartaDelegate;
-    Monitor monitor;
+public interface JakartaAdapter<TARGET> {
 
-    public JakartaAdapter(Object jakartaDelegate, Monitor monitor) {
-        this.jakartaDelegate=jakartaDelegate;
-        this.monitor=monitor;
-    }
+    /**
+     * access
+     *
+     * @return the wrapper object
+     */
+    TARGET getDelegate();
 
-    @Override
-    public Object getDelegate() {
-        return jakartaDelegate;
-    }
+    /**
+     * access
+     *
+     * @return EDC logging support
+     */
+    Monitor getMonitor();
 
-    @Override
-    public Monitor getMonitor() {
-        return monitor;
-    }
-
+    /**
+     * unwrap logic
+     *
+     * @param types array of type annotations
+     * @param args  array of objects
+     * @return unwrapped array of objects
+     * @throws Throwable in case something strange happens
+     */
     @SuppressWarnings("rawtypes")
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Class[] types=method.getParameterTypes();
-        args= IJakartaAdapter.unwrap(types,args);
-        Method targetMethod=jakartaDelegate.getClass().getMethod(method.getName(),types);
-        Object result=targetMethod.invoke(jakartaDelegate,args);
-        //monitor.debug(String.format("Jakarta wrapper mapped method %s to target method %s on args %s with result %s",method,targetMethod,Arrays.toString(args),result));
-        if((!method.getReturnType().isAssignableFrom(targetMethod.getReturnType())) && result!=null) {
-            result= IJakartaAdapter.javaxify(result,method.getReturnType(),monitor);
+    static Object[] unwrap(Class[] types, Object[] args) throws Throwable {
+        if (args == null) args = new Object[0];
+        for (int count = 0; count < args.length; count++) {
+            if (types[count].getCanonicalName().startsWith("javax.servlet") && args[count] != null) {
+                JakartaAdapter<Object> wrapper;
+                if (args[count] instanceof JakartaAdapter) {
+                    wrapper = (JakartaAdapter<Object>) args[count];
+                } else {
+                    // we assume its a proxy
+                    wrapper = (JakartaAdapter<Object>) Proxy.getInvocationHandler(args[count]);
+                }
+                args[count] = wrapper.getDelegate();
+                Class jakartaClass = JakartaAdapter.class.getClassLoader().loadClass(types[count].getCanonicalName().replace("javax.servlet", "jakarta.servlet"));
+                types[count] = jakartaClass;
+            }
         }
-        return result;
+        return args;
+    }
+
+    /**
+     * wrap logic
+     *
+     * @param jakarta    original object
+     * @param javaxClass target interfaces
+     * @param monitor    EDC loggin subsystem
+     * @param <TARGET>   target interfaces as generics
+     * @return wrapped object
+     */
+    static <TARGET> TARGET javaxify(Object jakarta, Class<TARGET> javaxClass, Monitor monitor) {
+        if (javax.servlet.ServletInputStream.class.equals(javaxClass)) {
+            return (TARGET) new JakartaServletInputStreamAdapter((jakarta.servlet.ServletInputStream) jakarta, monitor);
+        }
+        if (javax.servlet.ServletOutputStream.class.equals(javaxClass)) {
+            return (TARGET) new JakartaServletOutputStreamAdapter((jakarta.servlet.ServletOutputStream) jakarta, monitor);
+        }
+        return (TARGET) Proxy.newProxyInstance(JakartaAdapterImpl.class.getClassLoader(),
+                new Class[]{ javaxClass },
+                new JakartaAdapterImpl(jakarta, monitor));
     }
 
 }

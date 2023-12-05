@@ -19,19 +19,19 @@ package org.eclipse.tractusx.agents.edc.http;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.eclipse.tractusx.agents.edc.TupleSet;
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.jena.fuseki.system.ActionCategory;
 import org.apache.jena.fuseki.servlets.HttpAction;
+import org.apache.jena.fuseki.system.ActionCategory;
+import org.eclipse.tractusx.agents.edc.TupleSet;
+import org.slf4j.Logger;
 
 import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -45,17 +45,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class AgentHttpAction extends HttpAction {
     final String skill;
     final String graphs;
-    final TupleSet tupleSet=new TupleSet();
+    final TupleSet tupleSet = new TupleSet();
 
     /**
      * regexes to deal with url parameters
      */
-    public static String URL_PARAM_REGEX = "(?<key>[^=&]+)=(?<value>[^&]+)";
-    public static Pattern URL_PARAM_PATTERN=Pattern.compile(URL_PARAM_REGEX);
-    public static String RESULTSET_CONTENT_TYPE="application/sparql-results+json";
+    public static final String URL_PARAM_REGEX = "(?<key>[^=&]+)=(?<value>[^&]+)";
+    public static final Pattern URL_PARAM_PATTERN = Pattern.compile(URL_PARAM_REGEX);
+    public static final String RESULTSET_CONTENT_TYPE = "application/sparql-results+json";
 
     /**
      * creates a new http action
+     *
      * @param id call id
      * @param logger the used logging output
      * @param request servlet input
@@ -64,10 +65,10 @@ public class AgentHttpAction extends HttpAction {
      */
     public AgentHttpAction(long id, Logger logger, HttpServletRequest request, HttpServletResponse response, String skill, String graphs) {
         super(id, logger, ActionCategory.ACTION, request, response);
-        this.skill=skill;
-        this.graphs=graphs;
-        parseArgs(request,response);
-        parseBody(request,response);
+        this.skill = skill;
+        this.graphs = graphs;
+        parseArgs(request, response);
+        parseBody(request, response);
     }
 
     /**
@@ -118,29 +119,31 @@ public class AgentHttpAction extends HttpAction {
      * parses the body
      */
     protected void parseBody(HttpServletRequest request, HttpServletResponse response) {
-        if(RESULTSET_CONTENT_TYPE.equals(request.getContentType())) {
-            ObjectMapper om= new ObjectMapper();
+        if (RESULTSET_CONTENT_TYPE.equals(request.getContentType())) {
+            ObjectMapper om = new ObjectMapper();
             try {
-                JsonNode bindingSet=om.readTree(request.getInputStream());
-                ArrayNode bindings=((ArrayNode) bindingSet.get("results").get("bindings"));
-                for(int count=0;count<bindings.size();count++) {
-                    TupleSet ts=new TupleSet();
-                    JsonNode binding=bindings.get(count);
+                JsonNode bindingSet = om.readTree(request.getInputStream());
+                ArrayNode bindings = ((ArrayNode) bindingSet.get("results").get("bindings"));
+                for (int count = 0; count < bindings.size(); count++) {
+                    TupleSet ts = new TupleSet();
+                    JsonNode binding = bindings.get(count);
                     Iterator<String> vars = binding.fieldNames();
-                    while(vars.hasNext()) {
+                    while (vars.hasNext()) {
                         String var = vars.next();
                         JsonNode value = binding.get(var).get("value");
-                        ts.add(var,value.textValue());
+                        ts.add(var, value.textValue());
                     }
                     tupleSet.merge(ts);
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 response.setStatus(HttpStatus.SC_BAD_REQUEST);
             }
         }
     }
 
     /**
+     * access
+     *
      * @return optional skill
      */
     public String getSkill() {
@@ -148,6 +151,8 @@ public class AgentHttpAction extends HttpAction {
     }
 
     /**
+     * access
+     *
      * @return optional skill
      */
     public String getGraphs() {
@@ -155,6 +160,8 @@ public class AgentHttpAction extends HttpAction {
     }
 
     /**
+     * access
+     *
      * @return the actual input bindings
      */
     public TupleSet getInputBindings() {

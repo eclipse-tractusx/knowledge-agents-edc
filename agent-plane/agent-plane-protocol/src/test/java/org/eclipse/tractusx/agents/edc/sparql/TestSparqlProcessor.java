@@ -23,7 +23,7 @@ import org.apache.jena.sparql.service.ServiceExecutorRegistry;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.*;
-import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
+import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -48,11 +48,11 @@ public class TestSparqlProcessor {
     AgentConfig agentConfig=new AgentConfig(monitor,config);
     ServiceExecutorRegistry serviceExecutorReg=new ServiceExecutorRegistry();
     OkHttpClient client=new OkHttpClient();
-    IAgreementController mockController = new MockAgreementController();
+    AgreementController mockController = new MockAgreementController();
     ExecutorService threadedExecutor= Executors.newSingleThreadExecutor();
     TypeManager typeManager = new TypeManager();
     DataspaceServiceExecutor exec=new DataspaceServiceExecutor(monitor,mockController,agentConfig,client,threadedExecutor,typeManager);
-    RDFStore store = new RDFStore(agentConfig,monitor);
+    RdfStore store = new RdfStore(agentConfig,monitor);
 
     SparqlQueryProcessor processor=new SparqlQueryProcessor(serviceExecutorReg,monitor,agentConfig,store, typeManager);
 
@@ -84,16 +84,16 @@ public class TestSparqlProcessor {
     @Test
     @Tag("online")
     public void testFederatedGraph() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE<edc://localhost:8080/sparql> { " +
-                "GRAPH <urn:cx:Graph:4711> { VALUES (?what) { (\"42\"^^xsd:int)} } } }";
+        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE<http://localhost:8898/match> { " +
+                "GRAPH <urn:cx:Graph:4711> { VALUES (?subject) { (<urn:cx:AnonymousSerializedPart#GB4711>)} } } }";
         Request.Builder builder=new Request.Builder();
         builder.url("http://localhost:8080");
         builder.addHeader("Accept","application/json");
         builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
         try (Response response=processor.execute(builder.build(),null,null,Map.of())) {
             JsonNode root = mapper.readTree(Objects.requireNonNull(response.body()).string());
-            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("what");
-            assertEquals("42", whatBinding0.get("value").asText(), "Correct binding");
+            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("subject");
+            assertEquals("urn:cx:AnonymousSerializedPart#GB4711", whatBinding0.get("value").asText(), "Correct binding");
         }
     }
 
@@ -104,8 +104,8 @@ public class TestSparqlProcessor {
     @Test
     @Tag("online")
     public void testFederatedServiceChain() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { VALUES (?chain1) { (<http://localhost:8080/sparql#urn:cx:Graph:1>)} SERVICE ?chain1 { " +
-                "VALUES (?chain2) { (<http://localhost:8080/sparql>)} SERVICE ?chain2 { VALUES (?what) { (\"42\"^^xsd:int)} } } }";
+        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?subject WHERE { VALUES (?chain1) { (<http://localhost:8898/match#urn:cx:Graph:1>)} SERVICE ?chain1 { " +
+                "VALUES (?chain2) { (<http://localhost:8098/match>)} SERVICE ?chain2 { VALUES (?subject) { (<urn:cx:AnonymousSerializedPart#GB4711>)} } } }";
         Request.Builder builder=new Request.Builder();
         builder.url("http://localhost:8080");
         builder.addHeader("Accept","application/sparql-results+json");
@@ -113,8 +113,8 @@ public class TestSparqlProcessor {
         try(Response response=processor.execute(builder.build(),null,null,Map.of())) {
             assertTrue(response.isSuccessful(), "Response was successful");
             JsonNode root = mapper.readTree(Objects.requireNonNull(response.body()).string());
-            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("what");
-            assertEquals("84", whatBinding0.get("value").asText(), "Correct binding");
+            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("subject");
+            assertEquals("urn:cx:AnonymousSerializedPart#GB4711", whatBinding0.get("value").asText(), "Correct binding");
         }
     }
 
@@ -168,7 +168,7 @@ public class TestSparqlProcessor {
     @Test
     @Tag("online")
     public void testRemoteTransfer() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE <http://localhost:8898/transfer?asset=urn%3Acx%3AGraphAsset%23Test> { VALUES (?what) { (\"42\"^^xsd:int) } } }";
+        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE <http://localhost:8898/match?asset=urn%3Acx%3AGraphAsset%23Test> { VALUES (?what) { (\"42\"^^xsd:int) } } }";
         Request.Builder builder=new Request.Builder();
         builder.url("http://localhost:8080");
         builder.addHeader("Accept","application/sparql-results+json");

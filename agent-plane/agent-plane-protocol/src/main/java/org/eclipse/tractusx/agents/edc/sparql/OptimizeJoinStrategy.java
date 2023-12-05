@@ -17,7 +17,11 @@
 package org.eclipse.tractusx.agents.edc.sparql;
 
 import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.op.*;
+import org.apache.jena.sparql.algebra.op.OpGraph;
+import org.apache.jena.sparql.algebra.op.OpJoin;
+import org.apache.jena.sparql.algebra.op.OpSequence;
+import org.apache.jena.sparql.algebra.op.OpService;
+import org.apache.jena.sparql.algebra.op.OpUnion;
 import org.apache.jena.sparql.algebra.optimize.TransformJoinStrategy;
 import org.apache.jena.sparql.engine.main.JoinClassifier;
 
@@ -31,24 +35,25 @@ public class OptimizeJoinStrategy extends TransformJoinStrategy {
 
     /**
      * implement the federated join strategy
+     *
      * @param opJoin operator to optimize
-     * @param left left-part of join
-     * @param right right-part of join
+     * @param left   left-part of join
+     * @param right  right-part of join
      * @return transformed join operator
      */
     @Override
     public Op transform(OpJoin opJoin, Op left, Op right) {
         boolean canDoLinear = JoinClassifier.isLinear(opJoin);
         if (!canDoLinear) {
-            if(right instanceof OpService || right instanceof OpUnion) {
+            if (right instanceof OpService || right instanceof OpUnion) {
                 // join no-matter what with a service or a union
                 return OpSequence.create(left, right);
             }
-            if(left instanceof OpService || left instanceof OpGraph) {
+            if (left instanceof OpService || left instanceof OpGraph) {
                 // join no matter after service and graph calls
                 return OpSequence.create(left, right);
             }
-            if(left instanceof OpSequence && right instanceof OpSequence) {
+            if (left instanceof OpSequence && right instanceof OpSequence) {
                 // join two sequences
                 return OpSequence.create(left, right);
             }

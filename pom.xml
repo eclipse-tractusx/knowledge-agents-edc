@@ -70,6 +70,7 @@
         <!-- REPO -->
         <repo>tractusx/</repo>
         <platform>linux/amd64</platform>
+
     </properties>
     <modules>
         <module>common/auth-jwt</module>
@@ -207,9 +208,32 @@
                     </executions>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.3.0</version>
+                    <configuration>
+                        <configLocation>${session.executionRootDirectory}/resources/tx-checkstyle-config.xml</configLocation>
+                        <propertyExpansion>
+                            config_loc=${session.executionRootDirectory}/resources
+                        </propertyExpansion>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <linkXRef>false</linkXRef>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.eclipse.dash</groupId>
                     <artifactId>license-tool-plugin</artifactId>
-                    <version>0.0.1-SNAPSHOT</version>
+                    <version>1.0.3-SNAPSHOT</version>
                     <configuration>
                         <projectId>automotive.tractusx</projectId>
                         <summary>DEPENDENCIES</summary>
@@ -237,15 +261,15 @@
     </repositories>
 
     <pluginRepositories>
-	    <pluginRepository>
-		<id>dash-licenses-snapshots</id>
-		<url>https://repo.eclipse.org/content/repositories/dash-licenses-snapshots/</url>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-	    </pluginRepository>
+        <pluginRepository>
+            <id>dash-licenses-snapshots</id>
+            <url>https://repo.eclipse.org/content/repositories/dash-licenses-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
-    
+
     <distributionManagement>
         <repository>
             <id>github</id>

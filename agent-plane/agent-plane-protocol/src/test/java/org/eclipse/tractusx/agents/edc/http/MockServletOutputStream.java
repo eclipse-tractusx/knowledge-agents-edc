@@ -34,7 +34,7 @@ public class MockServletOutputStream extends ServletOutputStream {
 		this.delegate = stream;
 	}
 
-	public final OutputStream getdelegate() {
+	public final OutputStream getDelegate() {
 		return this.delegate;
 	}
 

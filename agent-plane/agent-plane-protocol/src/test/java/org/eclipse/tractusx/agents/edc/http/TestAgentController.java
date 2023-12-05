@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.UriInfo;
-import org.eclipse.tractusx.agents.edc.rdf.RDFStore;
+import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
 import org.eclipse.tractusx.agents.edc.service.InMemorySkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
@@ -71,17 +71,17 @@ public class TestAgentController extends RestControllerTestBase {
     AgentConfig agentConfig=new AgentConfig(monitor,config);
     ServiceExecutorRegistry serviceExecutorReg=new ServiceExecutorRegistry();
     OkHttpClient client=new OkHttpClient();
-    IAgreementController mockController = new MockAgreementController("test",port);
+    AgreementController mockController = new MockAgreementController("test",port);
     ExecutorService threadedExecutor= Executors.newSingleThreadExecutor();
     TypeManager typeManager = new TypeManager();
     DataspaceServiceExecutor exec=new DataspaceServiceExecutor(monitor,mockController,agentConfig,client,threadedExecutor,typeManager);
-    RDFStore store = new RDFStore(agentConfig,monitor);
+    RdfStore store = new RdfStore(agentConfig,monitor);
 
 
     SparqlQueryProcessor processor=new SparqlQueryProcessor(serviceExecutorReg,monitor,agentConfig,store, typeManager);
     InMemorySkillStore skillStore=new InMemorySkillStore();
 
-    DelegationService delegationService=new DelegationService(mockController,monitor,client,typeManager,agentConfig);
+    DelegationServiceImpl delegationService=new DelegationServiceImpl(mockController,monitor,client,typeManager,agentConfig);
     AgentController agentController=new AgentController(monitor,mockController,agentConfig,processor,skillStore,delegationService);
 
     AutoCloseable mocks=null;
@@ -397,14 +397,14 @@ public class TestAgentController extends RestControllerTestBase {
     @Test
     @Tag("online")
     public void testRemotingSkill() throws IOException {
-        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { SERVICE<http://localhost:8080/sparql> { VALUES (?what) { (\"@input\"^^xsd:int)} } }";
+        String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?subject WHERE { SERVICE<http://localhost:8898/match> { VALUES (?subject) { (<@input>)} } }";
         String asset="urn:cx:Skill:cx:Test";
         try(var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null)) {
             assertEquals(200,response.getStatus(),"post skill successful");
-            String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "84")));
+            String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "urn:cx:AnonymousSerializedPart#GB4711")));
             JsonNode root = mapper.readTree(result);
-            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("what");
-            assertEquals("84", whatBinding0.get("value").asText(), "Correct binding");
+            JsonNode whatBinding0 = root.get("results").get("bindings").get(0).get("subject");
+            assertEquals("urn:cx:AnonymousSerializedPart#GB4711", whatBinding0.get("value").asText(), "Correct binding");
         }
     }
 

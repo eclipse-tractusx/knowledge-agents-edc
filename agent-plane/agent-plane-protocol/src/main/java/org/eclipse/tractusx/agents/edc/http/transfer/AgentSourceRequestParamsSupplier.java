@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http.transfer;
 
-import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.edc.connector.dataplane.http.params.decorators.BaseCommonHttpParamsDecorator;
 import org.eclipse.edc.connector.dataplane.http.params.decorators.BaseSinkHttpParamsDecorator;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpParamsDecorator;
@@ -27,6 +26,7 @@ import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.spi.types.domain.HttpDataAddress;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +55,7 @@ public class AgentSourceRequestParamsSupplier implements HttpRequestParamsProvid
 
     /**
      * creates a supplier
+     *
      * @param vault secret host
      * @param config edc config section
      * @param monitor logging reference
@@ -63,10 +64,10 @@ public class AgentSourceRequestParamsSupplier implements HttpRequestParamsProvid
         BaseCommonHttpParamsDecorator commonHttpParamsDecorator = new BaseCommonHttpParamsDecorator(vault, typeManager);
         this.registerSinkDecorator(commonHttpParamsDecorator);
         this.registerSourceDecorator(commonHttpParamsDecorator);
-        this.registerSourceDecorator(new AgentSourceHttpParamsDecorator(config,monitor));
+        this.registerSourceDecorator(new AgentSourceHttpParamsDecorator(config, monitor));
         this.registerSinkDecorator(new BaseSinkHttpParamsDecorator());
-        this.config=config;
-        this.monitor=monitor;
+        this.config = config;
+        this.monitor = monitor;
     }
 
     @Override

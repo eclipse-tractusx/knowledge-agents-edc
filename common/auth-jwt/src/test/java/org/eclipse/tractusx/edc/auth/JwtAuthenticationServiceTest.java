@@ -26,19 +26,24 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.eclipse.edc.spi.monitor.ConsoleMonitor;
+import org.eclipse.edc.spi.monitor.Monitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * tests the jwt service
  */
 public class JwtAuthenticationServiceTest {
     ObjectMapper om;
+    Monitor monitor;
 
     CompositeJwsVerifier verifier;
 
@@ -61,7 +66,8 @@ public class JwtAuthenticationServiceTest {
 
     @BeforeEach
     public void initialize() throws JOSEException {
-        om=new ObjectMapper();
+        monitor=new ConsoleMonitor();
+        om = new ObjectMapper();
         RSAKey rsaJWK = new RSAKeyGenerator(2048)
                 .keyID("123")
                 .generate();
@@ -87,44 +93,44 @@ public class JwtAuthenticationServiceTest {
                 claimsSet);
         signedJWT2.sign(signer2);
         token2 = signedJWT2.serialize();
-        verifier=new CompositeJwsVerifier.Builder(om).addKey(rsaPublicJWK.toJSONString()).build();
-        service=new JwtAuthenticationService(verifier,false);
+        verifier = new CompositeJwsVerifier.Builder(om,monitor).addKey(rsaPublicJWK.toJSONString()).build();
+        service = new JwtAuthenticationService(verifier, false);
     }
 
     @Test
     public void testValidJwtToken() {
-        var headers=Map.of("Authorization", List.of("Bearer "+token));
-        assertTrue(service.isAuthenticated(headers),"Could not authenticate using valid token");
+        var headers = Map.of("Authorization", List.of("Bearer " + token));
+        assertTrue(service.isAuthenticated(headers), "Could not authenticate using valid token");
     }
 
     @Test
     public void testValidLowercaseJwtToken() {
-        var headers=Map.of("authorization", List.of("Bearer "+token));
-        assertTrue(service.isAuthenticated(headers),"Could not authenticate using valid token");
+        var headers = Map.of("authorization", List.of("Bearer " + token));
+        assertTrue(service.isAuthenticated(headers), "Could not authenticate using valid token");
     }
 
     @Test
     public void testValidOtherJwtToken() {
-        var headers=Map.of("Authorization", List.of("Bearer "+token2));
-        assertFalse(service.isAuthenticated(headers),"Could not authenticate using valid token");
+        var headers = Map.of("Authorization", List.of("Bearer " + token2));
+        assertFalse(service.isAuthenticated(headers), "Could not authenticate using valid token");
     }
 
     @Test
     public void testInvalidJwtToken() {
-        var headers=Map.of("Authorization", List.of("Bearer "+token.substring(10,20)));
-        assertFalse(service.isAuthenticated(headers),"Could authenticate using invalid token");
+        var headers = Map.of("Authorization", List.of("Bearer " + token.substring(10, 20)));
+        assertFalse(service.isAuthenticated(headers), "Could authenticate using invalid token");
     }
 
     @Test
     public void testInvalidHeader() {
-        var headers=Map.of("Authorization", List.of("bullshit"));
-        assertFalse(service.isAuthenticated(headers),"Could authenticate using invalid header");
+        var headers = Map.of("Authorization", List.of("bullshit"));
+        assertFalse(service.isAuthenticated(headers), "Could authenticate using invalid header");
     }
 
     @Test
     public void testExpiredJwtToken() {
-        JwtAuthenticationService secondService=new JwtAuthenticationService(verifier,true);
-        var headers=Map.of("Authorization", List.of("Bearer "+token));
-        assertFalse(secondService.isAuthenticated(headers),"Could authenticate using expired token");
+        JwtAuthenticationService secondService = new JwtAuthenticationService(verifier, true);
+        var headers = Map.of("Authorization", List.of("Bearer " + token));
+        assertFalse(secondService.isAuthenticated(headers), "Could authenticate using expired token");
     }
 }

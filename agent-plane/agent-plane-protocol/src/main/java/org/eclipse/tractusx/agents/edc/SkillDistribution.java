@@ -27,6 +27,8 @@ public enum SkillDistribution {
     private final String mode;
 
     /**
+     * access
+     *
      * @param mode the textual mode
      */
     SkillDistribution(final String mode) {
@@ -34,13 +36,17 @@ public enum SkillDistribution {
     }
 
     /**
+     * access
+     *
      * @return mode a semantic value
      */
     public String getDistributionMode() {
-        return "cx-common:SkillDistribution?run="+this.mode;
+        return "cx-common:SkillDistribution?run=" + this.mode;
     }
 
     /**
+     * access
+     *
      * @return mode as argument
      */
     public String getMode() {
@@ -48,15 +54,18 @@ public enum SkillDistribution {
     }
 
     /**
+     * access
+     *
      * @param mode as argument
      * @return respective enum (or ALL if it does not fir)
      */
     public static SkillDistribution valueOfMode(String mode) {
-        if(mode!=null) {
-            if (mode.endsWith("consumer"))
+        if (mode != null) {
+            if (mode.endsWith("consumer")) {
                 return CONSUMER;
-            if (mode.endsWith("provider"))
+            } else if (mode.endsWith("provider")) {
                 return PROVIDER;
+            }
         }
         return ALL;
     }

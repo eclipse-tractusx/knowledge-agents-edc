@@ -20,50 +20,54 @@ package org.eclipse.tractusx.agents.edc.http;
 import jakarta.ws.rs.core.Response;
 
 /**
- * A wrapper around the response of a 
+ * A wrapper around the response of a
  * call to another agent in the dataspace
- * Depending on the run mode (provider/consumer), 
- * this response could optionally host the text of 
- * a skill to be executed locally. 
+ * Depending on the run mode (provider/consumer),
+ * this response could optionally host the text of
+ * a skill to be executed locally.
  */
 public class DelegationResponse {
-	
-	final protected String queryString;
-	
-	final protected Response response;
-	
-	/**
-	 * Construct a new wrapper response for runMode = consumer
-	 * @param queryString downloaded text of the skill
-	 * @param response the response Object to return
-	 */
-	public DelegationResponse(String queryString, Response response) {
-		this.queryString = queryString;
-		this.response = response;
-	}
-	
-	/**
-	 * Construct a new wrapper response for runMode = provider
-	 * @param response the response Object to return
-	 */
-	public DelegationResponse(Response response) {
-		this.response = response;
-		this.queryString = null;
-	}
+    protected final String queryString;
+    protected final Response response;
 
-	/**
-	 * @return downloaded text of skill (should be not null if runMode = consumer)
-	 */
-	public String getQueryString() {
-		return queryString;
-	}
+    /**
+     * Construct a new wrapper response for runMode = consumer
+     *
+     * @param queryString downloaded text of the skill
+     * @param response    the response Object to return
+     */
+    public DelegationResponse(String queryString, Response response) {
+        this.queryString = queryString;
+        this.response = response;
+    }
 
-	/**
-	 * @return the response Object to return (should be not null in  each case)
-	 */
-	public Response getResponse() {
-		return response;
-	}
-	
+    /**
+     * Construct a new wrapper response for runMode = provider
+     *
+     * @param response the response Object to return
+     */
+    public DelegationResponse(Response response) {
+        this.response = response;
+        this.queryString = null;
+    }
+
+    /**
+     * access
+     *
+     * @return downloaded text of skill (should be not null if runMode = consumer)
+     */
+    public String getQueryString() {
+        return queryString;
+    }
+
+    /**
+     * access
+     *
+     * @return the response Object to return (should be not null in  each case)
+     */
+    public Response getResponse() {
+        return response;
+    }
+
 
 }

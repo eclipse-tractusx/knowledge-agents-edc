@@ -16,8 +16,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.jsonld;
 
-import jakarta.json.*;
-import org.eclipse.tractusx.agents.edc.model.*;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonNumber;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import org.eclipse.tractusx.agents.edc.model.Asset;
+import org.eclipse.tractusx.agents.edc.model.ContractAgreement;
+import org.eclipse.tractusx.agents.edc.model.ContractNegotiation;
+import org.eclipse.tractusx.agents.edc.model.DcatCatalog;
+import org.eclipse.tractusx.agents.edc.model.IdResponse;
+import org.eclipse.tractusx.agents.edc.model.TransferProcess;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -35,7 +47,7 @@ public class JsonLd {
     }
 
     public static DcatCatalog processCatalog(JsonObject cat) {
-        return new DcatCatalog(processJsonLd(cat,null));
+        return new DcatCatalog(processJsonLd(cat, null));
     }
 
     public static IdResponse processIdResponse(String response) {
@@ -43,7 +55,7 @@ public class JsonLd {
     }
 
     public static IdResponse processIdResponse(JsonObject response) {
-        return new IdResponse(processJsonLd(response,null));
+        return new IdResponse(processJsonLd(response, null));
     }
 
     public static ContractNegotiation processContractNegotiation(String response) {
@@ -51,7 +63,7 @@ public class JsonLd {
     }
 
     public static ContractNegotiation processContractNegotiation(JsonObject response) {
-        return new ContractNegotiation(processJsonLd(response,null));
+        return new ContractNegotiation(processJsonLd(response, null));
     }
 
     public static ContractAgreement processContractAgreement(String response) {
@@ -59,7 +71,7 @@ public class JsonLd {
     }
 
     public static ContractAgreement processContractAgreement(JsonObject response) {
-        return new ContractAgreement(processJsonLd(response,null));
+        return new ContractAgreement(processJsonLd(response, null));
     }
 
     public static TransferProcess processTransferProcess(String response) {
@@ -67,23 +79,24 @@ public class JsonLd {
     }
 
     public static TransferProcess processTransferProcess(JsonObject response) {
-        return new TransferProcess(processJsonLd(response,null));
+        return new TransferProcess(processJsonLd(response, null));
     }
 
     public static List<Asset> processAssetList(String response) {
         return processAssetList(Json.createReader(new StringReader(response)).readArray());
     }
+
     public static List<Asset> processAssetList(JsonArray response) {
-        return response.stream().map( responseObject ->
-                new Asset(processJsonLd(responseObject.asJsonObject(),null))
+        return response.stream().map(responseObject ->
+                new Asset(processJsonLd(responseObject.asJsonObject(), null))
         ).collect(Collectors.toList());
     }
 
     public static String asString(JsonValue value) {
-        if(value==null) {
+        if (value == null) {
             return "null";
         }
-        switch(value.getValueType())  {
+        switch (value.getValueType()) {
             case STRING:
                 return ((JsonString) value).getString();
             case NUMBER:
@@ -93,12 +106,12 @@ public class JsonLd {
         }
     }
 
-    public static <JsonType extends JsonValue> JsonType processJsonLd(JsonType source, Map<String,String> context) {
+    public static <JSONTYPE extends JsonValue> JSONTYPE processJsonLd(JSONTYPE source, Map<String, String> context) {
         switch (source.getValueType()) {
             case ARRAY:
                 final JsonArrayBuilder array = Json.createArrayBuilder();
                 source.asJsonArray().forEach(value -> array.add(processJsonLd(value, context)));
-                return (JsonType) array.build();
+                return (JSONTYPE) array.build();
             case OBJECT:
                 JsonObject sourceObject = source.asJsonObject();
                 Map<String, String> namespaces = new HashMap<>();
@@ -124,7 +137,7 @@ public class JsonLd {
                     }
                     object.add(prop, processJsonLd(value, namespaces));
                 });
-                return (JsonType) object.build();
+                return (JSONTYPE) object.build();
             default:
                 return source;
         }

@@ -17,13 +17,35 @@
 package org.eclipse.tractusx.agents.edc.http;
 
 import okhttp3.Request;
-import okio.*;
+import okio.Buffer;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 
 /**
  * Wraps an ok Request into a javax servlet request
@@ -34,8 +56,8 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     protected final ServletContext context;
 
     public HttpServletRequestAdapter(Request request, ServletContext context) {
-        this.request=request;
-        this.context=context;
+        this.request = request;
+        this.context = context;
     }
 
     @Override
@@ -72,7 +94,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     public int getIntHeader(String name) {
         try {
             return Integer.parseInt(request.header(name));
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             throw new RuntimeException(nfe);
         }
     }
@@ -226,7 +248,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     public int getContentLength() {
         try {
             return (int) request.body().contentLength();
-        } catch(IOException e) {
+        } catch (IOException e) {
             return -1;
         }
     }
@@ -235,17 +257,17 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
     public long getContentLengthLong() {
         try {
             return request.body().contentLength();
-        } catch(IOException e) {
+        } catch (IOException e) {
             return -1L;
         }
     }
 
     @Override
     public String getContentType() {
-        var body=request.body();
-        if(body!=null) {
-            var contentType=body.contentType();
-            if(contentType!=null) {
+        var body = request.body();
+        if (body != null) {
+            var contentType = body.contentType();
+            if (contentType != null) {
                 return contentType.toString();
             }
         }
@@ -254,9 +276,9 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        Buffer buffer=new Buffer();
+        Buffer buffer = new Buffer();
         request.body().writeTo(buffer);
-        ByteArrayInputStream bais=new ByteArrayInputStream(buffer.readByteArray());
+        ByteArrayInputStream bais = new ByteArrayInputStream(buffer.readByteArray());
         return new ServletInputStreamDelegator(bais);
     }
 
@@ -277,9 +299,9 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        Map<String,String[]> parameterMap=new HashMap<>();
+        Map<String, String[]> parameterMap = new HashMap<>();
         for (String queryParameterName : request.url().queryParameterNames()) {
-            parameterMap.put(queryParameterName,getParameterValues(queryParameterName));
+            parameterMap.put(queryParameterName, getParameterValues(queryParameterName));
         }
         return parameterMap;
     }
@@ -321,7 +343,7 @@ public class HttpServletRequestAdapter implements HttpServletRequest {
 
     @Override
     public void setAttribute(String name, Object o) {
-        context.setAttribute(name,o);
+        context.setAttribute(name, o);
     }
 
     @Override

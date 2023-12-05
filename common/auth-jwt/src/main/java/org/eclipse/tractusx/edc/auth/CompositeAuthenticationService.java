@@ -29,13 +29,13 @@ public class CompositeAuthenticationService implements AuthenticationService {
     protected final CompositeAuthenticationMode mode;
 
     public CompositeAuthenticationService(CompositeAuthenticationMode mode, Collection<AuthenticationService> subServices) {
-        this.mode=mode;
-        this.subServices=subServices;
+        this.mode = mode;
+        this.subServices = subServices;
     }
 
     @Override
     public boolean isAuthenticated(Map<String, List<String>> map) {
-        switch(mode) {
+        switch (mode) {
             case ONE:
                 return subServices.stream().anyMatch(service -> service.isAuthenticated(map));
             case ALL:
@@ -45,10 +45,11 @@ public class CompositeAuthenticationService implements AuthenticationService {
     }
 
     public static class Builder {
-        Collection<AuthenticationService> subServices=new ArrayList<>();
-        CompositeAuthenticationMode mode=CompositeAuthenticationMode.ALL;
+        Collection<AuthenticationService> subServices = new ArrayList<>();
+        CompositeAuthenticationMode mode = CompositeAuthenticationMode.ALL;
 
-        public Builder() {}
+        public Builder() {
+        }
 
         public Builder addService(AuthenticationService subService) {
             subServices.add(subService);
@@ -56,13 +57,13 @@ public class CompositeAuthenticationService implements AuthenticationService {
         }
 
         public Builder setMode(CompositeAuthenticationMode mode) {
-            this.mode=mode;
+            this.mode = mode;
             return this;
         }
 
 
         public CompositeAuthenticationService build() {
-            return new CompositeAuthenticationService(mode,subServices);
+            return new CompositeAuthenticationService(mode, subServices);
         }
 
     }

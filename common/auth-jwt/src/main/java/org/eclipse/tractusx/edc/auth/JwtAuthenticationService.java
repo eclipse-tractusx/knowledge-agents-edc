@@ -33,45 +33,45 @@ import java.util.regex.Pattern;
  * Implements a JWT (Java Web Tokens) Based Authentication Service
  */
 public class JwtAuthenticationService implements AuthenticationService {
-    public static String AUTHENTICATION_HEADER="authorization";
-    public static Pattern BEARER_TOKEN_VALUE=Pattern.compile("^Bearer ([a-zA-Z0-9+/\\-_]+\\.[a-zA-Z0-9+/\\-_]+\\.[a-zA-Z0-9+/\\-_]+)$");
+    public static final String AUTHENTICATIONHEADER = "authorization";
+    public static final Pattern BEARERTOKENVALUE = Pattern.compile("^Bearer ([a-zA-Z0-9+/\\-_]+\\.[a-zA-Z0-9+/\\-_]+\\.[a-zA-Z0-9+/\\-_]+)$");
 
-    final protected  JWSVerifier verifier;
-    final protected boolean checkExpiry;
-    
+    protected final JWSVerifier verifier;
+    protected final boolean checkExpiry;
+
     public JwtAuthenticationService(JWSVerifier verifier, boolean checkExpiry) {
-        this.verifier=verifier;
-        this.checkExpiry=checkExpiry;
+        this.verifier = verifier;
+        this.checkExpiry = checkExpiry;
     }
 
     @Override
     public boolean isAuthenticated(Map<String, List<String>> map) {
         return map.entrySet().stream()
-                .filter( e->e.getKey().equalsIgnoreCase(AUTHENTICATION_HEADER))
-                .flatMap( e->e.getValue().stream().map( v -> BEARER_TOKEN_VALUE.matcher(v)).filter(Matcher::matches)).
-                    anyMatch(r->checkToken(r.group(1)));
+                .filter(e -> e.getKey().equalsIgnoreCase(AUTHENTICATIONHEADER))
+                .flatMap(e -> e.getValue().stream().map(v -> BEARERTOKENVALUE.matcher(v)).filter(Matcher::matches))
+                .anyMatch(r -> checkToken(r.group(1)));
     }
 
     protected boolean checkToken(String token) {
         try {
             JWSObject jwsObject = JWSObject.parse(token);
-            boolean isVerified=jwsObject.verify(verifier);
-            if(isVerified) {
-                if(checkExpiry) {
-                    Object expiryObject=jwsObject.getPayload().toJSONObject().get("exp");
-                    if(expiryObject instanceof Long) {
+            boolean isVerified = jwsObject.verify(verifier);
+            if (isVerified) {
+                if (checkExpiry) {
+                    Object expiryObject = jwsObject.getPayload().toJSONObject().get("exp");
+                    if (expiryObject instanceof Long) {
                         // token times are in seconds
-                        return !new Date((Long) expiryObject*1000).before(new Date());
+                        return !new Date((Long) expiryObject * 1000).before(new Date());
                     } else {
                         return true;
                     }
                 } else {
                     return true;
                 }
-            } else  {
+            } else {
                 return false;
             }
-        } catch(ParseException | JOSEException e) {
+        } catch (ParseException | JOSEException e) {
             return false;
         }
     }
@@ -81,24 +81,24 @@ public class JwtAuthenticationService implements AuthenticationService {
      */
     public static class Builder {
         protected JWSVerifier verifier;
-        protected boolean checkExpiry=true;
+        protected boolean checkExpiry = true;
 
         public Builder() {
         }
 
         public Builder setVerifier(JWSVerifier verifier) {
-            this.verifier=verifier;
+            this.verifier = verifier;
             return this;
         }
 
         public Builder setCheckExpiry(boolean check) {
-            this.checkExpiry=check;
+            this.checkExpiry = check;
             return this;
         }
 
         public JwtAuthenticationService build() {
             assert Objects.nonNull(verifier);
-            return new JwtAuthenticationService(verifier,checkExpiry);
+            return new JwtAuthenticationService(verifier, checkExpiry);
         }
     }
 }

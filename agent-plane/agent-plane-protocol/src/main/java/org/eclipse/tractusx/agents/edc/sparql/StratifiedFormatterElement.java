@@ -19,7 +19,10 @@ package org.eclipse.tractusx.agents.edc.sparql;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.sparql.serializer.FormatterElement;
 import org.apache.jena.sparql.serializer.SerializationContext;
-import org.apache.jena.sparql.syntax.*;
+import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.sparql.syntax.ElementTriplesBlock;
 
 import java.util.Iterator;
 import java.util.Stack;
@@ -47,6 +50,7 @@ public class StratifiedFormatterElement extends FormatterElement {
 
     /**
      * visit a join, only produce parenthesis if we are on the top level
+     *
      * @param el group element
      */
 
@@ -100,6 +104,8 @@ public class StratifiedFormatterElement extends FormatterElement {
 
 
     /**
+     * check whether two elements need a separator
+     *
      * @param el1 first element
      * @param el2 second element
      * @return decide whether a dot is required between el1 and el2

@@ -87,12 +87,12 @@ public class ContractNegotiationRequest {
         }
 
         public Builder localBusinessPartnerNumber(String bpn) {
-            dto.localBusinessPartnerNumber=bpn;
+            dto.localBusinessPartnerNumber = bpn;
             return this;
         }
 
         public Builder remoteBusinessPartnerNumber(String bpn) {
-            dto.remoteBusinessPartnerNumber=bpn;
+            dto.remoteBusinessPartnerNumber = bpn;
             return this;
         }
 

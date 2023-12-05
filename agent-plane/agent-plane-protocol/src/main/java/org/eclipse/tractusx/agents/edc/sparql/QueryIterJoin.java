@@ -36,14 +36,14 @@ import java.util.Map;
  * Prepares the given bindings with a hidden variable which is then projected
  */
 public class QueryIterJoin extends QueryIter1 {
-    protected final Map<Node,List<Binding>> joinBindings;
+    protected final Map<Node, List<Binding>> joinBindings;
     protected final Var idVar;
     protected Iterator<Binding> leftBindings;
 
-    public QueryIterJoin(QueryIterator input, Map<Node,List<Binding>> joinBindings, Var idVar, ExecutionContext execCxt) {
+    public QueryIterJoin(QueryIterator input, Map<Node, List<Binding>> joinBindings, Var idVar, ExecutionContext execCxt) {
         super(input, execCxt);
-        this.joinBindings=joinBindings;
-        this.idVar=idVar;
+        this.joinBindings = joinBindings;
+        this.idVar = idVar;
     }
 
     @Override
@@ -56,20 +56,20 @@ public class QueryIterJoin extends QueryIter1 {
 
     @Override
     public boolean hasNextBinding() {
-        return (leftBindings!=null && leftBindings.hasNext()) || hasNextInputBinding();
+        return (leftBindings != null && leftBindings.hasNext()) || hasNextInputBinding();
     }
 
     protected boolean hasNextInputBinding() {
-        if(this.getInput().hasNext()) {
+        if (this.getInput().hasNext()) {
             Binding nextBinding = this.getInput().next();
             Node idNode = nextBinding.get(idVar);
-            List<Binding> resultBindings=joinBindings.get(idNode);
-            if(resultBindings!=null) {
-                leftBindings=resultBindings.stream().map( resultBinding -> {
-                    BindingBuilder bb=BindingBuilder.create(resultBinding);
-                    nextBinding.forEach( (v,n) -> {
-                        if(!resultBinding.contains(v)) {
-                            bb.set(v,n);
+            List<Binding> resultBindings = joinBindings.get(idNode);
+            if (resultBindings != null) {
+                leftBindings = resultBindings.stream().map(resultBinding -> {
+                    BindingBuilder bb = BindingBuilder.create(resultBinding);
+                    nextBinding.forEach((v, n) -> {
+                        if (!resultBinding.contains(v)) {
+                            bb.set(v, n);
                         }
                     });
                     return bb.build();
@@ -85,7 +85,7 @@ public class QueryIterJoin extends QueryIter1 {
 
     @Override
     public Binding moveToNextBinding() {
-        if(leftBindings!=null && leftBindings.hasNext()) {
+        if (leftBindings != null && leftBindings.hasNext()) {
             return leftBindings.next();
         } else {
             return null;

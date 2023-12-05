@@ -28,36 +28,39 @@ import java.util.Objects;
  * a warning
  */
 public class CatenaxWarning {
-    public static Symbol cxWarnings=Symbol.create("cx:warnings");
+    public static Symbol cxWarnings = Symbol.create("cx:warnings");
 
     /**
      * access the thread local
+     *
      * @return current warnings
      */
     public static List<CatenaxWarning> getWarnings(Context context) {
-        return context.get(cxWarnings,null);
+        return context.get(cxWarnings, null);
     }
 
     /**
      * access the thread local
+     *
      * @return current warnings or empty list
      */
     public static List<CatenaxWarning> getOrSetWarnings(Context context) {
-        List<CatenaxWarning> result=getWarnings(context);
-        if(result==null) {
-            result=new ArrayList<>();
-            setWarnings(context,result);
+        List<CatenaxWarning> result = getWarnings(context);
+        if (result == null) {
+            result = new ArrayList<>();
+            setWarnings(context, result);
         }
         return result;
     }
 
     /**
      * set current warnings
+     *
      * @param context to set into
      * @param warnings the warning list
      */
     public static void setWarnings(Context context, List<CatenaxWarning> warnings) {
-        context.put(cxWarnings,warnings);
+        context.put(cxWarnings, warnings);
     }
 
     @JsonProperty("source-tenant")
@@ -85,6 +88,7 @@ public class CatenaxWarning {
 
     /**
      * Get sourceTenant
+     *
      * @return sourceTenant
      **/
     @JsonProperty("source-tenant")
@@ -103,6 +107,7 @@ public class CatenaxWarning {
 
     /**
      * Get sourceAsset
+     *
      * @return sourceAsset
      **/
     @JsonProperty("source-asset")
@@ -121,6 +126,7 @@ public class CatenaxWarning {
 
     /**
      * Get targetTenant
+     *
      * @return targetTenant
      **/
     @JsonProperty("target-tenant")
@@ -139,6 +145,7 @@ public class CatenaxWarning {
 
     /**
      * Get targetAsset
+     *
      * @return targetAsset
      **/
     @JsonProperty("target-asset")
@@ -157,6 +164,7 @@ public class CatenaxWarning {
 
     /**
      * Get problem
+     *
      * @return problem
      **/
     @JsonProperty("problem")
@@ -175,6 +183,7 @@ public class CatenaxWarning {
 
     /**
      * Get context
+     *
      * @return context
      **/
     @JsonProperty("context")

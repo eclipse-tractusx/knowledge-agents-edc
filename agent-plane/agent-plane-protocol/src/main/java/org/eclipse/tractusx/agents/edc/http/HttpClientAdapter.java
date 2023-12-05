@@ -16,10 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.CookieHandler;
@@ -33,6 +36,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 /**
  * Wrapper that hides OkHttpClient behind a java.net.http.HttpClient
@@ -43,10 +48,11 @@ public class HttpClientAdapter extends HttpClient {
 
     /**
      * creates a new wrapper
+     *
      * @param delegate the real client
      */
     public HttpClientAdapter(OkHttpClient delegate) {
-        this.delegate=delegate;
+        this.delegate = delegate;
     }
 
 
@@ -97,9 +103,9 @@ public class HttpClientAdapter extends HttpClient {
 
     @Override
     public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) throws IOException, InterruptedException {
-        var builder=new Request.Builder();
-        request.headers().map().forEach( (key,values) -> values.forEach( value -> builder.header(key,value)));
-        if(request.bodyPublisher().isPresent()) {
+        var builder = new Request.Builder();
+        request.headers().map().forEach((key, values) -> values.forEach(value -> builder.header(key, value)));
+        if (request.bodyPublisher().isPresent()) {
             var bodyPublisher = request.bodyPublisher().get();
 
             var subscriber = new Flow.Subscriber<ByteBuffer>() {
@@ -115,14 +121,14 @@ public class HttpClientAdapter extends HttpClient {
 
                 @Override
                 public void onNext(ByteBuffer item) {
-                    if(body==null) {
+                    if (body == null) {
                         body = item;
-                    } else if(item!=null) {
-                        ByteBuffer combined=ByteBuffer.allocate(body.capacity()+item.capacity());
+                    } else if (item != null) {
+                        ByteBuffer combined = ByteBuffer.allocate(body.capacity() + item.capacity());
                         combined.put(body);
                         combined.put(item);
                         combined.flip();
-                        body=combined;
+                        body = combined;
                     }
                 }
 
@@ -146,17 +152,17 @@ public class HttpClientAdapter extends HttpClient {
                 throw new IOException("Could not wrap request because body cannot be read");
             }
             if (subscriber.problem != null) {
-                throw new IOException("Could not wrap request because body cannot be read",subscriber.problem);
+                throw new IOException("Could not wrap request because body cannot be read", subscriber.problem);
             }
-            builder.method(request.method(), RequestBody.create(subscriber.body.array(),MediaType.parse(request.headers().firstValue("Content-Type").get())));
+            builder.method(request.method(), RequestBody.create(subscriber.body.array(), MediaType.parse(request.headers().firstValue("Content-Type").get())));
         } else {
             builder.method(request.method(), null);
         }
         builder.url(request.uri().toURL());
-        Request okRequest=builder.build();
+        Request okRequest = builder.build();
         Call okCall = delegate.newCall(okRequest);
-        Response okResponse=okCall.execute();
-        return (HttpResponse<T>) new HttpResponseAdapter(okResponse,request);
+        Response okResponse = okCall.execute();
+        return (HttpResponse<T>) new HttpResponseAdapter(okResponse, request);
     }
 
     @Override
