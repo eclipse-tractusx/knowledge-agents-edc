@@ -258,7 +258,7 @@ public class AgentConfig {
     }
     
     public String getRdfStore() {
-    	return config.getString(RDF_STORE, null);
+        return config.getString(RDF_STORE, null);
     }
 
     /**
