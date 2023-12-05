@@ -18,16 +18,26 @@ package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import okhttp3.*;
-import org.eclipse.tractusx.agents.edc.AgentConfig;
 import jakarta.ws.rs.InternalServerErrorException;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.query.Criterion;
 import org.eclipse.edc.spi.query.QuerySpec;
 import org.eclipse.edc.spi.types.TypeManager;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLd;
-import org.eclipse.tractusx.agents.edc.model.*;
-import org.jetbrains.annotations.NotNull;
+import org.eclipse.tractusx.agents.edc.model.Asset;
+import org.eclipse.tractusx.agents.edc.model.ContractAgreement;
+import org.eclipse.tractusx.agents.edc.model.ContractNegotiation;
+import org.eclipse.tractusx.agents.edc.model.ContractNegotiationRequest;
+import org.eclipse.tractusx.agents.edc.model.DcatCatalog;
+import org.eclipse.tractusx.agents.edc.model.IdResponse;
+import org.eclipse.tractusx.agents.edc.model.TransferProcess;
+import org.eclipse.tractusx.agents.edc.model.TransferRequest;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -45,9 +55,9 @@ public class DataManagementImpl implements DataManagement {
     /**
      * some constants when interacting with control plane
      */
-    public static final String DSP_PATH="%s/api/v1/dsp";
+    public static final String DSP_PATH = "%s/api/v1/dsp";
     public static final String CATALOG_CALL = "%s/catalog/request";
-    public static final String CATALOG_REQUEST_BODY="{" +
+    public static final String CATALOG_REQUEST_BODY = "{" +
             "\"@context\": {}," +
             "\"protocol\": \"dataspace-protocol-http\"," +
             "\"providerUrl\": \"%1$s\", " +
@@ -139,7 +149,7 @@ public class DataManagementImpl implements DataManagement {
             "}\n";
     public static final String ASSET_CALL = "%s/assets/request";
 
-    public static final String NEGOTIATION_REQUEST_BODY="{\n" +
+    public static final String NEGOTIATION_REQUEST_BODY = "{\n" +
             "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
             "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
             "\"connectorAddress\": \"%1$s\",\n" +
@@ -157,7 +167,7 @@ public class DataManagementImpl implements DataManagement {
     public static final String NEGOTIATION_CHECK_CALL = "%s/contractnegotiations/%s";
     public static final String TRANSFER_INITIATE_CALL = "%s/transferprocesses";
 
-    public static final String TRANSFER_REQUEST_BODY="{\n" +
+    public static final String TRANSFER_REQUEST_BODY = "{\n" +
             "    \"@context\": {\n" +
             "        \"odrl\": \"http://www.w3.org/ns/odrl/2/\"\n" +
             "    },\n" +
@@ -191,6 +201,7 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * creates a service wrapper
+     *
      * @param monitor logger
      * @param typeManager serialization
      * @param httpClient remoting
@@ -200,27 +211,29 @@ public class DataManagementImpl implements DataManagement {
         this.monitor = monitor;
         this.objectMapper = typeManager.getMapper();
         this.httpClient = httpClient;
-        this.config=config;
+        this.config = config;
     }
 
     /**
      * Search for a dedicated asset
      * TODO imperformant
      * TODO replace by accessing the federated data catalogue
+     *
      * @param remoteControlPlaneIdsUrl url of the remote control plane ids endpoint
      * @param assetId (connector-unique) identifier of the asset
      * @return a collection of contract options to access the given asset
      * @throws IOException in case that the remote call did not succeed
      */
     public DcatCatalog findContractOffers(String remoteControlPlaneIdsUrl, String assetId) throws IOException {
-        QuerySpec findAsset=QuerySpec.Builder.newInstance().filter(
-                List.of(new Criterion("https://w3id.org/edc/v0.0.1/ns/id","=",assetId))
+        QuerySpec findAsset = QuerySpec.Builder.newInstance().filter(
+                List.of(new Criterion("https://w3id.org/edc/v0.0.1/ns/id", "=", assetId))
         ).build();
-        return getCatalog(remoteControlPlaneIdsUrl,findAsset);
+        return getCatalog(remoteControlPlaneIdsUrl, findAsset);
     }
 
     /**
      * Access the catalogue
+     *
      * @param remoteControlPlaneIdsUrl url of the remote control plane ids endpoint
      * @param spec query specification
      * @return catalog object
@@ -228,10 +241,10 @@ public class DataManagementImpl implements DataManagement {
      */
     public DcatCatalog getCatalog(String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
 
-        var url = String.format(CATALOG_CALL,config.getControlPlaneManagementUrl());
-        var catalogSpec =String.format(CATALOG_REQUEST_BODY,String.format(DSP_PATH,remoteControlPlaneIdsUrl),objectMapper.writeValueAsString(spec));
+        var url = String.format(CATALOG_CALL, config.getControlPlaneManagementUrl());
+        var catalogSpec = String.format(CATALOG_REQUEST_BODY, String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
 
-        var request = new Request.Builder().url(url).post(RequestBody.create(catalogSpec,MediaType.parse("application/json")));
+        var request = new Request.Builder().url(url).post(RequestBody.create(catalogSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
 
         try (var response = httpClient.newCall(request.build()).execute()) {
@@ -250,18 +263,19 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * Access the (provider control plane) catalogue
+     *
      * @param spec query specification
      * @return catalog object
      * @throws IOException in case something went wrong
      */
     public List<Asset> listAssets(QuerySpec spec) throws IOException {
 
-        var url = String.format(ASSET_CALL,config.getControlPlaneManagementProviderUrl());
-        var assetObject=(ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(spec));
-        assetObject.set("@context",objectMapper.createObjectNode());
+        var url = String.format(ASSET_CALL, config.getControlPlaneManagementProviderUrl());
+        var assetObject = (ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(spec));
+        assetObject.set("@context", objectMapper.createObjectNode());
         var assetSpec = objectMapper.writeValueAsString(assetObject);
 
-        var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec,MediaType.parse("application/json")));
+        var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
 
         try (var response = httpClient.newCall(request.build()).execute()) {
@@ -280,13 +294,14 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * helper to create or update assets
+     *
      * @param assetSpec json text of the asset description
      * @return a response listing the id of the created/updated asset
      * @throws IOException in case something goes wrong
      */
     protected IdResponse createOrUpdateAsset(String assetId, String assetSpec) throws IOException {
-        var url = String.format(ASSET_CREATE_CALL,config.getControlPlaneManagementProviderUrl());
-        var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec,MediaType.parse("application/json")));
+        var url = String.format(ASSET_CREATE_CALL, config.getControlPlaneManagementProviderUrl());
+        var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
 
         try (var response = httpClient.newCall(request.build()).execute()) {
@@ -294,17 +309,17 @@ public class DataManagementImpl implements DataManagement {
 
             if (!response.isSuccessful() || body == null) {
 
-                if(response.code()!=409 || body == null) {
+                if (response.code() != 409 || body == null) {
                     throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
                 }
 
-                url=String.format(ASSET_UPDATE_CALL,config.getControlPlaneManagementProviderUrl(),assetId);
-                var patchRequest=new Request.Builder().url(url).patch(RequestBody.create(assetSpec,MediaType.parse("application/json")));
+                url = String.format(ASSET_UPDATE_CALL, config.getControlPlaneManagementProviderUrl(), assetId);
+                var patchRequest = new Request.Builder().url(url).patch(RequestBody.create(assetSpec, MediaType.parse("application/json")));
                 config.getControlPlaneManagementHeaders().forEach(patchRequest::addHeader);
 
                 try (var patchResponse = httpClient.newCall(patchRequest.build()).execute()) {
-                    body=patchResponse.body();
-                    if(!patchResponse.isSuccessful() || body==null) {
+                    body = patchResponse.body();
+                    if (!patchResponse.isSuccessful() || body == null) {
                         monitor.warning(format("Failure in updating the resource at %s. Ignoring", url));
                         return null;
                     }
@@ -319,6 +334,7 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * creates or updates a given skill asset
+     *
      * @param assetId key
      * @param name of skill
      * @param description of skill
@@ -332,17 +348,18 @@ public class DataManagementImpl implements DataManagement {
      * @throws IOException in case interaction with EDC went wrong
      */
     public IdResponse createOrUpdateSkill(String assetId, String name, String description, String version, String contract, String ontologies, String distributionMode, boolean isFederated, String query) throws IOException {
-        if(contract !=null) {
-            contract =String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
+        if (contract != null) {
+            contract = String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
         } else {
-            contract ="";
+            contract = "";
         }
-        var assetSpec = String.format(SKILL_ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,distributionMode,isFederated,query);
+        var assetSpec = String.format(SKILL_ASSET_CREATE_BODY, assetId, name, description, version, contract, ontologies, distributionMode, isFederated, query);
         return createOrUpdateAsset(assetId, assetSpec);
     }
 
     /**
      * creates or updates a given graph asset
+     *
      * @param assetId key
      * @param name of graph
      * @param description of graph
@@ -355,17 +372,18 @@ public class DataManagementImpl implements DataManagement {
      * @throws IOException in case interaction with EDC went wrong
      */
     public IdResponse createOrUpdateGraph(String assetId, String name, String description, String version, String contract, String ontologies, String shape, boolean isFederated) throws IOException {
-        if(contract !=null) {
-            contract =String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
+        if (contract != null) {
+            contract = String.format("            \"cx-common:publishedUnderContract\": \"%1$s\",\n", contract);
         } else {
-            contract ="";
+            contract = "";
         }
-        var assetSpec = String.format(GRAPH_ASSET_CREATE_BODY,assetId,name,description,version,contract,ontologies,shape,isFederated);
+        var assetSpec = String.format(GRAPH_ASSET_CREATE_BODY, assetId, name, description, version, contract, ontologies, shape, isFederated);
         return createOrUpdateAsset(assetId, assetSpec);
     }
 
     /**
      * deletes an existing aseet
+     *
      * @param assetId key of the asset
      * @return idresponse
      */
@@ -376,7 +394,7 @@ public class DataManagementImpl implements DataManagement {
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
         try (var response = httpClient.newCall(request.build()).execute()) {
             ResponseBody body = response.body();
-            if(response.isSuccessful() && body!=null) {
+            if (response.isSuccessful() && body != null) {
                 return JsonLd.processIdResponse(body.string());
             } else {
                 monitor.warning(format("Failure in calling the control plane at %s. Ignoring", url));
@@ -390,14 +408,15 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * initiates negotation
+     *
      * @param negotiationRequest outgoing request
      * @return negotiation id
      * @throws IOException in case something went wronf
      */
     public String initiateNegotiation(ContractNegotiationRequest negotiationRequest) throws IOException {
-        var url = String.format(NEGOTIATION_INITIATE_CALL,config.getControlPlaneManagementUrl());
+        var url = String.format(NEGOTIATION_INITIATE_CALL, config.getControlPlaneManagementUrl());
 
-        var negotiateSpec =String.format(NEGOTIATION_REQUEST_BODY,
+        var negotiateSpec = String.format(NEGOTIATION_REQUEST_BODY,
                 negotiationRequest.getConnectorAddress(),
                 negotiationRequest.getLocalBusinessPartnerNumber(),
                 negotiationRequest.getRemoteBusinessPartnerNumber(),
@@ -405,7 +424,7 @@ public class DataManagementImpl implements DataManagement {
                 negotiationRequest.getOffer().getAssetId(),
                 negotiationRequest.getOffer().getPolicy().asString());
 
-        var requestBody = RequestBody.create(negotiateSpec,MediaType.parse("application/json"));
+        var requestBody = RequestBody.create(negotiateSpec, MediaType.parse("application/json"));
 
         var request = new Request.Builder()
                 .url(url)
@@ -433,12 +452,13 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * return state of contract negotiation
+     *
      * @param negotiationId id of the negotation to inbestigate
      * @return status of the negotiation
      * @throws IOException in case something went wrong
      */
     public ContractNegotiation getNegotiation(String negotiationId) throws IOException {
-        var url = String.format(NEGOTIATION_CHECK_CALL,config.getControlPlaneManagementUrl(),negotiationId);
+        var url = String.format(NEGOTIATION_CHECK_CALL, config.getControlPlaneManagementUrl(), negotiationId);
         var request = new Request.Builder()
                 .url(url);
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
@@ -461,12 +481,14 @@ public class DataManagementImpl implements DataManagement {
     }
 
     /**
+     * get a contract agreement by its id
+     *
      * @param agreementId id of the agreement
      * @return contract agreement
      * @throws IOException something wild happens
      */
     public ContractAgreement getAgreement(String agreementId) throws IOException {
-        var url = String.format(AGREEMENT_CHECK_CALL,config.getControlPlaneManagementUrl(), URLEncoder.encode(agreementId, StandardCharsets.UTF_8));
+        var url = String.format(AGREEMENT_CHECK_CALL, config.getControlPlaneManagementUrl(), URLEncoder.encode(agreementId, StandardCharsets.UTF_8));
         var request = new Request.Builder()
                 .url(url);
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
@@ -490,21 +512,22 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * Initiates a transfer
+     *
      * @param transferRequest request
      * @return transfer id
      * @throws IOException in case something went wrong
      */
     public String initiateHttpProxyTransferProcess(TransferRequest transferRequest) throws IOException {
-        var url = String.format(TRANSFER_INITIATE_CALL,config.getControlPlaneManagementUrl());
+        var url = String.format(TRANSFER_INITIATE_CALL, config.getControlPlaneManagementUrl());
 
-        var transferSpec =String.format(TRANSFER_REQUEST_BODY,
+        var transferSpec = String.format(TRANSFER_REQUEST_BODY,
                 transferRequest.getAssetId(),
                 transferRequest.getConnectorAddress(),
                 transferRequest.getContractId(),
                 transferRequest.getCallbackAddresses().get(0).getUri(),
                 transferRequest.getConnectorAddress());
 
-        var requestBody = RequestBody.create(transferSpec,MediaType.parse("application/json"));
+        var requestBody = RequestBody.create(transferSpec, MediaType.parse("application/json"));
 
         var request = new Request.Builder()
                 .url(url)
@@ -533,12 +556,13 @@ public class DataManagementImpl implements DataManagement {
 
     /**
      * return state of transfer process
+     *
      * @param transferProcessId id of the transfer process
      * @return state of the transfer process
      * @throws IOException in case something went wrong
      */
     public TransferProcess getTransfer(String transferProcessId) throws IOException {
-        var url = String.format(TRANSFER_CHECK_CALL,config.getControlPlaneManagementUrl(),transferProcessId);
+        var url = String.format(TRANSFER_CHECK_CALL, config.getControlPlaneManagementUrl(), transferProcessId);
         var request = new Request.Builder()
                 .url(url);
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);

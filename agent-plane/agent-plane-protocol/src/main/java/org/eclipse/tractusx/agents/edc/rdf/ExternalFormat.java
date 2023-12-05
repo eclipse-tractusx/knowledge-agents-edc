@@ -27,7 +27,7 @@ public enum ExternalFormat {
 
     /**
      * Constructoe for ExternalFormat
-     * 
+     *
      * @param contentType the mime type
      */
     
@@ -37,7 +37,7 @@ public enum ExternalFormat {
 
     /**
      * get the content type
-     * 
+     *
      * @return mode as argument
      */
     
@@ -47,7 +47,7 @@ public enum ExternalFormat {
 
     /**
      * converts a mime type into a format
-     * 
+     *
      * @param contentType as argument
      * @return respective enum, null if format cannot be deduced
      */
