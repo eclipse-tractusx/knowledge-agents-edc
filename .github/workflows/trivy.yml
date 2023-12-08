@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # v0.14.0
+        uses: aquasecurity/trivy-action@91713af97dc80187565512baba96e4364e983601 # v0.16.0
         with:
           scan-type: "config"
           # ignore-unfixed: true
@@ -121,7 +121,7 @@ jobs:
       # the next two steps will only execute if the image exists check was successful
       - name: Run Trivy vulnerability scanner
         if: success() && steps.imageCheck.outcome != 'failure'
-        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # v0.14.0
+        uses: aquasecurity/trivy-action@91713af97dc80187565512baba96e4364e983601 # v0.16.0
         with:
           image-ref: "${{ steps.set-docker-repo.outputs.REPO }}/${{ matrix.image }}:${{ needs.git-sha7.outputs.value }}"
           format: "sarif"
