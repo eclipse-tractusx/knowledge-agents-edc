@@ -358,9 +358,6 @@ dataplanes:
       proxy:
         port: 8186
         path: /proxy
-      callback:
-        port: 8087
-        path: /callback
       metrics:
         port: 9090
         path: /metrics

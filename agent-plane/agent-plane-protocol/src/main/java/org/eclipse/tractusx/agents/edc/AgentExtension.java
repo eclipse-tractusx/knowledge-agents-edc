@@ -62,7 +62,6 @@ public class AgentExtension implements ServiceExtension {
      * static constants
      */
     protected static final String DEFAULT_CONTEXT_ALIAS = "default";
-    protected static final String CALLBACK_CONTEXT_ALIAS = "callback";
     public static Pattern GRAPH_PATTERN=Pattern.compile("((?<url>[^#]+)#)?(?<graph>.*Graph(Asset)?.*)");
     public static Pattern SKILL_PATTERN=Pattern.compile("((?<url>[^#]+)#)?(?<skill>.*Skill(Asset)?.*)");
 
@@ -126,8 +125,6 @@ public class AgentExtension implements ServiceExtension {
         DataManagement catalogService=new DataManagement(monitor,typeManager,httpClient,config);
 
         AgreementController agreementController=new AgreementController(monitor,config,catalogService);
-        monitor.debug(String.format("Registering agreement controller %s",agreementController));
-        webService.registerResource(CALLBACK_CONTEXT_ALIAS, agreementController);
 
         RDFStore rdfStore=new RDFStore(config,monitor);
 

@@ -170,12 +170,6 @@ spec:
             ###################
             # AGENT CALLBACK  #
             ###################
-            - name: "WEB_HTTP_CALLBACK_PORT"
-              value: {{ $dataplane.endpoints.callback.port | quote }}
-            - name: "WEB_HTTP_CALLBACK_PATH"
-              value: {{ $dataplane.endpoints.callback.path | quote }}
-            - name: "CX_AGENT_CALLBACK"
-              value: {{ printf "http://%s-%s:%v%s/endpoint-data-reference" ( include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
             - name: "EDC_API_AUTH_KEY"
               value: {{ $root.Values.controlplane.endpoints.management.authKey | required ".Values.controlplane.endpoints.mangement.authKey is required" | quote }}
             - name: "EDC_PARTICIPANT_ID"

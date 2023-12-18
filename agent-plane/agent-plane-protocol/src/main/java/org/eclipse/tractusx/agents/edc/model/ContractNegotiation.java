@@ -29,14 +29,38 @@ public class ContractNegotiation extends JsonLdObject {
     }
 
     public String getContractAgreementId() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/contractAgreementId",null);
+        return getAgreementId();
     }
 
     public String getState() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/state");
+        return getEdrState();
+    }
+
+    public String getAgreementId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/agreementId", "UNKNOWN");
+    }
+
+    public String getTransferProcessId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/transferProcessId", "UNKNOWN");
+    }
+
+    public String getAssetId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/assetId", "UNKNOWN");
+    }
+
+    public String getProviderId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/providerId", "UNKNOWN");
+    }
+
+    public String getEdrState() {
+        return object.getString("https://w3id.org/tractusx/v0.0.1/ns/edrState", "UNKNOWN");
+    }
+
+    public long getExpirationDate() {
+        return object.getJsonNumber("https://w3id.org/tractusx/v0.0.1/ns/expirationDate").longValue();
     }
 
     public String getErrorDetail() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/errorDetail",null);
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/errorDetail", null);
     }
 }

@@ -72,8 +72,6 @@ public class AgentConfig {
     public static String READ_TIMEOUT_PROPERTY = "cx.agent.read.timeout";
     public static int DEFAULT_READ_TIMEOUT=1080000;
 
-    public static String CALLBACK_ENDPOINT="cx.agent.callback";
-
     public static String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
 
     public static String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
@@ -116,13 +114,6 @@ public class AgentConfig {
         serviceDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_PROPERTY,DEFAULT_SERVICE_DENY_PATTERN));
         serviceAssetAllowPattern=Pattern.compile(config.getString(SERVICE_ALLOW_ASSET_PROPERTY,DEFAULT_SERVICE_ALLOW_ASSET_PATTERN));
         serviceAssetDenyPattern=Pattern.compile(config.getString(SERVICE_DENY_ASSET_PROPERTY,DEFAULT_SERVICE_DENY_ASSET_PATTERN));
-    }
-
-    /**
-     * @return callback endpoint
-     */
-    public String getCallbackEndpoint() {
-        return config.getString(CALLBACK_ENDPOINT);
     }
 
     /**

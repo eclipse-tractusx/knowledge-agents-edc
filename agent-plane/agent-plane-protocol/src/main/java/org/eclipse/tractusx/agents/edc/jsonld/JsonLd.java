@@ -46,8 +46,17 @@ public class JsonLd {
         return new IdResponse(processJsonLd(response,null));
     }
 
-    public static ContractNegotiation processContractNegotiation(String response) {
-        return processContractNegotiation(Json.createReader(new StringReader(response)).readObject());
+    public static ContractNegotiation processContractNegotiations(String response) {
+        JsonValue negotiations = Json.createReader(new StringReader(response)).readValue();
+        if (negotiations.getValueType() == JsonValue.ValueType.ARRAY) {
+            JsonArray negotiationArray = negotiations.asJsonArray();
+            if(negotiationArray.size() > 0) {
+                negotiations = negotiationArray.get(0);
+            } else {
+                return null;
+            }
+        }
+        return processContractNegotiation(negotiations.asJsonObject());
     }
 
     public static ContractNegotiation processContractNegotiation(JsonObject response) {

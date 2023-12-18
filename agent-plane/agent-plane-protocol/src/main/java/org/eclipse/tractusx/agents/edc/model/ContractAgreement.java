@@ -25,11 +25,27 @@ public class ContractAgreement extends JsonLdObject {
         super(node);
     }
 
-    public String getAssetId() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/assetId");
+    public String getAuthCode() {
+            return object.getString("https://w3id.org/edc/v0.0.1/ns/authCode", null);
     }
 
-    public long getContractSigningDate() {
-        return object.getInt("https://w3id.org/edc/v0.0.1/ns/contractSigningDate");
+    public String getAuthKey() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/authKey", null);
+    }
+
+    public String getEndpoint() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/endpoint", null);
+    }
+
+    public String getTransferProcessId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/id", null);
+    }
+
+    public String getCId() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/cid", null);
+    }
+
+    public String getType() {
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/type", null);
     }
 }
