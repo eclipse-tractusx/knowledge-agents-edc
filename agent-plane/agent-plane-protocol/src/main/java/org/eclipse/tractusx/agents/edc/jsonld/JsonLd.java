@@ -20,6 +20,7 @@ import jakarta.json.*;
 import org.eclipse.tractusx.agents.edc.model.*;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,17 +47,17 @@ public class JsonLd {
         return new IdResponse(processJsonLd(response,null));
     }
 
-    public static ContractNegotiation processContractNegotiations(String response) {
+    public static List<ContractNegotiation> processContractNegotiations(String response) {
         JsonValue negotiations = Json.createReader(new StringReader(response)).readValue();
         if (negotiations.getValueType() == JsonValue.ValueType.ARRAY) {
             JsonArray negotiationArray = negotiations.asJsonArray();
-            if(negotiationArray.size() > 0) {
-                negotiations = negotiationArray.get(0);
-            } else {
-                return null;
+            List<ContractNegotiation> results = new ArrayList<>();
+            for (int count=0;count < negotiationArray.size(); count++) {
+                results.add(processContractNegotiation(negotiationArray.get(count).asJsonObject()));
             }
+            return results;
         }
-        return processContractNegotiation(negotiations.asJsonObject());
+        return List.of(processContractNegotiation(negotiations.asJsonObject()));
     }
 
     public static ContractNegotiation processContractNegotiation(JsonObject response) {

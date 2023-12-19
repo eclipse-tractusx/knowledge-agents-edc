@@ -317,12 +317,12 @@ public class DataManagement {
     }
 
     /**
-     * return state of contract negotiation
+     * return state of contract/edr negotiation
      * @param assetId of the negotation to investigate
-     * @return status of the negotiation
+     * @return a set of negotatiation states ... only one of them would be negotiated at a time
      * @throws IOException in case something went wrong
      */
-    public ContractNegotiation getNegotiation(String assetId) throws IOException {
+    public List<ContractNegotiation> getNegotiation(String assetId) throws IOException {
         var url = String.format(EDR_CHECK_CALL,config.getControlPlaneManagementUrl(),URLEncoder.encode(assetId,StandardCharsets.UTF_8));
         var request = new Request.Builder()
                 .url(url);
@@ -335,10 +335,10 @@ public class DataManagement {
                 throw new InternalServerErrorException(format("Control plane responded with: %s %s", response.code(), body != null ? body.string() : ""));
             }
 
-            var negotiation = JsonLd.processContractNegotiations(body.string());
-            monitor.debug(format("Negotiation for asset %s is %s", assetId, negotiation));
+            var negotiations = JsonLd.processContractNegotiations(body.string());
+            monitor.debug(format("Negotiation for asset %s resulted in %d edr negotiations.", assetId, negotiations.size()));
 
-            return negotiation;
+            return negotiations;
         } catch (Exception e) {
             monitor.severe(format("Error in calling the Control plane at %s", url), e);
             throw e;

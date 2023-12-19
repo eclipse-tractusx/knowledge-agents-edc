@@ -20,7 +20,8 @@ import jakarta.json.JsonObject;
 import org.eclipse.tractusx.agents.edc.jsonld.JsonLdObject;
 
 /**
- * Result of a contract negotiation
+ * Result of a contract negotiation via EDR.
+ * Contains an agreement and a transfer process
  */
 public class ContractNegotiation extends JsonLdObject {
 
