@@ -17,6 +17,7 @@
 package org.eclipse.tractusx.agents.edc;
 
 import com.nimbusds.jose.JWSObject;
+import jakarta.json.Json;
 import jakarta.json.JsonValue;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
@@ -119,7 +120,7 @@ public class AgreementControllerImpl implements AgreementController {
     public void receiveEdcCallback(EndpointDataReference dataReference) {
         var agreementId = dataReference.getId();
         monitor.debug(String.format("An endpoint data reference for agreement %s has been posted.", agreementId));
-        synchronized (agreementStore) {
+        synchronized (processStore) {
             for (Map.Entry<String, TransferProcess> process : processStore.entrySet()) {
                 if (process.getValue().getId().equals(agreementId)) {
                     synchronized (endpointStore) {
@@ -368,9 +369,14 @@ public class AgreementControllerImpl implements AgreementController {
         monitor.debug(String.format("About to initiate transfer for agreement %s (for asset %s at connector %s)", negotiation.getContractAgreementId(), asset, remoteUrl));
 
         String transferId;
+        TransferProcess process = null;
 
         try {
-            transferId = dataManagement.initiateHttpProxyTransferProcess(transferRequest);
+            synchronized (processStore) {
+                transferId = dataManagement.initiateHttpProxyTransferProcess(transferRequest);
+                process = new TransferProcess(Json.createObjectBuilder().add("@id", transferId).add("https://w3id.org/edc/v0.0.1/ns/state", "UNINITIALIZED").build());
+                registerProcess(asset, process);
+            }
         } catch (IOException ioe) {
             deactivate(asset);
             throw new InternalServerErrorException(String.format("HttpProxy transfer for agreement %s could not be initiated.", agreement.getId()), ioe);
@@ -379,8 +385,6 @@ public class AgreementControllerImpl implements AgreementController {
         monitor.debug(String.format("About to check transfer %s (for asset %s at connector %s)", transferId, asset, remoteUrl));
 
         // Check negotiation state
-        TransferProcess process = null;
-
         startTime = System.currentTimeMillis();
 
         // EDC 0.5.1 has a problem with the checker configuration and wont process to COMPLETED
