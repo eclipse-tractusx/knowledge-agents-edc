@@ -36,18 +36,18 @@ import java.util.Set;
  */
 public class SkillVariableDetector extends TransformSingle {
 
-    HashMap<String,Node> variables=new HashMap<>();
+    HashMap<String, Node> variables = new HashMap<>();
     Set<String> allowed;
 
     public SkillVariableDetector(Set<String> allowed) {
-        this.allowed=allowed;
+        this.allowed = allowed;
     }
 
     @Override
     public Op transform(OpExtend opExtend, Op subOp) {
-        opExtend.getVarExprList().forEachExpr( (assignment,expr) -> {
-            String varName= assignment.getVarName();
-            if(!variables.containsKey(varName)) {
+        opExtend.getVarExprList().forEachExpr((assignment, expr) -> {
+            String varName = assignment.getVarName();
+            if (!variables.containsKey(varName)) {
                 if (expr.isVariable()) {
                     Var var = (Var) ((ExprVar) expr).getAsNode();
                     if (allowed.contains(var.getVarName())) {
@@ -62,7 +62,7 @@ public class SkillVariableDetector extends TransformSingle {
         return opExtend;
     }
 
-    public Map<String,Node> getVariables() {
+    public Map<String, Node> getVariables() {
         return variables;
     }
 }

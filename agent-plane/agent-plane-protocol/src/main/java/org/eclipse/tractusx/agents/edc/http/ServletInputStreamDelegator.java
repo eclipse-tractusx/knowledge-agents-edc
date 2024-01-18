@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 
 /**
  * Delegating servlet input stream into a simple input stream
@@ -33,6 +33,7 @@ public class ServletInputStreamDelegator extends ServletInputStream {
 
     /**
      * Create a DelegatingServletInputStream for the given source stream.
+     *
      * @param sourceStream the source stream (never {@code null})
      */
     public ServletInputStreamDelegator(InputStream sourceStream) {
@@ -41,6 +42,7 @@ public class ServletInputStreamDelegator extends ServletInputStream {
 
     /**
      * Return the underlying source stream (never {@code null}).
+     *
      * @return input stream
      */
     public final InputStream getSourceStream() {
