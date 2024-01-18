@@ -27,7 +27,7 @@ public enum AgentProtocol {
     private final String protocolId;
 
     AgentProtocol(String protocolId) {
-        this.protocolId=protocolId;
+        this.protocolId = protocolId;
     }
 
     public String getProtocolId() {

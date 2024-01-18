@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * a pseudo transform which visits every graph node
@@ -34,23 +33,23 @@ import java.util.stream.Collectors;
  */
 public class VariableDetector implements NodeTransform {
 
-    HashMap<String,Var> variables=new HashMap<>();
+    HashMap<String, Var> variables = new HashMap<>();
     Set<String> allowed;
 
     public VariableDetector(Set<String> allowed) {
-        this.allowed=allowed;
+        this.allowed = allowed;
     }
 
     @Override
     public Node apply(Node node) {
-        if(node.isVariable()) {
-            Var var = (Var)node;
-            String varName= var.getVarName();
-            while(Var.isRenamedVar(varName)) {
-                varName=varName.substring(1);
-                var=Var.alloc(varName);
+        if (node.isVariable()) {
+            Var var = (Var) node;
+            String varName = var.getVarName();
+            while (Var.isRenamedVar(varName)) {
+                varName = varName.substring(1);
+                var = Var.alloc(varName);
             }
-            if(allowed.contains(varName) && !variables.containsKey(varName)) {
+            if (allowed.contains(varName) && !variables.containsKey(varName)) {
                 variables.put(varName, var);
             }
             return var;

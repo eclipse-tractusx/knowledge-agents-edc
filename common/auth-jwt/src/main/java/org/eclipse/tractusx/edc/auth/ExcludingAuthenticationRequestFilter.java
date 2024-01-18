@@ -35,8 +35,9 @@ public class ExcludingAuthenticationRequestFilter extends AuthenticationRequestF
 
     /**
      * creates a new authentication request filter
+     *
      * @param authenticationService the actual authentication service
-     * @param excludePattern the parsed regular expression of excluded paths, null if none
+     * @param excludePattern        the parsed regular expression of excluded paths, null if none
      */
     public ExcludingAuthenticationRequestFilter(AuthenticationService authenticationService, Pattern excludePattern) {
         super(authenticationService);
@@ -45,11 +46,12 @@ public class ExcludingAuthenticationRequestFilter extends AuthenticationRequestF
 
     /**
      * delegates to parent implementation only if excluded path regex does match uri
+     *
      * @param requestContext request context.
      */
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        if(excludePattern != null) {
+        if (excludePattern != null) {
             Matcher excludeMatcher = excludePattern.matcher(
                     requestContext.getUriInfo().getAbsolutePath().toString()
             );

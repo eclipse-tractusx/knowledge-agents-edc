@@ -19,11 +19,13 @@ package org.eclipse.tractusx.edc.auth;
 import com.nimbusds.jose.JOSEException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the api-key service
@@ -36,26 +38,26 @@ public class ApiKeyAuthenticationServiceTest {
 
     @BeforeEach
     public void initialize() throws JOSEException {
-        key= UUID.randomUUID().toString();
-        service=new ApiKeyAuthenticationService(key.hashCode());
+        key = UUID.randomUUID().toString();
+        service = new ApiKeyAuthenticationService(key.hashCode());
     }
 
     @Test
     public void testValidKey() {
-        var headers=Map.of("x-api-key", List.of(key));
-        assertTrue(service.isAuthenticated(headers),"Could not authenticate using valid api key");
+        var headers = Map.of("x-api-key", List.of(key));
+        assertTrue(service.isAuthenticated(headers), "Could not authenticate using valid api key");
     }
 
     @Test
     public void testInvalidKey() {
-        var headers=Map.of("x-api-key", List.of(UUID.randomUUID().toString()));
-        assertFalse(service.isAuthenticated(headers),"Could authenticate using invalid key");
+        var headers = Map.of("x-api-key", List.of(UUID.randomUUID().toString()));
+        assertFalse(service.isAuthenticated(headers), "Could authenticate using invalid key");
     }
 
     @Test
     public void testInvalidHeader() {
-        var headers=Map.of("api-key", List.of(key));
-        assertFalse(service.isAuthenticated(headers),"Could authenticate using invalid header");
+        var headers = Map.of("api-key", List.of(key));
+        assertFalse(service.isAuthenticated(headers), "Could authenticate using invalid header");
     }
 
 }

@@ -16,11 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
+import okhttp3.OkHttpClient;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSourceFactory;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.edc.spi.http.EdcHttpClient;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
-import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -46,12 +46,12 @@ public class HttpClientFactory {
 
     static {
         try {
-            sourceFactories=HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.dataplane.framework.pipeline.PipelineServiceImpl").getDeclaredField("sourceFactories");
+            sourceFactories = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.dataplane.framework.pipeline.PipelineServiceImpl").getDeclaredField("sourceFactories");
             sourceFactories.setAccessible(true);
-            httpDataSourceFactory=HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.dataplane.http.pipeline.HttpDataSourceFactory");
-            httpClient=httpDataSourceFactory.getDeclaredField("httpClient");
+            httpDataSourceFactory = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.dataplane.http.pipeline.HttpDataSourceFactory");
+            httpClient = httpDataSourceFactory.getDeclaredField("httpClient");
             httpClient.setAccessible(true);
-            okHttpClient=HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.core.base.EdcHttpClientImpl").getDeclaredField("okHttpClient");
+            okHttpClient = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.core.base.EdcHttpClientImpl").getDeclaredField("okHttpClient");
             okHttpClient.setAccessible(true);
             connectTimeoutMillis = OkHttpClient.class.getDeclaredField("connectTimeoutMillis");
             connectTimeoutMillis.setAccessible(true);
@@ -63,27 +63,28 @@ public class HttpClientFactory {
             pingIntervalMillis.setAccessible(true);
             callTimeoutMillis = OkHttpClient.class.getDeclaredField("pingIntervalMillis");
             callTimeoutMillis.setAccessible(true);
-        } catch(ClassNotFoundException | NoSuchFieldException e) {
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
             System.err.println("HttpClientFactory could not be initialised. Leaving default okhttp settings.");
         }
     }
 
     /**
      * Create an modified OkHttpClient instance
+     *
      * @param config agent config
      * @param client parent/blueprint instance
      * @return the modified OkHttpClient
      */
     @NotNull
-    public static Map.Entry<EdcHttpClient,OkHttpClient> create(EdcHttpClient eClient, OkHttpClient client, PipelineService service, AgentConfig config) {
-        Integer connectTimeout=config.getConnectTimeout();
-        Integer readTimeout=config.getReadTimeout();
-        Integer callTimeout=config.getCallTimeout();
-        Integer writeTimeout=config.getWriteTimeout();
+    public static Map.Entry<EdcHttpClient, OkHttpClient> create(EdcHttpClient edcClient, OkHttpClient client, PipelineService service, AgentConfig config) {
+        Integer connectTimeout = config.getConnectTimeout();
+        Integer readTimeout = config.getReadTimeout();
+        Integer callTimeout = config.getCallTimeout();
+        Integer writeTimeout = config.getWriteTimeout();
 
-        if(connectTimeout!=null || readTimeout!=null || callTimeout!=null || writeTimeout!=null) {
+        if (connectTimeout != null || readTimeout != null || callTimeout != null || writeTimeout != null) {
             try {
-                eClient = ((Collection<DataSourceFactory>) sourceFactories.get(service)).stream().flatMap(factory -> {
+                edcClient = ((Collection<DataSourceFactory>) sourceFactories.get(service)).stream().flatMap(factory -> {
                             if (httpDataSourceFactory.equals(factory.getClass())) {
                                 try {
                                     return Optional.of((EdcHttpClient) httpClient.get(factory)).stream();
@@ -93,8 +94,8 @@ public class HttpClientFactory {
                             }
                             return Optional.<EdcHttpClient>empty().stream();
                         }
-                ).findFirst().orElse(eClient);
-                client = (OkHttpClient) okHttpClient.get(eClient);
+                ).findFirst().orElse(edcClient);
+                client = (OkHttpClient) okHttpClient.get(edcClient);
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 System.err.println("HttpClientFactory could not reuse okhttp client.");
             }
@@ -127,7 +128,7 @@ public class HttpClientFactory {
                 }
             }
         }
-        return new AbstractMap.SimpleEntry(eClient,client);
+        return new AbstractMap.SimpleEntry(edcClient, client);
     }
 
 }

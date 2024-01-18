@@ -40,35 +40,35 @@ import java.util.Set;
 public class GraphRewrite extends TransformCopy {
 
     protected final List<Binding> bindings;
-    protected final Set<String> graphNames=new HashSet<>();
+    protected final Set<String> graphNames = new HashSet<>();
 
     protected final Monitor monitor;
 
     protected final GraphRewriteVisitor visitor;
 
     public GraphRewrite(Monitor monitor, List<Binding> bindings, GraphRewriteVisitor visitor) {
-        this.bindings=bindings;
-        this.monitor=monitor;
-        this.visitor=visitor;
+        this.bindings = bindings;
+        this.monitor = monitor;
+        this.visitor = visitor;
     }
 
 
     @Override
     public OpGraph transform(OpGraph op, Op subOp) {
-        if(!visitor.inService) {
+        if (!visitor.inService) {
             Node graphNode = op.getNode();
             if (graphNode.isURI()) {
-                String graphString=graphNode.getURI();
-                if(graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
-                    graphString=graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
-                    op=new OpGraph(NodeFactory.createURI(graphString),subOp);
+                String graphString = graphNode.getURI();
+                if (graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
+                    graphString = graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
+                    op = new OpGraph(NodeFactory.createURI(graphString), subOp);
                 }
                 graphNames.add(graphString);
             } else if (graphNode.isLiteral()) {
-                String graphString=String.valueOf(graphNode.getLiteralValue());
-                if(graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
-                    graphString=graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
-                    op=new OpGraph(NodeFactory.createURI(graphString),subOp);
+                String graphString = String.valueOf(graphNode.getLiteralValue());
+                if (graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
+                    graphString = graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
+                    op = new OpGraph(NodeFactory.createURI(graphString), subOp);
                 }
                 graphNames.add(graphString);
             } else if (graphNode.isVariable()) {
@@ -85,20 +85,20 @@ public class GraphRewrite extends TransformCopy {
                         }
                     }
                     if (bound != null) {
-                        if( bound.isURI()) {
+                        if (bound.isURI()) {
                             String graphString = bound.getURI();
                             if (graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
                                 graphString = graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
                             }
                             graphNames.add(graphString);
-                            op=new OpGraph(NodeFactory.createURI(graphString), subOp);
-                        } else if(bound.isLiteral()) {
+                            op = new OpGraph(NodeFactory.createURI(graphString), subOp);
+                        } else if (bound.isLiteral()) {
                             String graphString = String.valueOf(bound.getLiteralValue());
                             if (graphString.startsWith(SparqlQueryProcessor.UNSET_BASE)) {
                                 graphString = graphString.substring(SparqlQueryProcessor.UNSET_BASE.length());
                             }
                             graphNames.add(graphString);
-                            op=new OpGraph(NodeFactory.createURI(graphString), subOp);
+                            op = new OpGraph(NodeFactory.createURI(graphString), subOp);
                         } else {
                             monitor.warning(String.format("Found a graph node binding %s which is no uri or literal. Ignoring.", bound));
                         }
@@ -114,6 +114,8 @@ public class GraphRewrite extends TransformCopy {
     }
 
     /**
+     * access
+     *
      * @return set of graph names/assets found
      */
     public Set<String> getGraphNames() {

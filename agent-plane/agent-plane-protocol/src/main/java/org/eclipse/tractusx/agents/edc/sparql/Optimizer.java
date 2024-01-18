@@ -27,6 +27,7 @@ import org.apache.jena.sparql.util.Context;
 public class Optimizer extends OptimizerStd {
     /**
      * Create a new optimizer
+     *
      * @param context query context
      */
     public Optimizer(Context context) {
@@ -35,6 +36,7 @@ public class Optimizer extends OptimizerStd {
 
     /**
      * override to choose the improved join straregy
+     *
      * @param op operator to transform
      * @return transformed operator
      */

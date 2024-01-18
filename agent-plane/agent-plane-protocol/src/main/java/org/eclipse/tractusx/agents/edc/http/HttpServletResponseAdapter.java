@@ -16,25 +16,29 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * builds a ok response from an in-memory servlet response implementation
  */
 public class HttpServletResponseAdapter implements HttpServletResponse {
 
-    Response.Builder builder=new Response.Builder();
-    ByteArrayOutputStream bos=new ByteArrayOutputStream();
-    ServletOutputStream sos=new ServletOutputStreamDelegator(bos);
+    Response.Builder builder = new Response.Builder();
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ServletOutputStream sos = new ServletOutputStreamDelegator(bos);
 
     String contentType;
     long contentLength;
@@ -90,37 +94,37 @@ public class HttpServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public void setDateHeader(String name, long date) {
-        builder.header(name,String.valueOf(date));
+        builder.header(name, String.valueOf(date));
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        builder.addHeader(name,String.valueOf(date));
+        builder.addHeader(name, String.valueOf(date));
     }
 
     @Override
     public void setHeader(String name, String value) {
-        builder.header(name,value);
+        builder.header(name, value);
     }
 
     @Override
     public void addHeader(String name, String value) {
-        builder.addHeader(name,value);
+        builder.addHeader(name, value);
     }
 
     @Override
     public void setIntHeader(String name, int value) {
-        builder.header(name,String.valueOf(value));
+        builder.header(name, String.valueOf(value));
     }
 
     @Override
     public void addIntHeader(String name, int value) {
-        builder.addHeader(name,String.valueOf(value));
+        builder.addHeader(name, String.valueOf(value));
     }
 
     @Override
     public void setStatus(int sc) {
-        builder.code(sc).message(String.format("Status %d",sc));
+        builder.code(sc).message(String.format("Status %d", sc));
     }
 
     @Override
@@ -174,17 +178,17 @@ public class HttpServletResponseAdapter implements HttpServletResponse {
 
     @Override
     public void setContentLength(int len) {
-        contentLength=len;
+        contentLength = len;
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        contentLength=len;
+        contentLength = len;
     }
 
     @Override
     public void setContentType(String type) {
-        contentType=type;
+        contentType = type;
     }
 
     @Override
@@ -225,8 +229,8 @@ public class HttpServletResponseAdapter implements HttpServletResponse {
     }
 
     public Response toResponse() {
-        if(contentType!=null) {
-            ResponseBody body= ResponseBody.create(bos.toByteArray(), MediaType.parse(contentType));
+        if (contentType != null) {
+            ResponseBody body = ResponseBody.create(bos.toByteArray(), MediaType.parse(contentType));
             builder.body(body);
         }
         return builder.build();
