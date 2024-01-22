@@ -32,8 +32,8 @@ public class Asset extends JsonLdObject {
 
     public Asset(JsonObject node) {
         super(node);
-        this.publicProperties=node.getJsonObject("https://w3id.org/edc/v0.0.1/ns/properties");
-        this.privateProperties=node.getJsonObject("https://w3id.org/edc/v0.0.1/ns/privateProperties");
+        this.publicProperties = node.getJsonObject("https://w3id.org/edc/v0.0.1/ns/properties");
+        this.privateProperties = node.getJsonObject("https://w3id.org/edc/v0.0.1/ns/privateProperties");
     }
 
     public Map<String, JsonValue> getPrivateProperties() {

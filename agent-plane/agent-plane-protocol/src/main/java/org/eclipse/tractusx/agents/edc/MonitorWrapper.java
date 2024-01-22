@@ -25,12 +25,12 @@ import org.slf4j.helpers.AbstractLogger;
  * A (better) adapter to bridge slf4j to EDC logging
  */
 public class MonitorWrapper extends AbstractLogger {
-    
+
     final Monitor instance;
 
     public MonitorWrapper(String name, Monitor monitor) {
         this.name = name;
-        this.instance=monitor;
+        this.instance = monitor;
     }
 
     @Override

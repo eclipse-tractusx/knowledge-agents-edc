@@ -29,36 +29,38 @@ import java.net.URLEncoder;
  */
 public class HttpUtils {
 
-    public static String DEFAULT_ENCODING = System.getProperty("fis.encoding","UTF-8");
+    public static final String DEFAULT_ENCODING = System.getProperty("fis.encoding", "UTF-8");
 
     /**
      * ensure that the given parameter string is correctly
      * encoded
+     *
      * @param pattern maybe undecoded patterm
-     * @return a url encoded string 
+     * @return a url encoded string
      */
     public static String urlEncode(String pattern) {
         try {
-            return URLEncoder.encode(pattern,DEFAULT_ENCODING);
-        } catch(UnsupportedEncodingException e) {
+            return URLEncoder.encode(pattern, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
             // this should never happen
             return pattern;
         }
     }
 
-        /**
+    /**
      * ensure that the given parameter string is correctly
      * encoded
      * TODO optimize
+     *
      * @param parameter maybe undecoded parameter
      * @return a url encoded string which additionally encodes some URL-prefix related symbols
      */
-    public static String urlEncodeParameter(String parameter)  {
-        if(parameter==null || parameter.length()==0) return "";
+    public static String urlEncodeParameter(String parameter) {
+        if (parameter == null || parameter.length() == 0) return "";
         try {
             parameter = urlDecodeParameter(parameter);
             return encodeParameter(urlEncode(parameter));
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             // this should never happen
             return parameter;
         }
@@ -66,14 +68,15 @@ public class HttpUtils {
 
     /**
      * ensure that the given parameter string is correctly decoded
+     *
      * @param parameter maybe encoded parameter
      * @return a url decoded string
      */
-    public static String urlDecodeParameter(String parameter)  {
-        if(parameter==null || parameter.length()==0) return "";
+    public static String urlDecodeParameter(String parameter) {
+        if (parameter == null || parameter.length() == 0) return "";
         try {
-            return URLDecoder.decode(parameter,DEFAULT_ENCODING);
-        } catch(UnsupportedEncodingException e) {
+            return URLDecoder.decode(parameter, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
             // this should never happen
             return parameter;
         }
@@ -83,55 +86,57 @@ public class HttpUtils {
      * ensure that the given parameter string is correctly
      * encoded
      * TODO optimize
+     *
      * @param parameter maybe undecoded parameter
      * @return a url encoded string which additionally encodes some URL-prefix related symbols
      */
     public static String encodeParameter(String parameter) throws UnsupportedEncodingException {
-        if(parameter==null || parameter.length()==0) return "";
-        return parameter.replace("?","%3F")
-                .replace("=","%3D")
-                .replace("{","%7B")
-                .replace("}","%7D")
-                .replace("/","%2F");
+        if (parameter == null || parameter.length() == 0) return "";
+        return parameter.replace("?", "%3F")
+                .replace("=", "%3D")
+                .replace("{", "%7B")
+                .replace("}", "%7D")
+                .replace("/", "%2F");
     }
 
     /**
      * creates a response from a given setting
      * depending on the accept type
+     *
      * @param monitor logging system to save the reference error
      * @param headers of the request
      * @param message error message
-     * @param cause error object
+     * @param cause   error object
      * @return http response with the right body and reference to the logging subsystem
      */
     public static Response respond(Monitor monitor, HttpHeaders headers, int status, String message, Throwable cause) {
-        int messageCode=message.hashCode();
-        if(monitor!=null) {
-            if(cause!=null) {
-                monitor.warning(String.format("Response with error id %d delivered message %s under cause %s", messageCode, message, cause.getMessage()),cause);
+        int messageCode = message.hashCode();
+        if (monitor != null) {
+            if (cause != null) {
+                monitor.warning(String.format("Response with error id %d delivered message %s under cause %s", messageCode, message, cause.getMessage()), cause);
             } else {
                 monitor.warning(String.format("Response with error id %d delivered message %s", messageCode, message));
             }
         }
         var builder = Response.status(status);
-        String accept=headers.getHeaderString("Accept");
-        if(accept==null || accept.length()==0 ) {
-            accept="*/*";
+        String accept = headers.getHeaderString("Accept");
+        if (accept == null || accept.length() == 0) {
+            accept = "*/*";
         }
-        if(accept.contains("*/*")) {
-            accept="application/json";
+        if (accept.contains("*/*")) {
+            accept = "application/json";
         }
-        if(accept.contains("application/json")) {
+        if (accept.contains("application/json")) {
             builder.type("application/json");
             builder.entity("{ " +
                     "\"status\":" + String.valueOf(status) + "," +
                     "\"message\":\"" + messageCode + "\" }");
-        } else if(accept.contains("text/xml") || accept.contains("application/xml")) {
+        } else if (accept.contains("text/xml") || accept.contains("application/xml")) {
             builder.type(accept.contains("text/xml") ? "text/xml" : "application/xml");
             builder.entity("<failure> " +
                     "<status>" + String.valueOf(status) + "</status>" +
                     "<message>" + messageCode + "</message> </failure>");
-        } else if(accept.contains("text/html")) {
+        } else if (accept.contains("text/html")) {
             builder.type("text/html");
             builder.entity("<!DOCTYPE html>\n" +
                     "<html>\n" +
@@ -151,5 +156,5 @@ public class HttpUtils {
             builder.entity(messageCode);
         }
         return builder.build();
-     }
+    }
 }
