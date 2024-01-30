@@ -56,7 +56,7 @@ public class DataManagement {
      * some constants when interacting with control plane
      */
     public static final String DSP_PATH = "%s/api/v1/dsp";
-    public static final String CATALOG_CALL = "%s/catalog/request";
+    public static final String CATALOG_CALL = "%s/v2/catalog/request";
     // catalog request 0.5.>=1
     public static final String CATALOG_REQUEST_BODY = "{" +
             "\"@context\": {}," +
@@ -253,7 +253,7 @@ public class DataManagement {
      * @throws IOException in case something went wrong
      */
     public DcatCatalog getCatalog(String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
-        var url = String.format(CATALOG_CALL, config.getControlPlaneManagementUrl(), "/v2");
+        var url = String.format(CATALOG_CALL, config.getControlPlaneManagementUrl());
 
         // use a version specific call
         String template = config.isPrerelease() ? CATALOG_REQUEST_BODY_PRERELEASE : CATALOG_REQUEST_BODY;
