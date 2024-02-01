@@ -84,9 +84,33 @@ public class TestDataspaceSynchronizer {
     public void testQuadRepresentation() {
         Node graph = store.getDefaultGraph();
         Node connector = NodeFactory.createURI("edc://test");
+        JsonObjectBuilder offerBuilder = createOffer();
+        DcatDataset offer = new DcatDataset(offerBuilder.build());
+        Collection<Quad> result = synchronizer.convertToQuads(graph, connector, offer);
+        assertEquals(1 + 13 + 16 + 5, result.size(), "Got correct number of quads (1 connector subject and 12 asset subjects + 16 shape triples + 5 node to shape relations).");
+    }
+
+
+    /**
+     * test quad representation of a contract offer
+     */
+    @Test
+    public void testAddRemove() {
+        Node graph = store.getDefaultGraph();
+        Node connector = NodeFactory.createURI("edc://test");
+        JsonObjectBuilder offerBuilder = createOffer();
+        DcatDataset offer = new DcatDataset(offerBuilder.build());
+        int added = synchronizer.addOfferFacts(graph, connector, offer);
+        assertEquals(store.getDataSet().getDefaultGraph().size(), added, "All added tuples have been stored");
+        int removed = synchronizer.deleteConnectorFacts(graph, connector);
+        assertEquals(0, store.getDataSet().getDefaultGraph().size(), "All stored tuples have been removed");
+        assertEquals(added, removed, "All added tuples have been removed");
+    }
+
+    private static JsonObjectBuilder createOffer() {
         JsonObjectBuilder offerBuilder = Json.createObjectBuilder()
                 .add("@id", "4bf62562-9026-4dcf-93b5-42ea0de25490")
-                .add("https://w3id.org/edc/v0.0.1/ns/id", "https://w3id.org/catenax/ontology/common#GraphAsset?test:ExampleAsset")
+                .add("https://w3id.org/edc/v0.0.1/ns/id", "https://w3id.org/catenax/ontology/common#GraphAsset?test=ExampleAsset")
                 .add("https://w3id.org/edc/v0.0.1/ns/contenttype", "application/json, application/xml")
                 .add("https://w3id.org/edc/v0.0.1/ns/version", "1.11.16-SNAPSHOT")
                 .add("https://w3id.org/edc/v0.0.1/ns/name", "Test Asset")
@@ -96,7 +120,7 @@ public class TestDataspaceSynchronizer {
                 .add("http://www.w3.org/2000/01/rdf-schema#isDefinedBy", "<https://w3id.org/catenax/ontology/diagnosis>,<https://w3id.org/catenax/ontology/part>")
                 .add("https://w3id.org/catenax/ontology/common#implementsProtocol", "cx-common:Protocol?w3c:http:SPARQL")
                 .add("http://www.w3.org/ns/shacl#shapesGraph",
-                        "@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?test:ExampleAsset> .\n" +
+                        "@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?test=ExampleAsset&shapeObject=> .\n" +
                                 "@prefix cx-common: <https://w3id.org/catenax/ontology/common#> .\n" +
                                 "@prefix cx-part: <https://w3id.org/catenax/ontology/part#> .\n" +
                                 "@prefix cx-diag: <https://w3id.org/catenax/ontology/diagnosis#> .\n" +
@@ -123,9 +147,7 @@ public class TestDataspaceSynchronizer {
                                 "        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\n" +
                                 "    ] .\n")
                 .add("https://w3id.org/catenax/ontology/common#isFederated", "true");
-        DcatDataset offer = new DcatDataset(offerBuilder.build());
-        Collection<Quad> result = synchronizer.convertToQuads(graph, connector, offer);
-        assertEquals(1 + 12 + 16, result.size(), "Got correct number of quads (1 connector subject and 12 asset subjects + 16 shape triples).");
+        return offerBuilder;
     }
 
     @Test
@@ -140,10 +162,10 @@ public class TestDataspaceSynchronizer {
                 "            \"@id\": \"9cb29be7-e0fa-45f4-b575-eb1ec98e7562\",\n" +
                 "            \"@type\": \"dcat:Dataset\",\n" +
                 "            \"odrl:hasPolicy\": {\n" +
-                "                \"@id\": \"https://w3id.org/catenax/ontology/common#Contract?oem:GraphContract:https://w3id.org/catenax/ontology/common#GraphAsset?oem:Diagnosis2022:3e247899-e690-43a9-9c42-91c5a853a78b\",\n" +
+                "                \"@id\": \"aHR0cHM6Ly93M2lkLm9yZy9jYXRlbmF4L29udG9sb2d5L2NvbW1vbiNDb250cmFjdD9vZW09R3JhcGhDb250cmFjdA==:aHR0cHM6Ly93M2lkLm9yZy9jYXRlbmF4L29udG9sb2d5L2NvbW1vbiNHcmFwaEFzc2V0P29lbT1EaWFnbm9zaXMyMDIy:3e247899-e690-43a9-9c42-91c5a853a78b\",\n" +
                 "                \"@type\": \"odrl:Set\",\n" +
                 "                \"odrl:permission\": {\n" +
-                "                    \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:Diagnosis2022\",\n" +
+                "                    \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem=Diagnosis2022\",\n" +
                 "                    \"odrl:action\": {\n" +
                 "                        \"odrl:type\": \"USE\"\n" +
                 "                    },\n" +
@@ -169,7 +191,7 @@ public class TestDataspaceSynchronizer {
                 "                },\n" +
                 "                \"odrl:prohibition\": [],\n" +
                 "                \"odrl:obligation\": [],\n" +
-                "                \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:Diagnosis2022\"\n" +
+                "                \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem=Diagnosis2022\"\n" +
                 "            },\n" +
                 "            \"dcat:distribution\": {\n" +
                 "                \"@type\": \"dcat:Distribution\",\n" +
@@ -181,7 +203,7 @@ public class TestDataspaceSynchronizer {
                 "            \"edc:version\": \"1.11.16-SNAPSHOT\",\n" +
                 "            \"http://www.w3.org/2000/01/rdf-schema#isDefinedBy\": \"<https://w3id.org/catenax/ontology/diagnosis>\",\n" +
                 "            \"edc:name\": \"Diagnostic Trouble Code Catalogue Version 2022\",\n" +
-                "            \"http://www.w3.org/ns/shacl#shapeGraph\": \"@prefix cx-common: <https://w3id.org/catenax/ontology/common#>. \\n@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?oem:Diagnosis2022> .\\n@prefix cx-diag: <https://w3id.org/catenax/ontology/diagnosis#> .\\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\\n@prefix sh: <http://www.w3.org/ns/shacl#> .\\n\\n:OemDTC rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DTC ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:version ;\\n        sh:hasValue 0^^xsd:long ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:affects ;\\n        sh:class :OemDiagnosedParts ;\\n    ] ;\\n\\n:OemDiagnosedParts rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DiagnosedPart ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] ;\\n\",\n" +
+                "            \"http://www.w3.org/ns/shacl#shapesGraph\": \"@prefix cx-common: <https://w3id.org/catenax/ontology/common#>. \\n@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?oem=Diagnosis2022&shapeObject=> .\\n@prefix cx-diag: <https://w3id.org/catenax/ontology/diagnosis#> .\\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\\n@prefix sh: <http://www.w3.org/ns/shacl#> .\\n\\n:OemDTC rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DTC ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:version ;\\n        sh:hasValue \\\"0\\\"^^xsd:long ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:affects ;\\n        sh:class :OemDiagnosedParts ;\\n    ].\\n\\n:OemDiagnosedParts rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DiagnosedPart ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] .\\n\",\n" +
                 "            \"edc:description\": \"A sample graph asset/offering referring to a specific diagnosis resource.\",\n" +
                 "            \"https://w3id.org/catenax/ontology/common#publishedUnderContract\": \"cx-common:Contract?oem:Graph\",\n" +
                 "            \"edc:id\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:Diagnosis2022\",\n" +
@@ -194,10 +216,10 @@ public class TestDataspaceSynchronizer {
                 "            \"@id\": \"f3cbefa3-3ef9-464b-8f99-e342b578e182\",\n" +
                 "            \"@type\": \"dcat:Dataset\",\n" +
                 "            \"odrl:hasPolicy\": {\n" +
-                "                \"@id\": \"https://w3id.org/catenax/ontology/common#Contract?oem:GraphContract:https://w3id.org/catenax/ontology/common#GraphAsset?oem:BehaviourTwin:5d12f720-29dd-40d4-b9ef-f0b81c9740b4\",\n" +
+                "                \"@id\": \"aHR0cHM6Ly93M2lkLm9yZy9jYXRlbmF4L29udG9sb2d5L2NvbW1vbiNDb250cmFjdD9vZW09R3JhcGhDb250cmFjdA==:aHR0cHM6Ly93M2lkLm9yZy9jYXRlbmF4L29udG9sb2d5L2NvbW1vbiNHcmFwaEFzc2V0P29lbT1CZWhhdmlvdXJUd2lu:5d12f720-29dd-40d4-b9ef-f0b81c9740b4\",\n" +
                 "                \"@type\": \"odrl:Set\",\n" +
                 "                \"odrl:permission\": {\n" +
-                "                    \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:BehaviourTwin\",\n" +
+                "                    \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem=BehaviourTwin\",\n" +
                 "                    \"odrl:action\": {\n" +
                 "                        \"odrl:type\": \"USE\"\n" +
                 "                    },\n" +
@@ -223,7 +245,7 @@ public class TestDataspaceSynchronizer {
                 "                },\n" +
                 "                \"odrl:prohibition\": [],\n" +
                 "                \"odrl:obligation\": [],\n" +
-                "                \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:BehaviourTwin\"\n" +
+                "                \"odrl:target\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem=BehaviourTwin\"\n" +
                 "            },\n" +
                 "            \"dcat:distribution\": {\n" +
                 "                \"@type\": \"dcat:Distribution\",\n" +
@@ -235,7 +257,7 @@ public class TestDataspaceSynchronizer {
                 "            \"edc:version\": \"CX_RuL_Testdata_v1.0.0\",\n" +
                 "            \"http://www.w3.org/2000/01/rdf-schema#isDefinedBy\": \"<https://w3id.org/catenax/ontology/telematics>\",\n" +
                 "            \"edc:name\": \"OEM portion of the Behaviour Twin RUL/HI Testdataset.\",\n" +
-                "            \"http://www.w3.org/ns/shacl#shapeGraph\": \"@prefix cx-common: <https://w3id.org/catenax/ontology/common#>. \\n@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?oem:BehaviourTwin> .\\n@prefix cx-tele: <https://w3id.org/catenax/ontology/telematics#> .\\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\\n@prefix sh: <http://www.w3.org/ns/shacl#> .@prefix : <urn:cx:Graph:oem:BehaviourTwin> .\\n\\nOemLoadSpectrum rdf:type sh:NodeShape ;\\n  sh:targetClass cx-tele:LoadSpectrum ;\\n  sh:property [\\n        sh:path cx-tele:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003AYRE> ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-tele:Version ;\\n        sh:hasValue 0^^xsd:long ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-tele:component ;\\n        sh:class SupplierParts ;\\n    ] ;\\n\\nSupplierParts rdf:type sh:NodeShape ;\\n  sh:targetClass cx-tele:VehicleComponent ;\\n  sh:property [\\n        sh:path cx-tele:isProducedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003B2OM> ;\\n    ] ;\\n\",\n" +
+                "            \"http://www.w3.org/ns/shacl#shapesGraph\": \"@prefix cx-common: <https://w3id.org/catenax/ontology/common#>. \\n@prefix : <https://w3id.org/catenax/ontology/common#GraphAsset?oem=BehaviourTwin&shapeObject=> .\\n@prefix cx-tele: <https://w3id.org/catenax/ontology/telematics#> .\\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\\n@prefix sh: <http://www.w3.org/ns/shacl#> .\\n\\n :OemLoadSpectrum rdf:type sh:NodeShape ;\\n  sh:targetClass cx-tele:LoadSpectrum ;\\n  sh:property [\\n        sh:path cx-tele:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003AYRE> ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-tele:Version ;\\n        sh:hasValue \\\"0\\\"^^xsd:long ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-tele:component ;\\n        sh:class :SupplierParts ;\\n    ] .\\n\\n:SupplierParts rdf:type sh:NodeShape ;\\n  sh:targetClass cx-tele:VehicleComponent ;\\n  sh:property [\\n        sh:path cx-tele:isProducedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003B2OM> ;\\n    ] .\\n\",\n" +
                 "            \"edc:description\": \"A graph asset/offering mounting Carena-X Testdata for Behaviour Twin.\",\n" +
                 "            \"https://w3id.org/catenax/ontology/common#publishedUnderContract\": \"cx-common:Contract?oem:Graph\",\n" +
                 "            \"edc:id\": \"https://w3id.org/catenax/ontology/common#GraphAsset?oem:BehaviourTwin\",\n" +
@@ -263,6 +285,7 @@ public class TestDataspaceSynchronizer {
                 "}";
         DcatCatalog cat = JsonLd.processCatalog(catDesc);
         Collection<Quad> results = cat.getDatasets().stream().flatMap(offer -> synchronizer.convertToQuads(graph, connector, offer).stream()).collect(Collectors.toList());
+        assertEquals(2 + 24 + 32 + 10, results.size(), "Got correct number of quads (2 connector subject and 22 asset subjects + 32 shape triples + 10 node to shape relations).");
     }
 
 }
