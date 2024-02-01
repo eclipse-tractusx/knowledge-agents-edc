@@ -111,7 +111,7 @@ public class DataspaceSynchronizer implements Runnable {
         PREDEFINED_NS.put("rdfs:", RDF_SCHEMA_NAMESPACE);
         PREDEFINED_NS.put("sh:", SHACL_NAMESPACE);
         PREDEFINED_NS.put("cx-sh:", CX_SCHEMA_NAMESPACE);
-        PREDEFINED_NS.put("dc:", DC_NAMESPACE);
+        PREDEFINED_NS.put("dct:", DC_NAMESPACE);
         PREDEFINED_NS.put("xsd:", XML_SCHEMA_NAMESPACE);
     }
 
@@ -385,7 +385,7 @@ public class DataspaceSynchronizer implements Runnable {
     public Collection<Quad> convertToQuads(Node graph, Node connector, DcatDataset offer) {
         Map<String, JsonValue> assetProperties = getProperties(offer);
         List<Quad> quads = new ArrayList<>();
-        String offerId = assetProperties.get("@id").toString();
+        String offerId = JsonLd.asString(assetProperties.get("@id"));
         Node assetNode = NodeFactory.createURI(offerId);
         quads.add(Quad.create(graph,
                 connector,
@@ -394,15 +394,10 @@ public class DataspaceSynchronizer implements Runnable {
         for (Map.Entry<String, JsonValue> assetProp : assetProperties.entrySet()) {
             String key = assetProp.getKey();
             Node node = ASSET_PROPERTY_MAP.get(key);
-            // strip down complex properties, mayxbe not needed anymore
-            while (node == null && key.indexOf('.') >= 0) {
-                key = key.substring(key.lastIndexOf(".") + 1);
-                node = ASSET_PROPERTY_MAP.get(key);
-            }
             // strip off language modifiers
             if (node == null && key.indexOf("@") >= 0) {
                 String langSuffix = key.substring(key.lastIndexOf("@"));
-                key = key.substring(key.lastIndexOf("@"));
+                key = key.substring(0, key.lastIndexOf("@"));
                 node = ASSET_PROPERTY_MAP.get(key);
                 if (node != null) {
                     node = createUri(node.getURI(), "@" + langSuffix);
