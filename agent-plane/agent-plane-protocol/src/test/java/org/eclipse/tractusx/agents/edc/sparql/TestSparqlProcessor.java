@@ -305,7 +305,7 @@ public class TestSparqlProcessor {
         builder.url("http://localhost:8080");
         builder.addHeader("Accept","application/sparql-results+json");
         builder.put(RequestBody.create(query, MediaType.parse("application/sparql-query")));
-        try (Response response=processor.execute(builder.build(),null,null,Map.of())) {
+        try (Response response=processor.execute(builder.build(),null,null,Map.of(DataspaceServiceExecutor.ALLOW_SYMBOL.getSymbol(),"(http|edc)s://.*"))) {
             assertTrue(response.isSuccessful(), "Successful result");
             JsonNode root = mapper.readTree(Objects.requireNonNull(response.body()).string());
             JsonNode bindings = root.get("results").get("bindings");
