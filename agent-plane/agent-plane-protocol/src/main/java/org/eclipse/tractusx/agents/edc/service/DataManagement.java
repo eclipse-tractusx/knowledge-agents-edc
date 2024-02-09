@@ -105,8 +105,9 @@ public class DataManagement {
             "        \"proxyPath\": \"false\",\n" +
             "        \"proxyMethod\": \"true\",\n" +
             "        \"proxyQueryParams\": \"true\",\n" +
-            "        \"proxyBody\": \"true\"\n" +
-            "    }\n" +
+            "        \"proxyBody\": \"true\",\n" +
+            "        \"cx-common:allowServicePattern\": \"%10$s\",\n" +
+            "        \"cx-common:denyServicePattern\": \"%11$s\"\n" +
             "}\n";
 
     public static final String SKILL_ASSET_CREATE_BODY_V3 = "{\n" +
@@ -140,7 +141,9 @@ public class DataManagement {
             "        \"proxyPath\": \"false\",\n" +
             "        \"proxyMethod\": \"true\",\n" +
             "        \"proxyQueryParams\": \"true\",\n" +
-            "        \"proxyBody\": \"true\"\n" +
+            "        \"proxyBody\": \"true\",\n" +
+            "        \"cx-common:allowServicePattern\": \"%10$s\",\n" +
+            "        \"cx-common:denyServicePattern\": \"%11$s\"\n" +
             "    }\n" +
             "}\n";
 
@@ -215,10 +218,10 @@ public class DataManagement {
     /**
      * creates a service wrapper
      *
-     * @param monitor logger
+     * @param monitor     logger
      * @param typeManager serialization
-     * @param httpClient remoting
-     * @param config typed config
+     * @param httpClient  remoting
+     * @param config      typed config
      */
     public DataManagement(Monitor monitor, TypeManager typeManager, OkHttpClient httpClient, AgentConfig config) {
         this.monitor = monitor;
@@ -233,7 +236,7 @@ public class DataManagement {
      * TODO replace by accessing the federated data catalogue
      *
      * @param remoteControlPlaneIdsUrl url of the remote control plane ids endpoint
-     * @param assetId (connector-unique) identifier of the asset
+     * @param assetId                  (connector-unique) identifier of the asset
      * @return a collection of contract options to access the given asset
      * @throws IOException in case that the remote call did not succeed
      */
@@ -248,7 +251,7 @@ public class DataManagement {
      * Access the catalogue
      *
      * @param remoteControlPlaneIdsUrl url of the remote control plane ids endpoint
-     * @param spec query specification
+     * @param spec                     query specification
      * @return catalog object
      * @throws IOException in case something went wrong
      */
@@ -313,19 +316,23 @@ public class DataManagement {
     /**
      * creates or updates a given asset
      *
-     * @param assetId key
-     * @param name of skill
-     * @param description of skill
-     * @param version of skill
-     * @param contract of skill
-     * @param ontologies of skill
-     * @param distributionMode of skill
-     * @param isFederated whether it should be distributed
-     * @param query of skill
+     * @param assetId             key
+     * @param name                of skill
+     * @param description         of skill
+     * @param version             of skill
+     * @param contract            of skill
+     * @param ontologies          of skill
+     * @param distributionMode    of skill
+     * @param isFederated         whether it should be distributed
+     * @param query               of skill
+     * @param allowServicePattern option allow service pattern
+     * @param denyServicePattern  optional deny service pattern
      * @return idresponse
      * @throws IOException in case interaction with EDC went wrong
      */
-    public IdResponse createOrUpdateSkill(String assetId, String name, String description, String version, String contract, String ontologies, String distributionMode, boolean isFederated, String query) throws IOException {
+    public IdResponse createOrUpdateSkill(String assetId, String name, String description, String version, String contract,
+                                          String ontologies, String distributionMode, boolean isFederated, String query, String allowServicePattern,
+                                          String denyServicePattern) throws IOException {
 
         String apiVersion = config.isPrerelease() ? "/v2" : "/v3";
         var url = String.format(ASSET_CREATE_CALL, config.getControlPlaneManagementProviderUrl(), apiVersion);
@@ -336,7 +343,14 @@ public class DataManagement {
         }
         String spec = config.isPrerelease() ? ASSET_CREATE_BODY : SKILL_ASSET_CREATE_BODY_V3;
 
-        var assetSpec = String.format(spec, assetId, name, description, version, contract, ontologies, distributionMode, isFederated, query);
+        if (allowServicePattern == null) {
+            allowServicePattern = config.getServiceAllowPattern().pattern();
+        }
+        if (denyServicePattern == null) {
+            denyServicePattern = config.getServiceDenyPattern().pattern();
+        }
+        var assetSpec = String.format(spec, assetId, name, description, version, contract, ontologies, distributionMode,
+                isFederated, query, allowServicePattern, denyServicePattern);
 
         var request = new Request.Builder().url(url).post(RequestBody.create(assetSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);

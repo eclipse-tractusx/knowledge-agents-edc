@@ -43,7 +43,7 @@ public class InMemorySkillStore implements SkillStore {
     }
 
     @Override
-    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String... ontologies) {
+    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String allowServicePattern, String denyServicePattern, String... ontologies) {
         skills.put(key, skill);
         return key;
     }

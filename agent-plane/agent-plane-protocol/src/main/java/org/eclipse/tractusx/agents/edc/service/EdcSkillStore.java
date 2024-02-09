@@ -51,7 +51,7 @@ public class EdcSkillStore implements SkillStore {
     }
 
     @Override
-    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String... ontologies) {
+    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String allowServicePatern, String denyServicePattern, String... ontologies) {
         if (name == null) {
             name = "No name given";
         }
@@ -75,7 +75,9 @@ public class EdcSkillStore implements SkillStore {
                     ontologiesString,
                     dist.getDistributionMode(),
                     isFederated,
-                    typeManager.getMapper().writeValueAsString(TextNode.valueOf(skill))
+                    typeManager.getMapper().writeValueAsString(TextNode.valueOf(skill)),
+                    allowServicePatern,
+                    denyServicePattern
             ).getId();
         } catch (IOException e) {
             return null;

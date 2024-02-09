@@ -53,10 +53,12 @@ public interface SkillStore {
      * @param contract    of skill optional
      * @param dist        of skill required
      * @param isFederated whether skill maybe synchronized in catalogue
+     * @param allowServicePattern regex for service to call in skill
+     * @param denyServicePattern regex for services denied in skill
      * @param ontologies  a set of ontologies
      * @return skill id
      */
-    String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String... ontologies);
+    String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String allowServicePattern, String denyServicePattern, String... ontologies);
 
     /**
      * return the skill distribution

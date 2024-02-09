@@ -63,13 +63,13 @@ public class AgentController {
     protected final SparqlQueryProcessor processor;
     protected final DelegationService delegationService;
 
-    /** 
+    /**
      * creates a new agent controller
      *
-     * @param monitor logging subsystem
+     * @param monitor             logging subsystem
      * @param agreementController agreement controller for remote skill/queries
-     * @param config configuration
-     * @param processor sparql processor
+     * @param config              configuration
+     * @param processor           sparql processor
      */
     public AgentController(Monitor monitor, AgreementController agreementController, AgentConfig config, SparqlQueryProcessor processor, SkillStore skillStore, DelegationService delegationService) {
         this.monitor = monitor;
@@ -95,7 +95,7 @@ public class AgentController {
      * @return response
      */
     @POST
-    @Consumes({"application/sparql-query", "application/sparql-results+json"})
+    @Consumes({ "application/sparql-query", "application/sparql-results+json" })
     public Response postSparqlQuery(@QueryParam("asset") String asset,
                                     @Context HttpHeaders headers,
                                     @Context HttpServletRequest request,
@@ -118,7 +118,7 @@ public class AgentController {
      * @return response compatible with graphdb convention
      */
     @POST
-    @Consumes({"application/x-www-form-urlencoded"})
+    @Consumes({ "application/x-www-form-urlencoded" })
     public Response postFormQuery(@QueryParam("asset") String asset,
                                   @Context HttpHeaders headers,
                                   @Context HttpServletRequest request,
@@ -143,7 +143,7 @@ public class AgentController {
      */
     @POST
     @Path("/repositories/AGENT")
-    @Consumes({"application/x-www-form-urlencoded"})
+    @Consumes({ "application/x-www-form-urlencoded" })
     public Response postFormRepositoryQuery(@QueryParam("asset") String asset,
                                             @Context HttpHeaders headers,
                                             @Context HttpServletRequest request,
@@ -429,15 +429,15 @@ public class AgentController {
     /**
      * endpoint for posting a skill
      *
-     * @param query mandatory query
-     * @param asset asset key
-     * @param name asset name
+     * @param query       mandatory query
+     * @param asset       asset key
+     * @param name        asset name
      * @param description asset description
-     * @param version asset version
-     * @param contract asset contract
-     * @param mode asset mode
+     * @param version     asset version
+     * @param contract    asset contract
+     * @param mode        asset mode
      * @param isFederated whether it appears in fed catalogue
-     * @param ontologies list of ontologies
+     * @param ontologies  list of ontologies
      * @return only status
      */
     @POST
@@ -451,11 +451,13 @@ public class AgentController {
                               @QueryParam("contract") String contract,
                               @QueryParam("distributionMode") SkillDistribution mode,
                               @QueryParam("isFederated") boolean isFederated,
+                              @QueryParam("allowServicesPattern") String allowServicePattern,
+                              @QueryParam("denyServicesPattern") String denyServicePattern,
                               @QueryParam("ontology") String[] ontologies
     ) {
-        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s ", asset, name, description, version, contract, mode.getMode(), isFederated, query));
+        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s %s %s ", asset, name, description, version, contract, mode.getMode(), isFederated, allowServicePattern, denyServicePattern, query));
         Response.ResponseBuilder rb;
-        if (skillStore.put(asset, query, name, description, version, contract, mode, isFederated, ontologies) != null) {
+        if (skillStore.put(asset, query, name, description, version, contract, mode, isFederated, allowServicePattern, denyServicePattern, ontologies) != null) {
             rb = Response.ok();
         } else {
             rb = Response.status(HttpStatus.SC_CREATED);
@@ -471,7 +473,7 @@ public class AgentController {
      */
     @GET
     @Path("/skill")
-    @Produces({"application/sparql-query"})
+    @Produces({ "application/sparql-query" })
     public Response getSkill(@QueryParam("asset") String asset) {
         monitor.debug(String.format("Received a GET skill request %s", asset));
         Response.ResponseBuilder rb;
