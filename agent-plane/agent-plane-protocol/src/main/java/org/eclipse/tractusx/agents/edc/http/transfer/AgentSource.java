@@ -141,6 +141,11 @@ public class AgentSource implements DataSource {
         return String.format("AgentSource(%s,%s)", requestId, name);
     }
 
+    @Override
+    public void close() throws Exception {
+
+    }
+
     /**
      * the agent source builder
      */

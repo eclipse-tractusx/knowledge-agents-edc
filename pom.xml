@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.tractusx.agents</groupId>
     <artifactId>edc</artifactId>
-    <version>1.11.16-SNAPSHOT</version>
+    <version>1.12.17-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Tractus-X Knowledge Agents EDC Extensions</name>
     <description>EDC-Related Artifacts for Federated Procedure Calls</description>
@@ -37,30 +37,30 @@
         <maven.compiler.target>11</maven.compiler.target>
         <skipTests>false</skipTests>
 
-        <junit.version>5.10.1</junit.version>
-        <mockito.version>5.4.0</mockito.version>
-        <tx.edc.version>0.6.0-rc1</tx.edc.version>
-        <edc.version>0.3.1</edc.version>
+        <junit.version>5.10.2</junit.version>
+        <mockito.version>5.2.0</mockito.version>
+        <tx.edc.version>0.6.0</tx.edc.version>
+        <edc.version>0.5.1</edc.version>
         <failsafe.version>3.3.2</failsafe.version>
-        <okhttp.version>4.11.0</okhttp.version>
+        <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.6.0</okio.version>
-        <slf4j.version>2.0.9</slf4j.version>
+        <slf4j.version>2.0.12</slf4j.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <com.nimbusds.version>9.35</com.nimbusds.version>
+        <com.nimbusds.version>9.37.3</com.nimbusds.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
-        <com.azure.azure-identity.version>1.10.1</com.azure.azure-identity.version>
-        <com.azure.azure-security-keyvault-secrets.version>4.6.5</com.azure.azure-security-keyvault-secrets.version>
+        <com.azure.azure-identity.version>1.11.1</com.azure.azure-identity.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.7.3</com.azure.azure-security-keyvault-secrets.version>
         <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
         <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
         <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
         <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
         <jetbrains.kotlin.version>1.8.0</jetbrains.kotlin.version>
-        <io.micrometer.version>1.11.3</io.micrometer.version>
+        <io.micrometer.version>1.12.2</io.micrometer.version>
         <netty.nio.core-http2.version>4.1.101.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.24.0</commons.compress.version>
-        <jetty.version>11.0.16</jetty.version>
+        <jetty.version>11.0.20</jetty.version>
         <reactor.netty.version>1.0.39</reactor.netty.version>
 
         <!-- Source characteristics -->
@@ -69,6 +69,7 @@
         <!-- REPO -->
         <repo>tractusx/</repo>
         <platform>linux/amd64</platform>
+        <jvm.agent></jvm.agent>
 
     </properties>
     <modules>
@@ -117,6 +118,7 @@
                     <!-- unfortunately you have to repeat that in all relevant sub-modules -->
                     <configuration>
                         <groups>!online</groups>
+                        <argLine>@{jvm.agent} -Dnet.bytebuddy.experimental=true</argLine><!-- Needed as EqualsVerifier uses Byte Buddy which doesn't support Java 21 -->
                     </configuration>
                 </plugin>
                 <plugin>
