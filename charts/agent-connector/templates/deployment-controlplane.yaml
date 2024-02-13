@@ -62,9 +62,9 @@ spec:
 
           # either use the specified image, or use the default one
           {{- if .Values.controlplane.image.repository }}
-          image: "{{ .Values.controlplane.image.repository }}:{{ .Values.controlplane.image.tag | default "0.5.0" }}"
+          image: "{{ .Values.controlplane.image.repository }}:{{ .Values.controlplane.image.tag | default "0.5.1" }}"
           {{- else }}
-          image: "tractusx/edc-controlplane-postgresql-hashicorp-vault:{{ .Values.controlplane.image.tag | default "0.5.0" }}"
+          image: "tractusx/edc-controlplane-postgresql-hashicorp-vault:{{ .Values.controlplane.image.tag | default "0.5.1" }}"
           {{- end }}
           imagePullPolicy: {{ .Values.controlplane.image.pullPolicy }}
           ports:

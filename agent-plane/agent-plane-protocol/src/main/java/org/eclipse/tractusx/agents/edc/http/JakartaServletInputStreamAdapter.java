@@ -16,26 +16,25 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http;
 
-import java.io.IOException;
-
-import javax.servlet.ReadListener;
-
 import jakarta.servlet.ServletInputStream;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import javax.servlet.ReadListener;
 
 /**
  * An invocation handler which maps all jakarta input stream
  * to a javax.servlet level
  */
-public class JakartaServletInputStreamAdapter extends javax.servlet.ServletInputStream implements IJakartaAdapter<ServletInputStream> {
-    
+public class JakartaServletInputStreamAdapter extends javax.servlet.ServletInputStream implements JakartaAdapter<ServletInputStream> {
+
     jakarta.servlet.ServletInputStream jakartaDelegate;
     Monitor monitor;
 
     public JakartaServletInputStreamAdapter(jakarta.servlet.ServletInputStream jakartaDelegate, Monitor monitor) {
-        this.jakartaDelegate=jakartaDelegate;
-        this.monitor=monitor;
+        this.jakartaDelegate = jakartaDelegate;
+        this.monitor = monitor;
     }
 
     @Override

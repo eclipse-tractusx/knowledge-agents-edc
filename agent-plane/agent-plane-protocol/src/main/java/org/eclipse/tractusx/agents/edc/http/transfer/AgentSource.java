@@ -16,20 +16,22 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http.transfer;
 
-import org.eclipse.edc.connector.dataplane.spi.pipeline.StreamResult;
-import org.eclipse.tractusx.agents.edc.AgentExtension;
-import org.eclipse.tractusx.agents.edc.ISkillStore;
-import org.eclipse.tractusx.agents.edc.SkillDistribution;
-import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 import okhttp3.Response;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
+import org.eclipse.edc.connector.dataplane.spi.pipeline.StreamResult;
 import org.eclipse.edc.spi.http.EdcHttpClient;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
+import org.eclipse.tractusx.agents.edc.AgentExtension;
+import org.eclipse.tractusx.agents.edc.SkillDistribution;
+import org.eclipse.tractusx.agents.edc.SkillStore;
+import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,11 +61,11 @@ public class AgentSource implements DataSource {
     protected HttpRequestFactory requestFactory;
     protected EdcHttpClient httpClient;
     protected SparqlQueryProcessor processor;
-    protected ISkillStore skillStore;
+    protected SkillStore skillStore;
 
     protected DataFlowRequest request;
 
-    public static String AGENT_BOUNDARY="--";
+    public static final String AGENT_BOUNDARY = "--";
 
     /**
      * creates new agent source
@@ -78,54 +80,55 @@ public class AgentSource implements DataSource {
 
     /**
      * executes a KA-MATCHMAKING call and pipes the results into KA-TRANSFER
+     *
      * @return multipart body containing result and warnings
      */
     @NotNull
     protected StreamResult<Stream<Part>> openMatchmaking() {
         // Agent call, we translate from KA-MATCH to KA-TRANSFER
-        String skill=null;
-        String graph=null;
-        String asset= String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
-        if(asset!=null && asset.length() > 0) {
-            Matcher graphMatcher= AgentExtension.GRAPH_PATTERN.matcher(asset);
-            if(graphMatcher.matches()) {
-                graph=asset;
+        String skill = null;
+        String graph = null;
+        String asset = String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
+        if (asset != null && asset.length() > 0) {
+            Matcher graphMatcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
+            if (graphMatcher.matches()) {
+                graph = asset;
             }
-            Matcher skillMatcher= ISkillStore.matchSkill(asset);
-            if(skillMatcher.matches()) {
-                var skillText=skillStore.get(asset);
-                if(skillText.isEmpty()) {
+            Matcher skillMatcher = SkillStore.matchSkill(asset);
+            if (skillMatcher.matches()) {
+                var skillText = skillStore.get(asset);
+                if (skillText.isEmpty()) {
                     return StreamResult.error(format("Skill %s does not exist.", asset));
                 }
-                SkillDistribution distribution=skillStore.getDistribution(asset);
-                String params=request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
-                SkillDistribution runMode=SkillDistribution.ALL;
-                if(params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
-                    runMode=SkillDistribution.PROVIDER;
-                } else if(params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
-                    runMode=SkillDistribution.CONSUMER;
+                SkillDistribution distribution = skillStore.getDistribution(asset);
+                String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
+                SkillDistribution runMode = SkillDistribution.ALL;
+                if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
+                    runMode = SkillDistribution.PROVIDER;
+                } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
+                    runMode = SkillDistribution.CONSUMER;
                 }
-                if(runMode==SkillDistribution.CONSUMER) {
-                    if(distribution==SkillDistribution.PROVIDER) {
+                if (runMode == SkillDistribution.CONSUMER) {
+                    if (distribution == SkillDistribution.PROVIDER) {
                         return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
                     }
-                    return StreamResult.success(Stream.of(new AgentPart("application/sparql-query",skillText.get().getBytes())));
-                } else if(runMode==SkillDistribution.PROVIDER && distribution==SkillDistribution.CONSUMER) {
+                    return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
                     return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
                 }
-                skill=skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
+                skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
             }
         }
-        try (Response response = processor.execute(this.requestFactory.toRequest(params),skill,graph,request.getSourceDataAddress().getProperties())) {
-            if(!response.isSuccessful()) {
+        try (Response response = processor.execute(this.requestFactory.toRequest(params), skill, graph, request.getSourceDataAddress().getProperties())) {
+            if (!response.isSuccessful()) {
                 return StreamResult.error(format("Received code transferring HTTP data for request %s: %s - %s.", requestId, response.code(), response.message()));
             }
-            List<Part> results=new ArrayList<>();
-            if(response.body()!=null) {
-                results.add(new AgentPart(response.body().contentType().toString(),response.body().bytes()));
+            List<Part> results = new ArrayList<>();
+            if (response.body() != null) {
+                results.add(new AgentPart(response.body().contentType().toString(), response.body().bytes()));
             }
-            if(response.header("cx_warnings")!=null) {
-                results.add(new AgentPart("application/cx-warnings+json",response.header("cx_warnings").getBytes()));
+            if (response.header("cx_warnings") != null) {
+                results.add(new AgentPart("application/cx-warnings+json", response.header("cx_warnings").getBytes()));
             }
             return StreamResult.success(results.stream());
         } catch (IOException e) {
@@ -135,7 +138,7 @@ public class AgentSource implements DataSource {
 
     @Override
     public String toString() {
-        return String.format("AgentSource(%s,%s)",requestId,name);
+        return String.format("AgentSource(%s,%s)", requestId, name);
     }
 
     /**
@@ -174,17 +177,17 @@ public class AgentSource implements DataSource {
         }
 
         public AgentSource.Builder processor(SparqlQueryProcessor processor) {
-            dataSource.processor=processor;
+            dataSource.processor = processor;
             return this;
         }
 
-        public AgentSource.Builder skillStore(ISkillStore skillStore) {
-            dataSource.skillStore=skillStore;
+        public AgentSource.Builder skillStore(SkillStore skillStore) {
+            dataSource.skillStore = skillStore;
             return this;
         }
 
         public AgentSource.Builder request(DataFlowRequest request) {
-            dataSource.request=request;
+            dataSource.request = request;
             return this;
         }
 
@@ -206,15 +209,15 @@ public class AgentSource implements DataSource {
 
         AgentPart(String name, byte[] content) {
             this.name = name;
-            if(this.name!=null) {
-                StringBuilder newContent=new StringBuilder();
+            if (this.name != null) {
+                StringBuilder newContent = new StringBuilder();
                 newContent.append(AGENT_BOUNDARY);
                 newContent.append("\n");
                 newContent.append("Content-Type: ");
                 newContent.append(name);
                 newContent.append("\n");
                 newContent.append(new String(content));
-                this.content=newContent.toString().getBytes();
+                this.content = newContent.toString().getBytes();
             } else {
                 this.content = content;
             }

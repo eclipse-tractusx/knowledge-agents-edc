@@ -26,7 +26,7 @@ public class JsonLdObject {
     protected JsonObject object;
 
     public JsonLdObject(JsonObject object) {
-        this.object=object;
+        this.object = object;
     }
 
     public Map<String, JsonValue> getProperties() {

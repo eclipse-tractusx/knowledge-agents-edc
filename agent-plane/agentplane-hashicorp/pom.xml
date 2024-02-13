@@ -20,12 +20,12 @@
 <!--
   Pom for building the hashicorp-vault based agent plane artifacts
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.eclipse.tractusx.agents.edc</groupId>
         <artifactId>agent-plane</artifactId>
-        <version>1.10.2-SNAPSHOT</version>
+        <version>1.11.16-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -36,7 +36,9 @@
     <packaging>jar</packaging>
 
     <name>Tractus-X Knowledge Agents EDC Dataplane (Hashicorp)</name>
-    <description>Builds a Containerized Agent Dataplane with Agent/Triple Extensions And Accessing the Hashicorp Vault to Store Intermediate Secrets.</description>
+    <description>Builds a Containerized Agent Dataplane with Agent/Triple Extensions And Accessing the Hashicorp Vault
+        to Store Intermediate Secrets.
+    </description>
     <url>http://catena-x.net/</url>
 
     <properties>
@@ -104,14 +106,14 @@
                     </execution>
                 </executions>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            <!--<plugin>
-                <groupId>org.cyclonedx</groupId>
-                <artifactId>cyclonedx-maven-plugin</artifactId>
-            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
@@ -167,23 +169,31 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Auth Jwt -->
+        <dependency>
+            <groupId>org.eclipse.tractusx.edc</groupId>
+            <artifactId>auth-jwt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
         <!-- Test -->
         <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
-         <scope>test</scope>
-       </dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-         <exclusions>
-             <exclusion>
-                 <groupId>net.bytebuddy</groupId>
-                 <artifactId>byte-buddy</artifactId>
-             </exclusion>
-         </exclusions>
-       </dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 

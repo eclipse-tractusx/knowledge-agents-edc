@@ -29,7 +29,7 @@ public class ContractNegotiation extends JsonLdObject {
     }
 
     public String getContractAgreementId() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/contractAgreementId",null);
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/contractAgreementId", null);
     }
 
     public String getState() {
@@ -37,6 +37,6 @@ public class ContractNegotiation extends JsonLdObject {
     }
 
     public String getErrorDetail() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/errorDetail",null);
+        return object.getString("https://w3id.org/edc/v0.0.1/ns/errorDetail", null);
     }
 }

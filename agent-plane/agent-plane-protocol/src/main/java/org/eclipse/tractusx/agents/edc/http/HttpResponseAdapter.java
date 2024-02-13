@@ -19,7 +19,6 @@ package org.eclipse.tractusx.agents.edc.http;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import javax.net.ssl.SSLSession;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,6 +26,7 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
+import javax.net.ssl.SSLSession;
 
 /**
  * wraps OkHttp Response to java.net.http version
@@ -38,9 +38,9 @@ public class HttpResponseAdapter implements HttpResponse<InputStream> {
     HttpRequest request;
 
     public HttpResponseAdapter(Response delegate, HttpRequest request) {
-        this.delegate=delegate;
-        this.request=request;
-        headers=HttpHeaders.of(delegate.headers().toMultimap(), (key,value)->true);
+        this.delegate = delegate;
+        this.request = request;
+        headers = HttpHeaders.of(delegate.headers().toMultimap(), (key, value) -> true);
     }
 
     @Override
@@ -65,9 +65,9 @@ public class HttpResponseAdapter implements HttpResponse<InputStream> {
 
     @Override
     public InputStream body() {
-        ResponseBody body=delegate.body();
-        if(body!=null) {
-           return body.byteStream();
+        ResponseBody body = delegate.body();
+        if (body != null) {
+            return body.byteStream();
         }
         return null;
     }

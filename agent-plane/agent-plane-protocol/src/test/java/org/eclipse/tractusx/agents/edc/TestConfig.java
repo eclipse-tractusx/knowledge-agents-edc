@@ -25,7 +25,7 @@ import java.util.Map;
 public class TestConfig extends ConfigImpl {
 
     public TestConfig() {
-        super("edc", Map.of("edc.cx.agent.controlplane.ids","test-tenant"));
+        super("", Map.of("edc.cx.agent.controlplane.ids","test-tenant","cx.agent.service.asset.allow","(http|edc)s?://.*"));
     }
     
 }

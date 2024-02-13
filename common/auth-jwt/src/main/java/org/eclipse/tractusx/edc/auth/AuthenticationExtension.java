@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.edc.auth;
 
-import org.eclipse.edc.api.auth.spi.AuthenticationRequestFilter;
 import org.eclipse.edc.api.auth.spi.AuthenticationService;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
@@ -29,6 +28,8 @@ import org.eclipse.edc.spi.system.configuration.Config;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.web.spi.WebService;
 
+import java.util.regex.Pattern;
+
 /**
  * Service extension that introduces the configurable composite authentication service
  * including JWT authentication as well as its registration via authentication filters
@@ -40,56 +41,76 @@ public class AuthenticationExtension implements ServiceExtension {
     @Setting(
             value = "Defines a set/list of authentication services."
     )
-    public static String AUTH_SETTING="tractusx.auth";
+    public static final String AUTHSETTING = "tractusx.auth";
 
     @Setting(
             value = "Whether the auth service should be registered.",
             defaultValue = "false",
-            type="boolean"
+            type = "boolean"
     )
-    public static String REGISTER_SETTING="register";
+    public static final String REGISTERSETTING = "register";
 
     @Setting(
             value = "The type of authentication service to use. Maybe jwt or composite"
     )
-    public static String TYPE_SETTING="type";
+    public static final String TYPESETTING = "type";
 
     @Setting(
             value = "On which paths should the corresponding filter be installed."
     )
-    public static String PATH_SETTING="paths";
+    public static final String PATHSETTING = "paths";
 
     @Setting(
             value = "The BASE64 encoded public key or a url where to obtain it."
     )
-    public static String KEY_SETTING="publickey";
+    public static final String KEYSETTING = "publickey";
 
     @Setting(
             value = "URL indicating where to get the public key for verifying the token.",
             defaultValue = "true",
-            type="boolean"
+            type = "boolean"
     )
-    public static String EXPIRE_SETTING="checkexpiry";
+    public static final String EXPIRESETTING = "checkexpiry";
 
     @Setting(
             value = "embedded authentication services."
     )
-    public static String SERVICE_SETTING="service";
+    public static final String SERVICESETTING = "service";
 
     @Setting(
             value = "api key in vault."
     )
-    public static String VAULT_SETTING="vault-key";
+    @Deprecated
+    public static final String VAULT_SETTING_OLD = "vault-key";
+
+    @Setting(
+            value = "api key in vault."
+    )
+    public static final String VAULT_SETTING = "vaultkey";
 
     @Setting(
             value = "api key hashcode."
     )
-    public static String API_CODE_SETTING="api-code";
+    @Deprecated
+    public static final String API_CODE_SETTING_OLD = "api-code";
+
+    @Setting(
+            value = "api key hashcode."
+    )
+    public static final String API_CODE_SETTING = "api-code";
 
     @Setting(
             value = "composite mode."
     )
-    public static String MODE_SETTING="mode";
+    public static final String MODE_SETTING = "mode";
+
+    @Setting(
+            value = "exclude paths."
+    )
+    public static final String EXCLUDE_SETTING = "exclude";
+
+    public static final String JWS_TYPE = "jwt";
+    public static final String API_TYPE = "api-key";
 
     /**
      * dependency injection part
@@ -104,45 +125,56 @@ public class AuthenticationExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext ctx) {
-        ctx.getConfig(AUTH_SETTING).partition().forEach( authenticationServiceConfig ->
-                createAuthenticationService(ctx,authenticationServiceConfig));
+        ctx.getConfig(AUTHSETTING).partition().forEach(authenticationServiceConfig ->
+                createAuthenticationService(ctx, authenticationServiceConfig));
     }
 
     public AuthenticationService createAuthenticationService(ServiceExtensionContext ctx, Config authenticationServiceConfig) {
-        String type=authenticationServiceConfig.getString(TYPE_SETTING);
-        AuthenticationService newService=null;
-        if("jwt".equals(type)) {
-            CompositeJwsVerifier.Builder jwsVerifierBuilder = new CompositeJwsVerifier.Builder(typeManager.getMapper());
-            String key = authenticationServiceConfig.getString(KEY_SETTING);
+        String type = authenticationServiceConfig.getString(TYPESETTING);
+        String exclude = authenticationServiceConfig.getString(EXCLUDE_SETTING, null);
+        Pattern excludePattern = null;
+        if (exclude != null) {
+            excludePattern = Pattern.compile(exclude);
+        }
+        AuthenticationService newService = null;
+        if (JWS_TYPE.equals(type)) {
+            CompositeJwsVerifier.Builder jwsVerifierBuilder = new CompositeJwsVerifier.Builder(typeManager.getMapper(), ctx.getMonitor());
+            String key = authenticationServiceConfig.getString(KEYSETTING);
             if (key != null) {
                 jwsVerifierBuilder.addKey(key);
             }
-            newService = new JwtAuthenticationService.Builder().
-                    setVerifier(jwsVerifierBuilder.build()).
-                    setCheckExpiry(authenticationServiceConfig.getBoolean(EXPIRE_SETTING, true)).
-                    build();
-        } else if("api-key".equals(type)) {
-            int reference;
-            if(authenticationServiceConfig.hasKey(VAULT_SETTING)) {
-                reference=vault.resolveSecret(authenticationServiceConfig.getString(VAULT_SETTING)).hashCode();
-            } else {
-                reference=authenticationServiceConfig.getInteger(API_CODE_SETTING);
+            newService = new JwtAuthenticationService.Builder()
+                    .setVerifier(jwsVerifierBuilder.build())
+                    .setCheckExpiry(authenticationServiceConfig.getBoolean(EXPIRESETTING, true))
+                    .build();
+        } else if (API_TYPE.equals(type)) {
+            int reference = -1;
+            if (authenticationServiceConfig.hasKey(VAULT_SETTING) || authenticationServiceConfig.hasKey(VAULT_SETTING_OLD)) {
+                reference = vault.resolveSecret(
+                                authenticationServiceConfig.getString(VAULT_SETTING,
+                                        authenticationServiceConfig.getString(VAULT_SETTING_OLD)))
+                        .hashCode();
+            } else if (authenticationServiceConfig.hasKey(API_CODE_SETTING) || authenticationServiceConfig.hasKey(API_CODE_SETTING_OLD)) {
+                reference = authenticationServiceConfig.getInteger(API_CODE_SETTING,
+                        authenticationServiceConfig.getInteger(API_CODE_SETTING_OLD));
             }
-            newService = new ApiKeyAuthenticationService.Builder().setReference(reference).build();
-        } else if("composite".equals(type)) {
-            CompositeAuthenticationService.Builder builder=new CompositeAuthenticationService.Builder();
-            builder.setMode(Enum.valueOf(CompositeAuthenticationMode.class,authenticationServiceConfig.getString(MODE_SETTING,CompositeAuthenticationMode.ALL.name())));
-            authenticationServiceConfig.getConfig(SERVICE_SETTING).partition().forEach( subServiceConfig ->
+            if (reference != -1) {
+                newService = new ApiKeyAuthenticationService.Builder().setReference(reference).build();
+            }
+        } else if ("composite".equals(type)) {
+            CompositeAuthenticationService.Builder builder = new CompositeAuthenticationService.Builder();
+            builder.setMode(Enum.valueOf(CompositeAuthenticationMode.class, authenticationServiceConfig.getString(MODE_SETTING, CompositeAuthenticationMode.ALL.name())));
+            authenticationServiceConfig.getConfig(SERVICESETTING).partition().forEach(subServiceConfig ->
                     builder.addService(createAuthenticationService(ctx, subServiceConfig))
             );
-            newService=builder.build();
+            newService = builder.build();
         }
-        if(newService!=null) {
-            String[] paths = authenticationServiceConfig.getString(PATH_SETTING, "").split(",");
+        if (newService != null) {
+            String[] paths = authenticationServiceConfig.getString(PATHSETTING, "").split(",");
             for (String path : paths) {
-                webService.registerResource(path, new AuthenticationRequestFilter(newService));
+                webService.registerResource(path, new ExcludingAuthenticationRequestFilter(newService, excludePattern));
             }
-            if (authenticationServiceConfig.getBoolean(REGISTER_SETTING, false)) {
+            if (authenticationServiceConfig.getBoolean(REGISTERSETTING, false)) {
                 ctx.registerService(AuthenticationService.class, newService);
             }
         }

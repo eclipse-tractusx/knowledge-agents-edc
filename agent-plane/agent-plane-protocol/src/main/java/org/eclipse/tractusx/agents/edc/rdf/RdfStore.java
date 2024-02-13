@@ -16,8 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.rdf;
 
-import org.eclipse.tractusx.agents.edc.AgentConfig;
-import org.eclipse.tractusx.agents.edc.MonitorWrapper;
 import org.apache.jena.fuseki.server.DataAccessPoint;
 import org.apache.jena.fuseki.server.DataService;
 import org.apache.jena.graph.Node;
@@ -33,13 +31,15 @@ import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
+import org.eclipse.tractusx.agents.edc.MonitorWrapper;
 
 /**
  * a service sitting on a local RDF store/graph
  * (which hosts the ontology and the federated dataspace
  * representation)
  */
-public class RDFStore {
+public class RdfStore {
 
     // we need a single data access point (with its default graph)
     protected final DatasetGraph dataset;
@@ -52,42 +52,45 @@ public class RDFStore {
 
     /**
      * create a new RDF store (and initialise with a given ttl file)
-     * @param config EDC config
+     *
+     * @param config  EDC config
      * @param monitor logging subsystem
      */
-    public RDFStore(AgentConfig config, Monitor monitor) {
-        this.config=config;
+    public RdfStore(AgentConfig config, Monitor monitor) {
+        this.config = config;
         this.dataset = DatasetGraphFactory.createTxnMem();
         DataService.Builder dataService = DataService.newBuilder(dataset);
-        this.service=dataService.build();
-        api=new DataAccessPoint(config.getAccessPoint(), service);
-        this.monitor=monitor;
-        this.monitorWrapper=new MonitorWrapper(getClass().getName(),monitor);
-        monitor.debug(String.format("Activating data service %s under access point %s",service,api));
+        this.service = dataService.build();
+        api = new DataAccessPoint(config.getAccessPoint(), service);
+        this.monitor = monitor;
+        this.monitorWrapper = new MonitorWrapper(getClass().getName(), monitor);
+        monitor.debug(String.format("Activating data service %s under access point %s", service, api));
         service.goActive();
         // read file with ontology, share this dataset with the catalogue sync procedure
-        if(config.getAssetFiles()!=null) {
+        if (config.getAssetFiles() != null) {
             startTx();
             StreamRDF dest = StreamRDFLib.dataset(dataset);
-            StreamRDF graphDest = StreamRDFLib.extendTriplesToQuads(getDefaultGraph(),dest);
+            StreamRDF graphDest = StreamRDFLib.extendTriplesToQuads(getDefaultGraph(), dest);
             StreamRDFCounting countingDest = StreamRDFLib.count(graphDest);
             ErrorHandler errorHandler = ErrorHandlerFactory.errorHandlerStd(monitorWrapper);
-            for(String assetFile : config.getAssetFiles()) {
+            for (String assetFile : config.getAssetFiles()) {
                 RDFParser.create()
                         .errorHandler(errorHandler)
                         .source(assetFile)
                         .lang(Lang.TTL)
                         .parse(countingDest);
-                monitor.debug(String.format("Initialised asset %s with file %s resulted in %d triples",config.getDefaultAsset(),assetFile,countingDest.countTriples()));
+                monitor.debug(String.format("Initialised asset %s with file %s resulted in %d triples", config.getDefaultAsset(), assetFile, countingDest.countTriples()));
             }
             commit();
-            monitor.info(String.format("Initialised asset %s with %d triples from %d files",config.getDefaultAsset(),countingDest.countTriples(),config.getAssetFiles().length));
+            monitor.info(String.format("Initialised asset %s with %d triples from %d files", config.getDefaultAsset(), countingDest.countTriples(), config.getAssetFiles().length));
         } else {
-            monitor.info(String.format("Initialised asset %s with 0 triples.",config.getDefaultAsset()));
+            monitor.info(String.format("Initialised asset %s with 0 triples.", config.getDefaultAsset()));
         }
     }
 
     /**
+     * access
+     *
      * @return name of the default graph
      */
     public Node getDefaultGraph() {
@@ -95,6 +98,8 @@ public class RDFStore {
     }
 
     /**
+     * access
+     *
      * @return access point to the graph
      */
     public DataAccessPoint getDataAccessPoint() {
@@ -102,6 +107,8 @@ public class RDFStore {
     }
 
     /**
+     * access
+     *
      * @return dataservice shielding the graph
      */
     public DataService getDataService() {
@@ -109,6 +116,8 @@ public class RDFStore {
     }
 
     /**
+     * access
+     *
      * @return the actual graph store
      */
     public DatasetGraph getDataSet() {

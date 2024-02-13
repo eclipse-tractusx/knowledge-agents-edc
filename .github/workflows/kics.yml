@@ -1,3 +1,4 @@
+---
 #
 #  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
 #
@@ -17,16 +18,15 @@
 #  SPDX-License-Identifier: Apache-2.0
 #
 
----
 name: "KICS"
 
 on:
   push:
-    branches: 
-     - main
-     - 'release/*'
+    branches:
+      - main
+      - 'release/*'
   pull_request:
-    branches: 
+    branches:
       - main
       - 'release/*'
 
@@ -46,26 +46,30 @@ jobs:
       security-events: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-#
-# Take out 
-#   - the "Always" Image Pull Policy Rule (caa3479d-885d-4882-9aac-95e5e78ef5c2) because depending on the deployment/rollout scenarios, other policies are more reasonable.
-#   - the "LimitRange" Namespace Rule (4a20ebac-1060-4c81-95d1-1f7f620e983b) because the target namespace may define that external to the Chart.
-#   - the "ResourceQuota" Namespace Rule (48a5beba-e4c0-4584-a2aa-e6894e4cf424) because the target namespace may define that external to the Chart.
-#
+
+      #
+      # Take out
+      #   - the "Always" Image Pull Policy Rule (caa3479d-885d-4882-9aac-95e5e78ef5c2) because depending on the deployment/rollout scenarios, other policies are more reasonable.
+      #   - the "LimitRange" Namespace Rule (4a20ebac-1060-4c81-95d1-1f7f620e983b) because the target namespace may define that external to the Chart.
+      #   - the "ResourceQuota" Namespace Rule (48a5beba-e4c0-4584-a2aa-e6894e4cf424) because the target namespace may define that external to the Chart.
+      #   - the "Digest" Image Requirement (7c81d34c-8e5a-402b-9798-9f442630e678) can be realised for releases, but not the mainline
+      #   - the "AppArmorProfile" Requirement (8b36775e-183d-4d46-b0f7-96a6f34a723f) is still a beta functionality
+      #   - the "Administrative Boundaries" Info (e84eaf4d-2f45-47b2-abe8-e581b06deb66) would not be visible
+      #
       - name: KICS scan
-        uses: checkmarx/kics-github-action@v1.7.0
+        uses: checkmarx/kics-github-action@8a44970e3d2eca668be41abe9d4e06709c3b3609 # v1.7.0
         with:
           path: "."
           fail_on: high
           disable_secrets: true
-          output_path: kicsResults/          
-          exclude_queries: caa3479d-885d-4882-9aac-95e5e78ef5c2,4a20ebac-1060-4c81-95d1-1f7f620e983b,48a5beba-e4c0-4584-a2aa-e6894e4cf424
+          output_path: kicsResults/
+          exclude_queries: caa3479d-885d-4882-9aac-95e5e78ef5c2,4a20ebac-1060-4c81-95d1-1f7f620e983b,48a5beba-e4c0-4584-a2aa-e6894e4cf424,7c81d34c-8e5a-402b-9798-9f442630e678,8b36775e-183d-4d46-b0f7-96a6f34a723f,e84eaf4d-2f45-47b2-abe8-e581b06deb66
           output_formats: "json,sarif"
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@e5f05b81d5b6ff8cfa111c80c22c5fd02a384118 # v3.23.0
         with:
           sarif_file: kicsResults/results.sarif
