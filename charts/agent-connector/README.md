@@ -20,7 +20,7 @@
 
 # agent-connector
 
-![Version: 1.11.16-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.11.16-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.11.16](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.11.16](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. This is a variant of [the Tractus-X Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -108,7 +108,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-connector --version 1.11.16
 ```
 
 ## Maintainers
