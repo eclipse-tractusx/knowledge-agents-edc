@@ -1,7 +1,7 @@
 ---
 #
-#  Copyright (c) 2023 T-Systems International GmbH
-#  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
+#  Copyright (c) 2023,2024 T-Systems International GmbH
+#  Copyright (c) 2021,2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -137,7 +137,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=1.12.17-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1.12.18-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Hashicorp Container Build and push
@@ -175,7 +175,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=1.12.17-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1.12.18-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Azure Vault Container Build and push

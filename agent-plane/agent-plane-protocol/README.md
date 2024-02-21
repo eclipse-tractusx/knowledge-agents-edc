@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -63,7 +63,7 @@ Add the following dependency to your data-plane artifact pom:
         <dependency>
             <groupId>org.eclipse.tractusx.agents.edc</groupId>
             <artifactId>agent-plane-protocol</artifactId>
-            <version>1.12.17-SNAPSHOT</version>
+            <version>1.12.18-SNAPSHOT</version>
         </dependency>
 ```
 

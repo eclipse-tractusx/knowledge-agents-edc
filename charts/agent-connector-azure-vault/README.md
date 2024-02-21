@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,7 +20,7 @@
 
 # agent-connector-azure-vault
 
-![Version: 1.12.17-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.17-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.12.18-SNAPSHOT](https://img.shields.io/badge/Version-1.12.18--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.18-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.18--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector configured against Azure Vault. This is a variant of [the Tractus-X Azure Vault Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-azure-vault) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -112,7 +112,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.12.17-SNAPSHOT\
+helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1.12.18-SNAPSHOT\
      -f <path-to>/tractusx-connector-azure-vault-test.yaml \
      --set vault.azure.name=$AZURE_VAULT_NAME \
      --set vault.azure.client=$AZURE_CLIENT_ID \
@@ -251,11 +251,12 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | dataplanes.dataplane.agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | dataplanes.dataplane.agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | dataplanes.dataplane.agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
-| dataplanes.dataplane.auth | object | `{"default":{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
-| dataplanes.dataplane.auth.default | object | `{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}` | the default authentication service |
+| dataplanes.dataplane.auth | object | `{"default":{"apiCode":"69609650","checkExpiry":true,"context":"default","exclude":".*/(check|validation).*","publicKey":null,"register":false,"type":"api-key","vaultKey":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
+| dataplanes.dataplane.auth.default | object | `{"apiCode":"69609650","checkExpiry":true,"context":"default","exclude":".*/(check|validation).*","publicKey":null,"register":false,"type":"api-key","vaultKey":null}` | the default authentication service |
 | dataplanes.dataplane.auth.default.apiCode | string | `"69609650"` | specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead. Althugh this represents a number, remember to use quotes not to confuse rendering into the chart. |
 | dataplanes.dataplane.auth.default.checkExpiry | bool | `true` | controls whether the expiry date of jwt tokens is checked when type=jwt |
 | dataplanes.dataplane.auth.default.context | string | `"default"` | the context(s) of the default authentication service separated by commas |
+| dataplanes.dataplane.auth.default.exclude | string | `".*/(check|validation).*"` | excluded paths for liveness checks and validation |
 | dataplanes.dataplane.auth.default.publicKey | string | `nil` | public key for checking the validity of jwt tokens, set this when type=jwt |
 | dataplanes.dataplane.auth.default.register | bool | `false` | controls whether this service should be registered as the default EDC authentication service globally |
 | dataplanes.dataplane.auth.default.type | string | `"api-key"` | the type of the default authentication service (api-key, jwt or composite) |
@@ -370,4 +371,4 @@ helm install my-release eclipse-tractusx/agent-connector-azure-vault --version 1
 | vault.secretNames.transferProxyTokenSignerPublicKey | string | `nil` |  |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
+Autogenerated from chart metadata using [helm-docs v1.11.2](https://github.com/norwoodj/helm-docs/releases/v1.11.2)

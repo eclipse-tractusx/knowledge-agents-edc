@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -54,7 +54,7 @@ mvn -s ../../../settings.xml install -Pwith-docker-image
 Alternatively, after a sucessful [build](#building) the docker image of the Agent Plane is created using
 
 ```console
-docker build -t tractusx//agentplane-azure-vault:1.12.17-SNAPSHOT -f src/main/docker/Dockerfile .
+docker build -t tractusx//agentplane-azure-vault:1.12.18-SNAPSHOT -f src/main/docker/Dockerfile .
 ```
 
 To run the docker image, you could invoke this command

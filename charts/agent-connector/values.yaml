@@ -1,10 +1,10 @@
 ---
 #
-#  Copyright (c) 2023 T-Systems International GmbH
+#  Copyright (c) 2023,2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
-#  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
+#  Copyright (c) 2021,2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -256,12 +256,12 @@ controlplane:
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  limits:
+    cpu: 1.5
+    memory: 512Mi
+  requests:
+    cpu: 500m
+    memory: 128Mi
   replicaCount: 1
   autoscaling:
     # -- Enables [horizontal pod autoscaling](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
