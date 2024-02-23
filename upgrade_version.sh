@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+# Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
 #
@@ -16,7 +16,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-OLD_VERSION=1.11.16-SNAPSHOT
+OLD_VERSION=1.12.17-SNAPSHOT
 echo Upgrading from $OLD_VERSION to $1
 PATTERN=s/$OLD_VERSION/$1/g
 LC_ALL=C

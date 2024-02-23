@@ -1,9 +1,9 @@
 #
-#  Copyright (c) 2023 T-Systems International GmbH
+#  Copyright (c) 2023,2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
-#  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
+#  Copyright (c) 2021,2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -42,12 +42,12 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.11.16-SNAPSHOT
+version: 1.12.17-SNAPSHOT
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.11.16-SNAPSHOT"
+appVersion: "1.12.17-SNAPSHOT"
 home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
 sources:
   - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector

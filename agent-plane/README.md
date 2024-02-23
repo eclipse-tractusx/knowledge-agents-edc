@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -66,10 +66,10 @@ mvn package -Pwith-docker-image
 Alternatively, after a successful build, you can invoke docker yourself 
 
 ```console
-docker build -t tractusx/agentplane-azure-vault:1.11.16-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
+docker build -t tractusx/agentplane-azure-vault:1.12.17-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
 ```
 
 ```console
-docker build -t tractusx/agentplane-hashicorp:1.11.16-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
+docker build -t tractusx/agentplane-hashicorp:1.12.17-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
 ```
 

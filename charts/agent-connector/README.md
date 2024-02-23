@@ -20,7 +20,7 @@
 
 # agent-connector
 
-![Version: 1.11.16-SNAPSHOT](https://img.shields.io/badge/Version-1.9.8--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.11.16-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.9.5--SNAPSHOT-informational?style=flat-square)
+![Version: 1.12.17-SNAPSHOT](https://img.shields.io/badge/Version-1.12.17--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.17-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.17--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector. This is a variant of [the Tractus-X Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -108,7 +108,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-connector --version 1.12.17-SNAPSHOT
 ```
 
 ## Maintainers
@@ -188,6 +188,8 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | controlplane.ingresses[1].tls.enabled | bool | `false` | Enables TLS on the ingress resource |
 | controlplane.ingresses[1].tls.secretName | string | `""` | If present overwrites the default secret name |
 | controlplane.initContainers | list | `[]` |  |
+| controlplane.limits.cpu | float | `1.5` |  |
+| controlplane.limits.memory | string | `"512Mi"` |  |
 | controlplane.livenessProbe.enabled | bool | `true` | Whether to enable kubernetes [liveness-probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) |
 | controlplane.livenessProbe.failureThreshold | int | `6` | when a probe fails kubernetes will try 6 times before giving up |
 | controlplane.livenessProbe.initialDelaySeconds | int | `30` | seconds to wait before performing the first liveness check |
@@ -211,6 +213,8 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | controlplane.readinessProbe.successThreshold | int | `1` | number of consecutive successes for the probe to be considered successful after having failed |
 | controlplane.readinessProbe.timeoutSeconds | int | `5` | number of seconds after which the probe times out |
 | controlplane.replicaCount | int | `1` |  |
+| controlplane.requests.cpu | string | `"500m"` |  |
+| controlplane.requests.memory | string | `"128Mi"` |  |
 | controlplane.resources | object | `{}` | [resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for the container |
 | controlplane.securityContext.allowPrivilegeEscalation | bool | `false` | Controls [Privilege Escalation](https://kubernetes.io/docs/concepts/security/pod-security-policy/#privilege-escalation) enabling setuid binaries changing the effective user ID |
 | controlplane.securityContext.capabilities.add | list | `[]` | Specifies which capabilities to add to issue specialized syscalls |
@@ -243,11 +247,12 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | dataplanes.dataplane.agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | dataplanes.dataplane.agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | dataplanes.dataplane.agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
-| dataplanes.dataplane.auth | object | `{"default":{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
-| dataplanes.dataplane.auth.default | object | `{"apiCode":"69609650","checkExpiry":true,"context":"default","publicKey":null,"register":false,"type":"api-key","vaultKey":null}` | the default authentication service |
+| dataplanes.dataplane.auth | object | `{"default":{"apiCode":"69609650","checkExpiry":true,"context":"default","exclude":".*/(check|validation).*","publicKey":null,"register":false,"type":"api-key","vaultKey":null}}` | Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries |
+| dataplanes.dataplane.auth.default | object | `{"apiCode":"69609650","checkExpiry":true,"context":"default","exclude":".*/(check|validation).*","publicKey":null,"register":false,"type":"api-key","vaultKey":null}` | the default authentication service |
 | dataplanes.dataplane.auth.default.apiCode | string | `"69609650"` | specific api-code associated to the default api-key 'Hello', Change this when type=api-key or use the vault-key property instead. Althugh this represents a number, remember to use quotes not to confuse rendering into the chart. |
 | dataplanes.dataplane.auth.default.checkExpiry | bool | `true` | controls whether the expiry date of jwt tokens is checked when type=jwt |
 | dataplanes.dataplane.auth.default.context | string | `"default"` | the context(s) of the default authentication service separated by commas |
+| dataplanes.dataplane.auth.default.exclude | string | `".*/(check|validation).*"` | excluded paths for liveness checks and validation |
 | dataplanes.dataplane.auth.default.publicKey | string | `nil` | public key for checking the validity of jwt tokens, set this when type=jwt |
 | dataplanes.dataplane.auth.default.register | bool | `false` | controls whether this service should be registered as the default EDC authentication service globally |
 | dataplanes.dataplane.auth.default.type | string | `"api-key"` | the type of the default authentication service (api-key, jwt or composite) |
@@ -296,6 +301,8 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | dataplanes.dataplane.ingresses[0].tls.enabled | bool | `false` | Enables TLS on the ingress resource |
 | dataplanes.dataplane.ingresses[0].tls.secretName | string | `""` | If present overwrites the default secret name |
 | dataplanes.dataplane.initContainers | list | `[]` |  |
+| dataplanes.dataplane.limits.cpu | float | `1.5` |  |
+| dataplanes.dataplane.limits.memory | string | `"1024Mi"` |  |
 | dataplanes.dataplane.livenessProbe.enabled | bool | `true` | Whether to enable kubernetes [liveness-probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) |
 | dataplanes.dataplane.livenessProbe.failureThreshold | int | `6` | when a probe fails kubernetes will try 6 times before giving up |
 | dataplanes.dataplane.livenessProbe.initialDelaySeconds | int | `30` | seconds to wait before performing the first liveness check |
@@ -320,6 +327,8 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | dataplanes.dataplane.readinessProbe.successThreshold | int | `1` | number of consecutive successes for the probe to be considered successful after having failed |
 | dataplanes.dataplane.readinessProbe.timeoutSeconds | int | `5` | number of seconds after which the probe times out |
 | dataplanes.dataplane.replicaCount | int | `1` |  |
+| dataplanes.dataplane.requests.cpu | string | `"500m"` |  |
+| dataplanes.dataplane.requests.memory | string | `"128Mi"` |  |
 | dataplanes.dataplane.resources | object | `{}` | [resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for the container |
 | dataplanes.dataplane.securityContext.allowPrivilegeEscalation | bool | `false` | Controls [Privilege Escalation](https://kubernetes.io/docs/concepts/security/pod-security-policy/#privilege-escalation) enabling setuid binaries changing the effective user ID |
 | dataplanes.dataplane.securityContext.capabilities.add | list | `[]` | Specifies which capabilities to add to issue specialized syscalls |
@@ -369,4 +378,4 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.11.16-SNAPS
 | vault.server.postStart | string | `nil` |  |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
+Autogenerated from chart metadata using [helm-docs v1.11.2](https://github.com/norwoodj/helm-docs/releases/v1.11.2)

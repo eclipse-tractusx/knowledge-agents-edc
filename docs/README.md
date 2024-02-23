@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -76,7 +76,7 @@ dependencies:
   
     - name: agent-connector-memory
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.11.16-SNAPSHOT
+      version: 1.12.17-SNAPSHOT
       alias: my-connector
 ```
 
@@ -87,7 +87,7 @@ dependencies:
   
     - name: agent-connector-azure-vault
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.11.16-SNAPSHOT
+      version: 1.12.17-SNAPSHOT
       alias: my-connector
 ```
 
@@ -98,7 +98,7 @@ dependencies:
   
     - name: agent-connector
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.11.16-SNAPSHOT
+      version: 1.12.17-SNAPSHOT
       alias: my-connector
 ```
 
