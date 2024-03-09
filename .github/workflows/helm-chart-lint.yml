@@ -84,3 +84,53 @@ jobs:
       # run chart linting
       - name: Run chart-testing (lint)
         run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.base_ref || github.ref_name }})
+          if [[ -n "$changed" ]]; then
+            echo "CHART_CHANGED=true" >> $GITHUB_ENV
+          fi
+
+      # Preparing a kind cluster to install and test charts on
+      - name: Create kind cluster
+        uses: container-tools/kind-action@0fc957b58d9a5bc9ca57a1b419324a2074c7653b # v2.0.3
+        with:
+          # upgrade version, default (v0.17.0) uses node image v1.21.1 and doesn't work with more recent node image versions
+          version: v0.20.0
+          # default value for event_name != workflow_dispatch
+          node_image: ${{ github.event.inputs.node_image || 'kindest/node:v1.27.3' }}
+        if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
+
+      - name: Build Java/Docker via Maven
+        run: |
+          ./mvnw -s settings.xml deploy -Drepo=kind-registry:5000/tractusx/ -Dmaven.deploy.skip -DskipTests -Pwith-docker-image
+        if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
+
+      # install the chart to the kind cluster and run helm test
+      # define charts to test with the --charts parameter
+      - name: Run chart-testing (install)
+        run: ct install --charts charts/agent-plane,charts/agent-plane-azure-vault --config charts/config/chart-testing-config.yaml --helm-extra-set-args="--set=image.registry=kind-registry:5000/"
+        if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
+
+      # Upgrade the released chart version with the locally available chart
+      # default value for event_name != workflow_dispatch
+      - name: Run helm upgrade on agent plane
+        run: |
+          helm repo add tractusx-dev https://eclipse-tractusx.github.io/charts/dev
+          helm install agent tractusx-dev/agent-plane --version ${{ github.event.inputs.upgrade_from }} --set=image.registry=kind-registry:5000/
+          helm dependency update charts/agent-plane
+          helm upgrade agent charts/agent-plamne
+        if: (github.event_name != 'pull_request' || env.CHART_CHANGED == 'true') && github.event.inputs.upgrade_from != '' && github.event.inputs.upgrade_from != 'x.x.x'
+
+      # Upgrade the released chart version with the locally available chart
+      # default value for event_name != workflow_dispatch
+      - name: Run helm upgrade on agent plane azure vault
+        run: |
+          helm repo add tractusx-dev https://eclipse-tractusx.github.io/charts/dev
+          helm install agent-azure tractusx-dev/agent-plane-azure-vault --version ${{ github.event.inputs.upgrade_from }} --set=image.registry=kind-registry:5000/
+          helm dependency update charts/agent-plane-azure-vault
+          helm upgrade agent-azure charts/agent-plane-azure-vault
+        if: (github.event_name != 'pull_request' || env.CHART_CHANGED == 'true') && github.event.inputs.upgrade_from != '' && github.event.inputs.upgrade_from != 'x.x.x'
+
