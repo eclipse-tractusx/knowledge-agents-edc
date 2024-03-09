@@ -1,7 +1,5 @@
-{{- if .Values.serviceAccount.create -}}
----
 #
-#  Copyright (c) 2024 T-Systems International GmbH
+#  Copyright (c) 2023, 2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
@@ -22,18 +20,28 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ include "txdc.serviceAccountName" . }}
-  labels:
-    {{- include "txdc.labels" . | nindent 4 }}
-  {{- with .Values.serviceAccount.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-{{- with .Values.serviceAccount.imagePullSecrets }}
-imagePullSecrets:
-  {{- toYaml . | nindent 2 }}
-{{- end }}
-{{- end }}
+
+install:
+
+controlplane:
+  endpoints:
+    management:
+      authKey: "bla"
+
+vault:
+  azure:
+    name: "AZURE_NAME"
+    tenant: "AZURE_TENANT"
+    client: "AZURE_CLIENT"
+    secret: "AZURE_SECRET"
+  hashicorp:
+    url: "https://vault.demo"
+    token: "VAULT_TOKEN"
+    paths:
+      secret: "/v1/secrets"
+  secretNames:
+    transferProxyTokenSignerPrivateKey: "key"
+    transferProxyTokenSignerPublicKey: "cert"
+    transferProxyTokenEncryptionAesKey: "symmetric-key"
+participant:
+  id: "BPNL0000000DUMMY"

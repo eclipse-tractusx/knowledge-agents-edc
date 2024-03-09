@@ -3,7 +3,7 @@
 {{ $dataplane := .Values }}
 ---
 #
-#  Copyright (c) 2023,2024 T-Systems International GmbH
+#  Copyright (c) 2023, 2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
@@ -65,9 +65,9 @@ spec:
           {{- if $dataplane.image.repository }}
           image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default "0.6.0" }}"
           {{- else if $dataplane.agent }}
-          image: "{{ $root.Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "{{ $root.Values.imageRegistry }}tractusx/agentplane-azure-vault:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
           {{- else }}
-          image: "tractusx/edc-dataplane-hashicorp-vault:{{ $dataplane.image.tag | default "0.6.0" }}"
+          image: "tractusx/edc-data-plane-azure-vault:{{ $dataplane.image.tag | default "0.6.0" }}"
           {{- end }}
           imagePullPolicy: {{ $dataplane.image.pullPolicy }}
           ports:
@@ -261,21 +261,22 @@ spec:
             ## VAULT ##
             ###########
 
-            # see extension https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-extensions/hashicorp-vault
-            - name: "EDC_VAULT_HASHICORP_URL"
-              value: {{ tpl $root.Values.vault.hashicorp.url $root | required ".Values.vault.hashicorp.url is required" | quote }}
-            - name: "EDC_VAULT_HASHICORP_TOKEN"
-              value: {{ $root.Values.vault.hashicorp.token | required ".Values.vault.hashicorp.token is required" | quote }}
-            - name: "EDC_VAULT_HASHICORP_TIMEOUT_SECONDS"
-              value: {{ $root.Values.vault.hashicorp.timeout | quote }}
-            - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_ENABLED"
-              value: {{ $root.Values.vault.hashicorp.healthCheck.enabled | quote }}
-            - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_STANDBY_OK"
-              value: {{ $root.Values.vault.hashicorp.healthCheck.standbyOk | quote }}
-            - name: "EDC_VAULT_HASHICORP_API_SECRET_PATH"
-              value: {{ $root.Values.vault.hashicorp.paths.secret | quote }}
-            - name: "EDC_VAULT_HASHICORP_API_HEALTH_CHECK_PATH"
-              value: {{ $root.Values.vault.hashicorp.paths.health | quote }}
+            - name: "EDC_VAULT_CLIENTID"
+              value: {{ .Values.vault.azure.client | quote  }}
+            - name: "EDC_VAULT_TENANTID"
+              value: {{ .Values.vault.azure.tenant | quote }}
+            - name: "EDC_VAULT_NAME"
+              value: {{ .Values.vault.azure.name | quote }}
+            # only set the env var if config value not null
+            {{- if .Values.vault.azure.secret }}
+            - name: "EDC_VAULT_CLIENTSECRET"
+              value: {{ .Values.vault.azure.secret | quote }}
+            {{- end }}
+            # only set the env var if config value not null
+            {{- if .Values.vault.azure.certificate }}
+            - name: "EDC_VAULT_CERTIFICATE"
+              value: {{ .Values.vault.azure.certificate | quote }}
+            {{- end }}
 
             ######################################
             ## Additional environment variables ##

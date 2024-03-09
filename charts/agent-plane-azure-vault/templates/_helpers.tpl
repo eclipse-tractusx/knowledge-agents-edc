@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2023,2024 T-Systems International GmbH
+#  Copyright (c) 2023, 2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)

@@ -28,7 +28,7 @@ description: |
   A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers at a running
   Control Plane.
 
-  This chart is intended for use with an _existing_ HashiCorp Vault and Tractusx Connector.
+  This chart is intended for use with an _existing_ Azure Vault and Tractusx Connector.
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -51,11 +51,5 @@ home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
 sources:
   - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
 dependencies:
-  # HashiCorp Vault
-  - name: vault
-    alias: vault
-    version: 0.20.0
-    repository: https://helm.releases.hashicorp.com
-    condition: install.vault
 maintainers:
   - name: 'Tractus-X Knowledge Agents Team'

@@ -1,10 +1,5 @@
-{{ $root := . }}
-{{ $dataplane_name := .Values.name }}
-{{ $dataplane := .Values }}
----
 #
-#  Copyright (c) 2024 T-Systems International GmbH
-#  Copyright (c) 2024 Contributors to the Eclipse Foundation
+#  Copyright (c) 2023,2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -21,23 +16,23 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #
-
+{{ $root := . }}
+{{ $dataplane_name := .Values.name }}
+{{ $dataplane := .Values }}
+---
 apiVersion: v1
-kind: ConfigMap
+kind: Pod
 metadata:
-  name: {{ include "txdc.fullname" $root }}-{{- $dataplane_name }}
-  namespace: {{ $root.Release.Namespace | default "default" | quote }}
+  name: "{{include "txdc.fullname" .}}test-dataplane-readiness"
   labels:
     {{- include "txdc.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
-data:
-  opentelemetry.properties: |-
-    {{- $dataplane.opentelemetry | nindent 4 }}
-
-  logging.properties: |-
-    {{- $dataplane.logging | nindent 4 }}
-
-  {{- range $config_name, $config_value := $dataplane.configs }}
-  {{ $config_name }}: |-
-  {{ $config_value | nindent 4 }}
-  {{- end }}
-
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": {{ .Values.tests.hookDeletePolicy }}
+spec:
+  containers:
+    - name: wget
+      image: curlimages/curl
+      command: [ '/bin/sh','-c' ]
+      args: [ {{- printf "curl http://%s-%s:%v%s/check/readiness" (include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.default.port $dataplane.endpoints.default.path | quote }} ]
+  restartPolicy: Never
