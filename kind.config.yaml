@@ -1,4 +1,5 @@
-# Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+# Copyright (c) 2024 T-Systems International GmbH
+#
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -14,11 +15,21 @@
 # under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-
 ---
-# Config for testing charts
-validate-maintainers: false
-helm-extra-args: "--set controlplane.endpoints.management.authKey=test --set vault.hashicorp.token=DUMMY --set participant.id=BPNL0000000DUMMY --set vault.azure.client=AZURE_CLIENT --set vault.azure.tenant=AZURE_TENANT --set vault.azure.name=AZURE_NAME"
-chart-repos:
- - helm=https://helm.releases.hashicorp.com
- - bitnami=https://charts.bitnami.com/bitnami
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP

@@ -18,7 +18,6 @@ package org.eclipse.tractusx.agents.edc.http;
 
 import jakarta.servlet.ServletInputStream;
 import org.eclipse.edc.spi.monitor.Monitor;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import javax.servlet.ReadListener;
@@ -68,12 +67,12 @@ public class JakartaServletInputStreamAdapter extends javax.servlet.ServletInput
     }
 
     @Override
-    public int read(byte @NotNull [] buf) throws IOException {
+    public int read(byte[] buf) throws IOException {
         return jakartaDelegate.read(buf);
     }
 
     @Override
-    public int read(byte @NotNull [] b, int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         return jakartaDelegate.read(b, off, len);
     }
 
