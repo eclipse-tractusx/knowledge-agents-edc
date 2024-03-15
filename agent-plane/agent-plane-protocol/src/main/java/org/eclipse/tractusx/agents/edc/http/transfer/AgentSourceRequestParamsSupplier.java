@@ -95,4 +95,12 @@ public class AgentSourceRequestParamsSupplier implements HttpRequestParamsProvid
         this.sinkDecorators.forEach((decorator) -> decorator.decorate(request, address, params));
         return params.build();
     }
+    
+    public String provideMatchmakingUrl() {
+        return config.getMatchmakingAgentUrl();
+    }
+    
+    public boolean provideMatchmakingRest() {
+        return config.getMatchmakingAgentRest();
+    }
 }

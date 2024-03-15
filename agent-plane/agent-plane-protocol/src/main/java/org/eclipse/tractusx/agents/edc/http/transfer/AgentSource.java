@@ -16,6 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc.http.transfer;
 
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
@@ -34,6 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
@@ -64,6 +70,9 @@ public class AgentSource implements DataSource {
     protected SkillStore skillStore;
 
     protected DataFlowRequest request;
+    
+    protected String matchmakingAgentUrl;
+    protected boolean matchmakingAgentRest;
 
     public static final String AGENT_BOUNDARY = "--";
 
@@ -75,7 +84,11 @@ public class AgentSource implements DataSource {
 
     @Override
     public StreamResult<Stream<Part>> openPartStream() {
-        return openMatchmaking();
+        if (matchmakingAgentRest) {
+            return openMatchmakingRest();
+        } else {
+            return openMatchmaking();
+        }
     }
 
     /**
@@ -135,6 +148,97 @@ public class AgentSource implements DataSource {
             return StreamResult.error(e.getMessage());
         }
     }
+    
+    /**
+     * executes a KA-MATCHMAKING REST API call and pipes the results into KA-TRANSFER
+     *
+     * @return multipart body containing result and warnings
+     */
+    @NotNull
+    protected StreamResult<Stream<Part>> openMatchmakingRest() {
+        // Agent call, we translate from KA-MATCH to KA-TRANSFER
+        String skill = null;
+        String graph = null;
+        String asset = String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
+        String assetValue;
+        OkHttpClient client = new OkHttpClient();
+        //String baseUrl = "http://localhost:8082/api/agentsource";         // TODO: put baseUrl into config file
+        //String baseUrl = "http://matchmaking-agent:8080/agentsource";         // TODO: put baseUrl into config file
+        String baseUrl = matchmakingAgentUrl;
+
+        String url = baseUrl + "?asset=" + asset;
+        if (asset != null && asset.length() > 0) {
+            Matcher graphMatcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
+            if (graphMatcher.matches()) {
+                graph = asset;
+            }
+            Matcher skillMatcher = SkillStore.matchSkill(asset);
+            if (skillMatcher.matches()) {
+                var skillText = skillStore.get(asset);
+                if (skillText.isEmpty()) {
+                    return StreamResult.error(format("Skill %s does not exist.", asset));
+                }
+                SkillDistribution distribution = skillStore.getDistribution(asset);
+                String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
+                SkillDistribution runMode = SkillDistribution.ALL;
+                if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
+                    runMode = SkillDistribution.PROVIDER;
+                } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
+                    runMode = SkillDistribution.CONSUMER;
+                }
+                if (runMode == SkillDistribution.CONSUMER) {
+                    if (distribution == SkillDistribution.PROVIDER) {
+                        return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
+                    }
+                    return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
+                    return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
+                }
+                skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
+            }
+        }
+
+        try {
+            // Either put skill or asset in URL as param
+            if (skill == null) {
+                assetValue = graph;
+            } else {
+                assetValue = skill;
+            }
+   
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+            urlBuilder.addQueryParameter("asset", assetValue);
+            // Put parameters into request
+            Map<String, Object> targetProperties = request.getSourceDataAddress().getProperties();
+            Set<Entry<String, Object>> entrySet = targetProperties.entrySet();
+            for (Entry<String, Object> entry : entrySet) {
+                urlBuilder.addQueryParameter(entry.getKey(), entry.getValue().toString());
+            }
+            HttpUrl httpUrl = urlBuilder.build();
+            // Build request from original request with adapted URL
+            Request httpRequest = this.requestFactory.toRequest(params)
+                    .newBuilder().url(httpUrl)
+                    .build();
+
+            // Send request and get response
+            Response response = client.newCall(httpRequest).execute();
+            if (!response.isSuccessful()) {
+                return StreamResult.error(format("Received code transferring HTTP data for request %s: %s - %s.", requestId, response.code(), response.message()));
+            }
+            List<Part> results = new ArrayList<>();
+            if (response.body() != null) {
+                results.add(new AgentPart(response.body().contentType().toString(), response.body().bytes()));
+            }
+            if (response.header("cx_warnings") != null) {
+                results.add(new AgentPart("application/cx-warnings+json", response.header("cx_warnings").getBytes()));
+            }
+            return StreamResult.success(results.stream());
+        } catch (IOException e) {
+            return StreamResult.error(e.getMessage());
+        }
+    }
+
+
 
     @Override
     public String toString() {
@@ -188,6 +292,16 @@ public class AgentSource implements DataSource {
 
         public AgentSource.Builder request(DataFlowRequest request) {
             dataSource.request = request;
+            return this;
+        }
+        
+        public AgentSource.Builder matchmakingAgentUrl(String matchmakingAgentUrl) {
+            dataSource.matchmakingAgentUrl = matchmakingAgentUrl;
+            return this;
+        }
+        
+        public AgentSource.Builder matchmakingAgentRest(boolean matchmakingAgentRest) {
+            dataSource.matchmakingAgentRest = matchmakingAgentRest;
             return this;
         }
 

@@ -92,6 +92,8 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
                 .skillStore(skillStore)
                 .processor(processor)
                 .request(request)
+                .matchmakingAgentUrl(supplier.provideMatchmakingUrl())
+                .matchmakingAgentRest(supplier.provideMatchmakingRest())
                 .build();
         monitor.debug(String.format("Created a new agent source %s for destination type %s",
                 dataSource,
