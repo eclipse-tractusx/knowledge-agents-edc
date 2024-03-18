@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -381,7 +381,8 @@ public class TestAgentController extends RestControllerTestBase {
     public void testParameterizedSkill() throws IOException {
         String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?what WHERE { VALUES (?what) { (\"@input\"^^xsd:int)} }";
         String asset="urn:cx:Skill:cx:Test";
-        try (var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null)) {
+        try (var response=agentController.postSkill(query,asset,null,null,null,null,
+                SkillDistribution.ALL,false,null, null, null)) {
             assertEquals(200,response.getStatus(),"post skill successful");
             String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "84")));
             JsonNode root = mapper.readTree(result);
@@ -399,7 +400,8 @@ public class TestAgentController extends RestControllerTestBase {
     public void testRemotingSkill() throws IOException {
         String query="PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> SELECT ?subject WHERE { SERVICE<http://localhost:8898/match> { VALUES (?subject) { (<@input>)} } }";
         String asset="urn:cx:Skill:cx:Test";
-        try(var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,false,null)) {
+        try(var response=agentController.postSkill(query,asset,null,null,null,null,SkillDistribution.ALL,
+                false,null, null, null)) {
             assertEquals(200,response.getStatus(),"post skill successful");
             String result = testExecute("GET", null, asset, "*/*", List.of(new AbstractMap.SimpleEntry<>("input", "urn:cx:AnonymousSerializedPart#GB4711")));
             JsonNode root = mapper.readTree(result);
