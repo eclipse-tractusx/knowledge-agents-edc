@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -51,7 +51,7 @@ public class EdcSkillStore implements SkillStore {
     }
 
     @Override
-    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String... ontologies) {
+    public String put(String key, String skill, String name, String description, String version, String contract, SkillDistribution dist, boolean isFederated, String allowServicePatern, String denyServicePattern, String... ontologies) {
         if (name == null) {
             name = "No name given";
         }
@@ -75,7 +75,9 @@ public class EdcSkillStore implements SkillStore {
                     ontologiesString,
                     dist.getDistributionMode(),
                     isFederated,
-                    typeManager.getMapper().writeValueAsString(TextNode.valueOf(skill))
+                    typeManager.getMapper().writeValueAsString(TextNode.valueOf(skill)),
+                    allowServicePatern,
+                    denyServicePattern
             ).getId();
         } catch (IOException e) {
             return null;
