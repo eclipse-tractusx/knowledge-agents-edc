@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -92,8 +92,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
                 .skillStore(skillStore)
                 .processor(processor)
                 .request(request)
-                .matchmakingAgentUrl(supplier.provideMatchmakingUrl())
-                .matchmakingAgentRest(supplier.provideMatchmakingRest())
+                .matchmakingAgentUrl(supplier.provideMatchmakingUrl(request))
                 .build();
         monitor.debug(String.format("Created a new agent source %s for destination type %s",
                 dataSource,

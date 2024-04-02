@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -57,9 +57,7 @@ public class AgentConfig {
     public static final long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
     
     public static final String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
-    
-    public static final String RDF_STORE = "cx.agent.rdf.store";
-    
+        
     public static final String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
     
     public static final String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
@@ -77,8 +75,6 @@ public class AgentConfig {
     public static final String CALLBACK_ENDPOINT = "cx.agent.callback";
 
     public static final String DEFAULT_SKILL_CONTRACT_PROPERTY = "cx.agent.skill.contract.default";
-    
-    public static final String DEFAULT_GRAPH_CONTRACT_PROPERTY = "cx.agent.graph.contract.default";
 
     public static final String SERVICE_ALLOW_PROPERTY = "cx.agent.service.allow";
     public static final String DEFAULT_SERVICE_ALLOW_PATTERN = "(http|edc)s?://.*";
@@ -95,7 +91,6 @@ public class AgentConfig {
     public static final String TX_EDC_VERSION_PROPERTY = "cx.agent.edc.version";
     
     public static final String MATCHMAKING_URL = "cx.agent.matchmaking";
-    public static final String MATCHMAKING_REST = "cx.agent.matchmaking.rest";
 
     /**
      * precompiled stuff
@@ -260,10 +255,6 @@ public class AgentConfig {
         return connectors;
     }
     
-    public String getRdfStore() {
-        return config.getString(RDF_STORE, null);
-    }
-
     /**
      * access
      *
@@ -339,15 +330,6 @@ public class AgentConfig {
     /**
      * access
      *
-     * @return default graph contract
-     */
-    public String getDefaultGraphContract() {
-        return config.getString(DEFAULT_GRAPH_CONTRACT_PROPERTY, null);
-    }
-
-    /**
-     * access
-     *
      * @return regular expression for allowed service URLs
      */
     public Pattern getServiceAllowPattern() {
@@ -405,16 +387,7 @@ public class AgentConfig {
      * @return URL for Matchmaking Agent REST call
      */
     public String getMatchmakingAgentUrl() {
-        return config.getString(MATCHMAKING_URL);
+        return config.getString(MATCHMAKING_URL, null);
     }
     
-    /**
-     * access
-     *
-     * @return URL for Matchmaking Agent REST call
-     */
-    public boolean getMatchmakingAgentRest() {
-        return config.getBoolean(MATCHMAKING_REST);
-    }
-
 }

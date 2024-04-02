@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -96,11 +96,16 @@ public class AgentSourceRequestParamsSupplier implements HttpRequestParamsProvid
         return params.build();
     }
     
-    public String provideMatchmakingUrl() {
+    /**
+     * provides the address of a matchmaking agent fitting 
+     * to the data flow request
+     *
+     * @param request the data flow request
+     * 
+     * @return a fitting matchmaking agent address
+     */
+    public String provideMatchmakingUrl(DataFlowRequest request) {
         return config.getMatchmakingAgentUrl();
     }
     
-    public boolean provideMatchmakingRest() {
-        return config.getMatchmakingAgentRest();
-    }
 }

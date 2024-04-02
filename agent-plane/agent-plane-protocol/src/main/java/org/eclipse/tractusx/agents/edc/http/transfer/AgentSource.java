@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -39,8 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -72,7 +72,6 @@ public class AgentSource implements DataSource {
     protected DataFlowRequest request;
     
     protected String matchmakingAgentUrl;
-    protected boolean matchmakingAgentRest;
 
     public static final String AGENT_BOUNDARY = "--";
 
@@ -84,10 +83,10 @@ public class AgentSource implements DataSource {
 
     @Override
     public StreamResult<Stream<Part>> openPartStream() {
-        if (matchmakingAgentRest) {
+        if (matchmakingAgentUrl != null) {
             return openMatchmakingRest();
         } else {
-            return openMatchmaking();
+            return openMatchmakingInternal();
         }
     }
 
@@ -97,7 +96,7 @@ public class AgentSource implements DataSource {
      * @return multipart body containing result and warnings
      */
     @NotNull
-    protected StreamResult<Stream<Part>> openMatchmaking() {
+    protected StreamResult<Stream<Part>> openMatchmakingInternal() {
         // Agent call, we translate from KA-MATCH to KA-TRANSFER
         String skill = null;
         String graph = null;
@@ -162,8 +161,6 @@ public class AgentSource implements DataSource {
         String asset = String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
         String assetValue;
         OkHttpClient client = new OkHttpClient();
-        //String baseUrl = "http://localhost:8082/api/agentsource";         // TODO: put baseUrl into config file
-        //String baseUrl = "http://matchmaking-agent:8080/agentsource";         // TODO: put baseUrl into config file
         String baseUrl = matchmakingAgentUrl;
 
         String url = baseUrl + "?asset=" + asset;
@@ -238,8 +235,6 @@ public class AgentSource implements DataSource {
         }
     }
 
-
-
     @Override
     public String toString() {
         return String.format("AgentSource(%s,%s)", requestId, name);
@@ -300,11 +295,6 @@ public class AgentSource implements DataSource {
             return this;
         }
         
-        public AgentSource.Builder matchmakingAgentRest(boolean matchmakingAgentRest) {
-            dataSource.matchmakingAgentRest = matchmakingAgentRest;
-            return this;
-        }
-
         public AgentSource build() {
             Objects.requireNonNull(dataSource.requestId, "requestId");
             Objects.requireNonNull(dataSource.httpClient, "httpClient");
