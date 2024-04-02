@@ -57,7 +57,7 @@ add the following dependency to your maven dependencies (gradle should work anal
         <dependency>
           <groupId>org.eclipse.tractusx.edc</groupId>
           <artifactId>auth-jwt</artifactId>
-          <version>1.12.17-SNAPSHOT</version>
+          <version>1.12.18-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

@@ -191,6 +191,11 @@ spec:
               value: {{ $dataplane.agent.edcVersion | default $root.Values.controlplane.image.tag | quote }}
           {{- end }}
 
+          {{- if $dataplane.agent.matchmaking }}
+            - name: "CX_AGENT_MATCHMAKING"
+              value: {{ $dataplane.agent.matchmaking | quote }}
+          {{- end }}
+
           {{- if $dataplane.agent.default }}
 
             ###############
