@@ -20,7 +20,7 @@
 
 # agent-connector-memory
 
-![Version: 1.12.18-SNAPSHOT](https://img.shields.io/badge/Version-1.12.17--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.18-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.17--SNAPSHOT-informational?style=flat-square)
+![Version: 1.12.18-SNAPSHOT](https://img.shields.io/badge/Version-1.12.18--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.18-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.18--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Eclipse Data Space Connector using In-Memory Persistence. This is a variant of [the Tractus-X In-Memory Connector Helm Chart](https://github.com/eclipse-tractusx/tractusx-edc/tree/main/charts/tractusx-connector-memory) which allows
 to deal with several data (and agent) planes. The connector deployment consists of at least two runtime consists of a
@@ -234,9 +234,10 @@ helm install my-release eclipse-tractusx/agent-connector --version 1.12.18-SNAPS
 | controlplane.volumes | list | `[]` | [volume](https://kubernetes.io/docs/concepts/storage/volumes/) directories |
 | customLabels | object | `{}` | To add some custom labels |
 | dataplanes.dataplane.affinity | object | `{}` |  |
-| dataplanes.dataplane.agent | object | `{"connectors":[],"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
+| dataplanes.dataplane.agent | object | `{"connectors":[],"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"matchmaking":{},"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
 | dataplanes.dataplane.agent.connectors | list | `[]` | The list of remote connector IDS URLs to synchronize with |
 | dataplanes.dataplane.agent.default | list | `["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"]` | A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue |
+| dataplanes.dataplane.agent.matchmaking | object | `{}` | Refers to an external matchmaking agent, set to a url string |
 | dataplanes.dataplane.agent.maxbatchsize | string | `"9223372036854775807"` | Sets the maximal batch size when delegating to agents and services |
 | dataplanes.dataplane.agent.services | object | `{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"}` | A set of configs for regulating outgoing service calls |
 | dataplanes.dataplane.agent.services.allow | string | `"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)"` | A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property) |
