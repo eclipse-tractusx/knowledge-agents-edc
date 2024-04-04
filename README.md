@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -97,6 +97,35 @@ Deployment can be done
 * via [Helm Charts (Stable Versions)](https://eclipse-tractusx.github.io/charts/stable) or [Helm Charts (Dev Versions)](https://eclipse-tractusx.github.io/charts/stable)
 
 See the [user documentation](docs/README.md) for more detailed deployment information.
+
+#### Setup using Helm/Kind
+
+In order to run KA-EDC applications via helm on your local machine, please make sure the following
+preconditions are met.
+
+- Have a local Kubernetes runtime ready. We've tested this setup with [KinD](https://kind.sigs.k8s.io/), but other
+  runtimes such
+  as [Minikube](https://minikube.sigs.k8s.io/docs/start/) may work as well, we just haven't tested them. All following
+  instructions will assume KinD.
+
+For the most bare-bones installation of the dataspace, execute the following commands in a shell:
+
+```shell
+kind create cluster -n ka --config kind.config.yaml
+# the next step is specific to KinD and will be different for other Kubernetes runtimes!
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# wait until the ingress controller is ready
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+# transfer images
+kind load docker-image docker.io/tractusx/agentplane-hashicorp:1.12.18-SNAPSHOT --name ka
+kind load docker-image docker.io/tractusx/agentplane-azure-vault:1.12.18-SNAPSHOT --name ka
+# run chart testing
+ct install --charts charts/agent-plane
+ct install --charts charts/agent-plane-azure-vault   
+``````
 
 ### Notice for Docker Images
 
