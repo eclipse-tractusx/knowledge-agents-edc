@@ -23,11 +23,12 @@ This folder hosts the [Agent Data Protocols Extension for the Eclipse Dataspace 
 ## Architecture
 
 This extension
-- introduces a tenant-internal endpoint (Matchmaking Agent) for submitting possibly federated queries (called Skills) in the supported inference languages (currently: SparQL)
+- introduces or interfaces to a tenant-internal endpoint (Matchmaking Agent) for submitting possibly federated queries (called Skills) in the supported inference languages (currently: SparQL)
+- hosts a synchronisation schedule which regulary requests the catalogue from configured partner connectors and includes them into the default graph
 - may negotiate further agreements for delegating sub-queries on the fly, for which purpose it also operates as an EDR callback for the control plane 
 - may operate as a validation proxy in case that this data plane is attached to several control planes (e.g. a consuming and a providing control plane)
 - implements special Sources for dealing with http-based transfer protocols, such as SparQL-Over-Http and Skill-Over-Http
-- hosts a synchronisation schedule which regulary requests the catalogue from configured partner connectors and includes them into the default graph
+
 The SparQL implementation currently relies on Apache Jena Fuseki as the SparQL engine.
 
 see the [Overall Source Code Layout](../../README.md#source-code-layout--runtime-collaboration)
@@ -63,7 +64,7 @@ Add the following dependency to your data-plane artifact pom:
         <dependency>
             <groupId>org.eclipse.tractusx.agents.edc</groupId>
             <artifactId>agent-plane-protocol</artifactId>
-            <version>1.12.17-SNAPSHOT</version>
+            <version>1.12.18-SNAPSHOT</version>
         </dependency>
 ```
 
@@ -89,6 +90,7 @@ See [this sample configuration file](resources/dataplane.properties)
 
 | Property                                      | Required | Default/Example                                                                | Description                                                                                                                                                   | List |
 |-----------------------------------------------|----------|--------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|------|
+| cx.agent.matchmaking                        |          | http://matchmaking-agent.internal                                                         | URL of the matchmaking agent (use internal one if null)                                                                                          |      | 
 | cx.agent.asset.default                        |          | urn:x-arq:DefaultGraph                                                         | IRI of the default graph (federated data catalogue)                                                                                                           |      | 
 | cx.agent.asset.file                           |          | https://www.w3id.org/catenax/ontology,dataspace.ttl                            | Initial triples for the default graph (federated data catalogue)                                                                                              | L    | 
 | cx.agent.accesspoint.name                     |          | api                                                                            | Matchmaking agent endpoint name (internal)                                                                                                                    |      | 
@@ -109,7 +111,7 @@ See [this sample configuration file](resources/dataplane.properties)
 | cx.agent.service.deny                         |          | ^$                                                                             | Regular expression for determining which IRIs are denied in SERVICE calls (on top level/federated data catalogue)                                             |      |                                                                                                                                                                       | 
 | cx.agent.service.asset.allow                  |          | (http&#124;edc)s://.*                                                          | Regular expression for determining which IRIs are allowed in delegated SERVICE calls (if not overriden by the cx-common:allowServicePattern address property) |      | 
 | cx.agent.service.asset.deny                   |          | ^$                                                                             | Regular expression for determining which IRIs are denied in delegated SERVICE calls (it not overridden by the cx-common:denyServicePattern address property)  |      |                                                                                                                                                                       | 
-| cx.agent.dataspace.remotes                    |          | http://consumer-edc-control:8282,http://tiera-edc-control:8282                 | business partner control plane protocol urls to synchronize with                                                                                              | L    | 
+| cx.agent.dataspace.remotes                    |          | http://consumer-edc-control:8282,http://tiera-edc-control:8282                 | business partner control plane protocol urls to synchronize with (if using internal matchmaking)                                                                                              | L    | 
 | cx.agent.sparql.verbose                       |          | false                                                                          | Controls the verbosity of the SparQL Engine                                                                                                                   |      | 
 | cx.agent.threadpool.size                      |          | 4                                                                              | Number of threads pooled for any concurrent batch calls and synchronisation actions                                                                           |      | 
 | cx.agent.federation.batch.max                 |          | 9223372036854775807 / 8                                                        | Maximal number of tuples to send in one query                                                                                                                 |      | 

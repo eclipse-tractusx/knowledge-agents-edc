@@ -536,6 +536,8 @@ dataplanes:
         @base <GraphAsset?local=Dataspace> .
     # -- Agent-Specific Settings
     agent:
+      # -- Refers to an external matchmaking agent, set to a url string
+      matchmaking: {}
       # -- A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue
       default:
         - dataspace.ttl
