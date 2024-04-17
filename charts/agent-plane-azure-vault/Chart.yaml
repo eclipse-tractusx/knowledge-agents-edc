@@ -23,7 +23,7 @@
 
 ---
 apiVersion: v2
-name: agent-plane
+name: agent-plane-azure-vault
 description: |
   A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers at a running
   Control Plane.

@@ -1,6 +1,6 @@
 ---
 #
-#  Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+#  Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -75,7 +75,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
-      
+
       # Set-Up Python
       - uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4.7.1
         with:
@@ -85,6 +85,9 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
 
+      - name: Run chart-testing (lint)
+        run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
+
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
@@ -92,10 +95,6 @@ jobs:
           if [[ -n "$changed" ]]; then
             echo "CHART_CHANGED=true" >> $GITHUB_ENV
           fi
-
-      # run chart linting
-      - name: Run chart-testing (lint)
-        run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
 
       # Preparing a kind cluster to install and test charts on
       - name: Create kind cluster

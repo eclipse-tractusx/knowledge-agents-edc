@@ -18,5 +18,5 @@
 ---
 # Config for testing charts
 validate-maintainers: false
-helm-extra-args: "--set=image.registry=kind-registry:5000/"
+helm-extra-set-args: "--set=image.registry=kind-registry:5000/"
 chart-repos:
