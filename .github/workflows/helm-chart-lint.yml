@@ -85,14 +85,6 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --target-branch ${{ github.base_ref || github.ref_name }})
-          if [[ -n "$changed" ]]; then
-            echo "CHART_CHANGED=true" >> $GITHUB_ENV
-          fi
-
       # Preparing a kind cluster to install and test charts on
       - name: Create kind cluster
         uses: container-tools/kind-action@0fc957b58d9a5bc9ca57a1b419324a2074c7653b # v2.0.3
