@@ -18,7 +18,5 @@
 ---
 # Config for testing charts
 validate-maintainers: false
-helm-extra-args: "--set controlplane.endpoints.management.authKey=test --set vault.hashicorp.token=DUMMY --set participant.id=BPNL0000000DUMMY --set vault.azure.client=AZURE_CLIENT --set vault.azure.tenant=AZURE_TENANT --set vault.azure.name=AZURE_NAME"
+helm-extra-args: "--set=image.registry=kind-registry:5000/"
 chart-repos:
- - helm=https://helm.releases.hashicorp.com
- - bitnami=https://charts.bitnami.com/bitnami
