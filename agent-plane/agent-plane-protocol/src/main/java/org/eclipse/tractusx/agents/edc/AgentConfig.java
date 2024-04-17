@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -57,7 +57,7 @@ public class AgentConfig {
     public static final long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
     
     public static final String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
-    
+        
     public static final String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
     
     public static final String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
@@ -89,6 +89,8 @@ public class AgentConfig {
     public static final String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
     public static final String TX_EDC_VERSION_PROPERTY = "cx.agent.edc.version";
+    
+    public static final String MATCHMAKING_URL = "cx.agent.matchmaking";
 
     /**
      * precompiled stuff
@@ -252,7 +254,7 @@ public class AgentConfig {
         }
         return connectors;
     }
-
+    
     /**
      * access
      *
@@ -324,7 +326,7 @@ public class AgentConfig {
     public String getDefaultSkillContract() {
         return config.getString(DEFAULT_SKILL_CONTRACT_PROPERTY, null);
     }
-
+    
     /**
      * access
      *
@@ -378,5 +380,14 @@ public class AgentConfig {
     public boolean isPrerelease() {
         return getEdcVersion().compareTo("0.5.0") <= 0;
     }
-
+    
+    /**
+     * access
+     *
+     * @return URL for Matchmaking Agent REST call
+     */
+    public String getMatchmakingAgentUrl() {
+        return config.getString(MATCHMAKING_URL, null);
+    }
+    
 }

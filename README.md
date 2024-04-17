@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -100,7 +100,7 @@ See the [user documentation](docs/README.md) for more detailed deployment inform
 
 #### Setup using Helm/Kind
 
-In order to run Build via helm on your local machine, please make sure the following
+In order to run KA-EDC applications via helm on your local machine, please make sure the following
 preconditions are met.
 
 - Have a local Kubernetes runtime ready. We've tested this setup with [KinD](https://kind.sigs.k8s.io/), but other
@@ -122,9 +122,11 @@ kubectl wait --namespace ingress-nginx \
 # transfer images
 kind load docker-image docker.io/tractusx/agentplane-hashicorp:1.12.18-SNAPSHOT --name ka
 kind load docker-image docker.io/tractusx/agentplane-azure-vault:1.12.18-SNAPSHOT --name ka
-ct install --charts charts/agent-plane   
+# run chart testing
+ct install --charts charts/agent-plane
 ct install --charts charts/agent-plane-azure-vault   
-``````
+```
+
 ### Notice for Docker Images
 
 * [Notice for Agent Data Plane Running Against Hashicorp Vault](agent-plane/agentplane-hashicorp/README.md#notice-for-docker-images)
