@@ -293,7 +293,6 @@ configs:
     #################################################################
     @prefix : <GraphAsset?local=Dataspace> .
     @base <GraphAsset?local=Dataspace> .
-    
 # -- Agent-Specific Settings
 agent:
   # -- A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue
