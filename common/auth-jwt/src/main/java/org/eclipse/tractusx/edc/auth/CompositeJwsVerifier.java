@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -186,7 +186,7 @@ public class CompositeJwsVerifier implements JWSVerifier {
                         key = null;
                     }
                 } catch (MalformedURLException e) {
-                    monitor.warning("Trying to parse key URL run into error. Ignoring", e);
+                    monitor.debug("Trying to parse key URL run into error. Ignoring", e);
                 }
             }
             if (key != null) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -21,7 +21,7 @@ import org.eclipse.edc.connector.dataplane.http.spi.HttpParamsDecorator;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.monitor.Monitor;
-import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.http.HttpUtils;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
@@ -100,7 +100,7 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
      * @param dataflowRequest the request to check
      * @return if this is a transfer request
      */
-    public static boolean isTransferRequest(DataFlowRequest dataflowRequest) {
+    public static boolean isTransferRequest(DataFlowStartMessage dataflowRequest) {
         return false;
     }
 
@@ -143,7 +143,7 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
      * @return translated call content (identical to params)
      */
     @Override
-    public HttpRequestParams.Builder decorate(DataFlowRequest request, HttpDataAddress address, HttpRequestParams.Builder params) {
+    public HttpRequestParams.Builder decorate(DataFlowStartMessage request, HttpDataAddress address, HttpRequestParams.Builder params) {
         String contentType = this.extractContentType(address, request);
         String body = this.extractBody(address, request);
         Map<String, List<String>> queryParams = parseParams("?" + getRequestQueryParams(address, request));
@@ -196,7 +196,7 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
         return params;
     }
 
-    protected @NotNull String extractMethod(HttpDataAddress address, DataFlowRequest request) {
+    protected @NotNull String extractMethod(HttpDataAddress address, DataFlowStartMessage request) {
         if (Boolean.parseBoolean(address.getProxyMethod())) {
             return Optional.ofNullable(request.getProperties().get(METHOD)).orElseThrow(() -> new EdcException(String.format("DataFlowRequest %s: 'method' property is missing", request.getId())));
         } else {
@@ -204,11 +204,11 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
         }
     }
 
-    protected @Nullable String extractPath(HttpDataAddress address, DataFlowRequest request) {
+    protected @Nullable String extractPath(HttpDataAddress address, DataFlowStartMessage request) {
         return Boolean.parseBoolean(address.getProxyPath()) ? request.getProperties().get(PATH_SEGMENTS) : address.getPath();
     }
 
-    protected @Nullable String getRequestQueryParams(HttpDataAddress address, DataFlowRequest request) {
+    protected @Nullable String getRequestQueryParams(HttpDataAddress address, DataFlowStartMessage request) {
         return Boolean.parseBoolean(address.getProxyQueryParams()) ? request.getProperties().get(QUERY_PARAMS) : null;
     }
 
@@ -219,12 +219,12 @@ public class AgentSourceHttpParamsDecorator implements HttpParamsDecorator {
      * @param request data flow request
      * @return the content type (which would be derived from the query language part in case the original content type is a url-encoded form)
      */
-    protected @Nullable String extractContentType(HttpDataAddress address, DataFlowRequest request) {
+    protected @Nullable String extractContentType(HttpDataAddress address, DataFlowStartMessage request) {
         String contentType = Boolean.parseBoolean(address.getProxyBody()) ? request.getProperties().get(MEDIA_TYPE) : address.getContentType();
         return contentType;
     }
 
-    protected @Nullable String extractBody(HttpDataAddress address, DataFlowRequest request) {
+    protected @Nullable String extractBody(HttpDataAddress address, DataFlowStartMessage request) {
         return Boolean.parseBoolean(address.getProxyBody()) ? request.getProperties().get(BODY) : null;
     }
 }

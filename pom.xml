@@ -39,8 +39,8 @@
 
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.2.0</mockito.version>
-        <tx.edc.version>0.6.0</tx.edc.version>
-        <edc.version>0.5.1</edc.version>
+        <tx.edc.version>0.7.0</tx.edc.version>
+        <edc.version>0.6.1</edc.version>
         <failsafe.version>3.3.2</failsafe.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.6.0</okio.version>
@@ -50,19 +50,19 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
-        <com.azure.azure-identity.version>1.11.1</com.azure.azure-identity.version>
-        <com.azure.azure-security-keyvault-secrets.version>4.7.3</com.azure.azure-security-keyvault-secrets.version>
+        <com.azure.azure-identity.version>1.11.4</com.azure.azure-identity.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.8.1</com.azure.azure-security-keyvault-secrets.version>
         <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
         <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
         <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
         <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
-        <jetbrains.kotlin.version>1.8.0</jetbrains.kotlin.version>
-        <io.micrometer.version>1.12.2</io.micrometer.version>
+        <jetbrains.kotlin.version>1.9.10</jetbrains.kotlin.version>
+        <io.micrometer.version>1.12.5</io.micrometer.version>
         <netty.nio.core-http2.version>4.1.101.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.24.0</commons.compress.version>
         <jetty.version>11.0.20</jetty.version>
-        <reactor.netty.version>1.0.39</reactor.netty.version>
-        <awssdk.version>2.22.9</awssdk.version>
+        <reactor.netty.version>1.0.40</reactor.netty.version>
+        <awssdk.version>2.24.10</awssdk.version>
 
         <!-- Source characteristics -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

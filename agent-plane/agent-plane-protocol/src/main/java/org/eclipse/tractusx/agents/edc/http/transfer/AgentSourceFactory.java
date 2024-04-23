@@ -19,9 +19,9 @@ package org.eclipse.tractusx.agents.edc.http.transfer;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
-import org.eclipse.edc.spi.http.EdcHttpClient;
+import org.eclipse.edc.http.spi.EdcHttpClient;
 import org.eclipse.edc.spi.monitor.Monitor;
-import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.tractusx.agents.edc.AgentProtocol;
 import org.eclipse.tractusx.agents.edc.SkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
@@ -66,7 +66,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
      * @return flag
      */
     @Override
-    public boolean canHandle(DataFlowRequest request) {
+    public boolean canHandle(DataFlowStartMessage request) {
         return AgentProtocol.SPARQL_HTTP.getProtocolId().equals(request.getSourceDataAddress().getType()) ||
                 AgentProtocol.SKILL_HTTP.getProtocolId().equals(request.getSourceDataAddress().getType());
     }
@@ -79,7 +79,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
      * @return new data source
      */
     @Override
-    public DataSource createSource(DataFlowRequest request) {
+    public DataSource createSource(DataFlowStartMessage request) {
         var dataAddress = HttpDataAddress.Builder.newInstance()
                 .copyFrom(request.getSourceDataAddress())
                 .build();

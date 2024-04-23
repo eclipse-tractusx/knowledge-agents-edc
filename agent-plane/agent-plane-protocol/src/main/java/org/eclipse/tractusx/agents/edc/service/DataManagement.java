@@ -336,7 +336,7 @@ public class DataManagement {
         var assetSpec = String.format(body, assetId, name, description, version, contract, ontologies, distributionMode,
                 isFederated, query, allowServicePattern, denyServicePattern);
 
-       return createOrUpdateAsset(assetId, assetSpec);
+        return createOrUpdateAsset(assetId, assetSpec);
     }
 
     /**

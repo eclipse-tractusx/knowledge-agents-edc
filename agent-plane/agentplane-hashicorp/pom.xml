@@ -153,6 +153,10 @@
                     <groupId>com.squareup.okio</groupId>
                     <artifactId>okio</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-transport-classes-epoll</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -181,6 +185,19 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>utils</artifactId>
             <version>${awssdk.version}</version>
+        </dependency>
+
+        <!-- json-smart -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>${net.minidev.jsonsmart.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Test -->

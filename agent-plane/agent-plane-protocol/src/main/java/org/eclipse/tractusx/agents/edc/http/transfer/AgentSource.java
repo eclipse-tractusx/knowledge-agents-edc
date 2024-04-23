@@ -24,8 +24,8 @@ import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.StreamResult;
-import org.eclipse.edc.spi.http.EdcHttpClient;
-import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
+import org.eclipse.edc.http.spi.EdcHttpClient;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.tractusx.agents.edc.AgentExtension;
 import org.eclipse.tractusx.agents.edc.SkillDistribution;
 import org.eclipse.tractusx.agents.edc.SkillStore;
@@ -69,7 +69,7 @@ public class AgentSource implements DataSource {
     protected SparqlQueryProcessor processor;
     protected SkillStore skillStore;
 
-    protected DataFlowRequest request;
+    protected DataFlowStartMessage request;
     
     protected String matchmakingAgentUrl;
 
@@ -290,7 +290,7 @@ public class AgentSource implements DataSource {
             return this;
         }
 
-        public AgentSource.Builder request(DataFlowRequest request) {
+        public AgentSource.Builder request(DataFlowStartMessage request) {
             dataSource.request = request;
             return this;
         }

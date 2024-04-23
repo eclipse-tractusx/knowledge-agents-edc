@@ -26,6 +26,7 @@ import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
 import okhttp3.*;
 import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.core.Quad;
+import org.eclipse.edc.json.JacksonTypeManager;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +60,7 @@ public class TestDataspaceSynchronizer {
     ScheduledExecutorService threadedExecutor = Executors.newSingleThreadScheduledExecutor();
     RdfStore store = new RdfStore(agentConfig, monitor);
 
-    TypeManager typeManager = new TypeManager();
+    TypeManager typeManager = new JacksonTypeManager();
 
     DataManagement dm = new DataManagement(monitor, typeManager, client, agentConfig);
     DataspaceSynchronizer synchronizer = new DataspaceSynchronizer(threadedExecutor, agentConfig, dm, store, monitor);
