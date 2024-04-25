@@ -52,6 +52,7 @@
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
         <com.azure.azure-identity.version>1.11.4</com.azure.azure-identity.version>
         <com.azure.azure-security-keyvault-secrets.version>4.8.1</com.azure.azure-security-keyvault-secrets.version>
+        <jackson.version>2.17.0</jackson.version>
         <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
         <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
         <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
