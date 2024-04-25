@@ -386,7 +386,40 @@
 
         <dependency>
             <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns</artifactId>
+            <version>${netty.nio.core-http2.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler-proxy</artifactId>
+            <version>${netty.nio.core-http2.version}</version>
+        </dependency>
+
+        <dependency>
+           <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+            <version>${netty.nio.core-http2.version}</version>
+            <classifier>osx-x86_64</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
+            <version>${netty.nio.core-http2.version}</version>
+            <classifier>osx-x86_64</classifier>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
+            <version>${netty.nio.core-http2.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-classes-epoll</artifactId>
             <version>${netty.nio.core-http2.version}</version>
         </dependency>
 
