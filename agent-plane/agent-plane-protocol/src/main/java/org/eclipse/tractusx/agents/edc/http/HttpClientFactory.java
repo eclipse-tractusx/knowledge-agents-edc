@@ -51,7 +51,7 @@ public class HttpClientFactory {
             httpDataSourceFactory = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.dataplane.http.pipeline.HttpDataSourceFactory");
             httpClient = httpDataSourceFactory.getDeclaredField("httpClient");
             httpClient.setAccessible(true);
-            okHttpClient = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.connector.core.base.EdcHttpClientImpl").getDeclaredField("okHttpClient");
+            okHttpClient = HttpClientFactory.class.getClassLoader().loadClass("org.eclipse.edc.http.client.EdcHttpClientImpl").getDeclaredField("okHttpClient");
             okHttpClient.setAccessible(true);
             connectTimeoutMillis = OkHttpClient.class.getDeclaredField("connectTimeoutMillis");
             connectTimeoutMillis.setAccessible(true);
