@@ -28,6 +28,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.edc.connector.controlplane.transfer.spi.event.TransferProcessStarted;
+import org.eclipse.edc.spi.event.EventEnvelope;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.spi.types.domain.callback.CallbackAddress;
@@ -117,21 +119,27 @@ public class AgreementControllerImpl implements AgreementController {
      * @param dataReference contains the actual call token
      */
     @POST
-    public void receiveEdcCallback(EndpointDataReference dataReference) {
-        var agreementId = dataReference.getId();
-        monitor.debug(String.format("An endpoint data reference for agreement %s has been posted.", agreementId));
+    public void receiveEdcCallback(EventEnvelope<TransferProcessStarted> dataReference) {
+        var processId = dataReference.getPayload().getTransferProcessId();
+        monitor.debug(String.format("An endpoint data reference for agreement %s has been posted.", processId));
         synchronized (processStore) {
             for (Map.Entry<String, TransferProcess> process : processStore.entrySet()) {
-                if (process.getValue().getId().equals(agreementId)) {
+                if (process.getValue().getId().equals(processId)) {
                     synchronized (endpointStore) {
-                        monitor.debug(String.format("Agreement %s belongs to asset %s.", agreementId, process.getKey()));
-                        endpointStore.put(process.getKey(), dataReference);
+                        monitor.debug(String.format("Agreement %s belongs to asset %s.", processId, process.getKey()));
+                        EndpointDataReference newRef = EndpointDataReference.Builder.newInstance()
+                                        .contractId(dataReference.getPayload().getContractId())
+                                        .endpoint(dataReference.getPayload().getDataAddress().getStringProperty("https://w3id.org/edc/v0.0.1/ns/endpoint", null))
+                                        .authCode("Authorization")
+                                        .authKey(dataReference.getPayload().getDataAddress().getStringProperty("https://w3id.org/edc/v0.0.1/ns/authorization", null))
+                                        .build();
+                        endpointStore.put(process.getKey(), newRef);
                         return;
                     }
                 }
             }
         }
-        monitor.debug(String.format("Agreement %s has no active asset. Guess that came for another plane. Ignoring.", agreementId));
+        monitor.debug(String.format("Process %s has no active asset. Guess that came for another plane. Ignoring.", processId));
     }
 
     /**

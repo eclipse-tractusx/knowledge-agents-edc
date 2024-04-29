@@ -72,16 +72,15 @@ public class DataManagement {
      */
     public static final String SKILL_ASSET_CREATE_BODY = "{\n" +
             "    \"@context\": {\n" +
+            "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"," +
             "        \"rdf\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
             "        \"rdfs\": \"http://www.w3.org/2000/01/rdf-schema#\",\n" +
             "        \"cx-common\": \"https://w3id.org/catenax/ontology/common#\",\n" +
             "        \"xsd\": \"http://www.w3.org/2001/XMLSchema#\",\n" +
             "        \"sh\": \"http://www.w3.org/ns/shacl#\"\n" +
             "    },\n" +
-            "    \"asset\": {\n" +
-            "        \"@type\": \"Asset\",\n" +
-            "        \"@id\": \"%1$s\", \n" +
-            "        \"properties\": {\n" +
+            "    \"@id\": \"%1$s\", \n" +
+            "    \"properties\": {\n" +
             "            \"name\": \"%2$s\",\n" +
             "            \"description\": \"%3$s\",\n" +
             "            \"version\": \"%4$s\",\n" +
@@ -92,10 +91,9 @@ public class DataManagement {
             "            \"cx-common:implementsProtocol\": \"cx-common:Protocol?w3c:http:SKILL\",\n" +
             "            \"cx-common:distributionMode\": \"%7$s\",\n" +
             "            \"cx-common:isFederated\": \"%8$b^^xsd:boolean\"\n" +
-            "        },\n" +
-            "        \"privateProperties\": {\n" +
+            "    },\n" +
+            "    \"privateProperties\": {\n" +
             "            \"cx-common:query\":%9$s\n" +
-            "        }\n" +
             "    },\n" +
             "    \"dataAddress\": {\n" +
             "        \"id\":\"%1$s\",\n" +
@@ -145,14 +143,20 @@ public class DataManagement {
             "        \"type\": \"HttpProxy\"\n" +
             "    },\n" +
             "    \"managedResources\": false,\n" +
-            "    \"privateProperties\": {\n" +
-            "        \"receiverHttpEndpoint\": \"%4$s\"\n" +
-            "    },\n" +
             "    \"protocol\": \"dataspace-protocol-http\",\n" +
             "    \"transferType\": {\n" +
             "        \"contentType\": \"application/octet-stream\",\n" +
             "        \"isFinite\": true\n" +
             "    }\n" +
+            "    \"callbackAddresses\": [\n" +
+            "      {\n" +
+            "        \"transactional\": false,\n" +
+            "        \"uri\": \"%4$s\",\n" +
+            "        \"events\": [\n" +
+            "          \"transfer.process.started\"\n" +
+            "        ],\n" +
+            "      }\n" +
+            "    ] \n" +
             "}";
     public static final String TRANSFER_CHECK_CALL = "%s/v2/transferprocesses/%s";
     public static final String AGREEMENT_CHECK_CALL = "%s/v2/contractagreements/%s";
