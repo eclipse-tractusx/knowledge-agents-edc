@@ -55,8 +55,8 @@ public class DataManagement {
     /**
      * some constants when interacting with control plane
      */
-    public static final String DSP_PATH = "%s/api/v1/dsp";
-    public static final String CATALOG_CALL = "%s/v2/catalog/request";
+    public static final String DSP_PATH = "%1$s/api/v1/dsp";
+    public static final String CATALOG_CALL = "%1$s/v2/catalog/request";
     // catalog request 0.5.>=1
     public static final String CATALOG_REQUEST_BODY = "{" +
             "\"@context\": {}," +
