@@ -18,6 +18,7 @@ package org.eclipse.tractusx.agents.edc.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.json.Json;
 import jakarta.ws.rs.InternalServerErrorException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -67,7 +68,7 @@ public class DataManagement {
             "\"querySpec\": %3$s }";
 
     public static final String ASSET_CREATE_CALL = "%1$s%2$s/assets";
-    public static final String ASSET_UPDATE_CALL = "%1$s%2$s/assets/%3$s";
+    public static final String ASSET_UPDATE_CALL = "%1$s%2$s/assets";
 
     /**
      * template for skill asset creation
@@ -106,8 +107,8 @@ public class DataManagement {
             "        \"proxyMethod\": \"true\",\n" +
             "        \"proxyQueryParams\": \"true\",\n" +
             "        \"proxyBody\": \"true\",\n" +
-            "        \"cx-common:allowServicePattern\": \"%10$s\",\n" +
-            "        \"cx-common:denyServicePattern\": \"%11$s\"\n" +
+            "        \"cx-common:allowServicePattern\": %10$s,\n" +
+            "        \"cx-common:denyServicePattern\": %11$s\n" +
             "    }\n" +
             "}\n";
 
@@ -294,7 +295,7 @@ public class DataManagement {
                 }
 
                 url = String.format(ASSET_UPDATE_CALL, config.getControlPlaneManagementProviderUrl(), version, assetId);
-                var patchRequest = new Request.Builder().url(url).patch(RequestBody.create(assetSpec, MediaType.parse("application/json")));
+                var patchRequest = new Request.Builder().url(url).put(RequestBody.create(assetSpec, MediaType.parse("application/json")));
                 config.getControlPlaneManagementHeaders().forEach(patchRequest::addHeader);
 
                 try (var patchResponse = httpClient.newCall(patchRequest.build()).execute()) {
@@ -345,6 +346,9 @@ public class DataManagement {
         if (denyServicePattern == null) {
             denyServicePattern = config.getServiceDenyPattern().pattern();
         }
+
+        allowServicePattern     = Json.createValue(allowServicePattern).toString();
+        denyServicePattern = Json.createValue(denyServicePattern).toString();
 
         var assetSpec = String.format(body, assetId, name, description, version, contract, ontologies, distributionMode,
                 isFederated, query, allowServicePattern, denyServicePattern);
