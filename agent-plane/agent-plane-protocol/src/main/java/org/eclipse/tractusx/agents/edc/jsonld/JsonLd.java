@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 
 /**
  * base facility to deal with EDC specific JSONLD structures
@@ -134,6 +135,10 @@ public class JsonLd {
                             prefix = prefix + ":";
                         }
                         prop = prefix + prop.substring(colonIndex + 1);
+                    } else {
+                        if (!prop.startsWith("@") && namespaces.containsKey("@vocab")) {
+                            prop = namespaces.get("@vocab") + prop;
+                        }
                     }
                     object.add(prop, processJsonLd(value, namespaces));
                 });

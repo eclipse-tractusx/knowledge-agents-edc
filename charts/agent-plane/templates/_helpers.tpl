@@ -197,3 +197,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/*
+join a map
+*/}}
+{{- define "txdc.remotes" -}}
+{{- $res := := dict "servers" (list) -}}
+{{- range $bpn, $connector := .Values.agent.connectors -}}
+{{- $noop := printf "$s=%s" $bpn $connector | append $res.servers | set $res "servers" -}}
+{{- end -}}
+{{- join "," $res.servers -}}
+{{- end -}}

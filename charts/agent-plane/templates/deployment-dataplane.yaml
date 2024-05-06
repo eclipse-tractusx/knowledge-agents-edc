@@ -239,7 +239,11 @@ spec:
             # AGENT SYNC      #
             ###################
             - name: "CX_AGENT_DATASPACE_REMOTES"
-              value: {{ join "," $dataplane.agent.connectors | quote }} 
+              value: {{- range $key,$value := $dataplane.endpoints }}
+            - name: {{ $key }}
+              containerPort: {{ $value.port }}
+              protocol: TCP
+          {{- end }}{{ join "," $dataplane.agent.connectors | quote }} 
             - name: "CX_AGENT_DATASPACE_SYNCHRONIZATION"
               value: {{ $dataplane.agent.synchronization | required (printf ".Values.dataplane.%s.agent.synchronization should be set if connectors are specified" $dataplane_name) | quote }}
             - name: "CX_AGENT_FEDERATION_BATCH_MAX"

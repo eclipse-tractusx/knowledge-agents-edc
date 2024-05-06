@@ -22,12 +22,15 @@ import org.apache.jena.sparql.serializer.SerializerRegistry;
 import org.apache.jena.sparql.service.ServiceExecutorRegistry;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParamsProvider;
+import org.eclipse.edc.connector.dataplane.spi.Endpoint;
+import org.eclipse.edc.connector.dataplane.spi.iam.PublicEndpointGeneratorService;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.edc.http.spi.EdcHttpClient;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.runtime.metamodel.annotation.Requires;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.security.Vault;
+import org.eclipse.edc.spi.system.Hostname;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.types.TypeManager;
@@ -87,6 +90,10 @@ public class AgentExtension implements ServiceExtension {
     protected EdcHttpClient edcHttpClient;
     @Inject
     protected OkHttpClient httpClient;
+    @Inject
+    private PublicEndpointGeneratorService generatorService;
+    @Inject
+    private Hostname hostname;
 
     /**
      * refers a scheduler
@@ -169,6 +176,14 @@ public class AgentExtension implements ServiceExtension {
         HttpRequestFactory httpRequestFactory = new HttpRequestFactory();
         AgentSourceFactory sourceFactory = new AgentSourceFactory(edcHttpClient, new AgentSourceRequestParamsSupplier(vault, typeManager, config, monitor), monitor, httpRequestFactory, processor, skillStore);
         pipelineService.registerFactory(sourceFactory);
+
+        var publicEndpoint = context.getSetting("edc.dataplane.api.public.baseurl", null);
+        if (publicEndpoint == null) {
+            publicEndpoint = String.format("http://%s:%d%s", hostname.get(), context.getSetting("web.http.public.port", 8185), context.getSetting("web.http.public.path", "/api/public"));
+        }
+        var endpoint = Endpoint.url(publicEndpoint);
+        generatorService.addGeneratorFunction(AgentProtocol.SPARQL_HTTP.getProtocolId(), dataAddress -> endpoint);
+        generatorService.addGeneratorFunction(AgentProtocol.SKILL_HTTP.getProtocolId(), dataAddress -> endpoint);
     }
 
     /**

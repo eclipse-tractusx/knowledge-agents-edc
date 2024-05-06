@@ -183,9 +183,9 @@ public class DataspaceSynchronizer implements Runnable {
         if (!isStarted) {
             isStarted = true;
             long interval = config.getDataspaceSynchronizationInterval();
-            String[] connectors = config.getDataspaceSynchronizationConnectors();
-            if (interval > 0 && connectors != null && connectors.length > 0) {
-                monitor.info(String.format("Starting dataspace synchronization on %d connectors with interval %d milliseconds", connectors.length, interval));
+            Map<String, String> connectors = config.getDataspaceSynchronizationConnectors();
+            if (interval > 0 && connectors != null && connectors.size() > 0) {
+                monitor.info(String.format("Starting dataspace synchronization on %d connectors with interval %d milliseconds", connectors.size(), interval));
                 service.schedule(this, interval, TimeUnit.MILLISECONDS);
             }
         }
@@ -209,16 +209,16 @@ public class DataspaceSynchronizer implements Runnable {
     public void run() {
         monitor.debug("Synchronization run has been started");
         if (isStarted) {
-            for (String remote : config.getDataspaceSynchronizationConnectors()) {
+            for (Map.Entry<String, String> remote : config.getDataspaceSynchronizationConnectors().entrySet()) {
                 if (isStarted) {
                     monitor.debug(String.format("About to synchronize remote connector %s", remote));
                     rdfStore.startTx();
                     try {
-                        DcatCatalog catalog = dataManagement.getCatalog(remote, FEDERATED_ASSET_QUERY);
+                        DcatCatalog catalog = dataManagement.getCatalog(remote.getKey(), remote.getValue(), FEDERATED_ASSET_QUERY);
                         Node graph = rdfStore.getDefaultGraph();
-                        Node connector = NodeFactory.createURI(remote.replace("https", "edcs").replace("http", "edc"));
+                        Node connector = NodeFactory.createURI(remote.getValue().replace("https", "edcs").replace("http", "edc"));
                         deleteConnectorFacts(graph, connector);
-                        addConnectorFacts(remote, catalog, graph, connector);
+                        addConnectorFacts(remote.getValue(), catalog, graph, connector);
                         rdfStore.commit();
                     } catch (Throwable io) {
                         monitor.warning(String.format("Could not synchronize remote connector %s because of %s. Going ahead.", remote, io));

@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.String.format;
 
@@ -61,8 +62,9 @@ public class DataManagement {
     public static final String CATALOG_REQUEST_BODY = "{" +
             "\"@context\": {}," +
             "\"protocol\": \"dataspace-protocol-http\"," +
-            "\"counterPartyAddress\": \"%1$s\", " +
-            "\"querySpec\": %2$s }";
+            "\"counterPartyAddress\": \"%2$s\", " +
+            "\"counterPartyId\": \"%1$s\", " +
+            "\"querySpec\": %3$s }";
 
     public static final String ASSET_CREATE_CALL = "%1$s%2$s/assets";
     public static final String ASSET_UPDATE_CALL = "%1$s%2$s/assets/%3$s";
@@ -113,19 +115,25 @@ public class DataManagement {
     public static final String ASSET_CALL = "%s%s/assets/request";
 
     // negotiation request 0.5.>=1
-    public static final String NEGOTIATION_REQUEST_BODY = "{\n" +
-            "\"@context\": { \"odrl\": \"http://www.w3.org/ns/odrl/2/\"},\n" +
-            "\"@type\": \"NegotiationInitiateRequestDto\",\n" +
-            "\"connectorAddress\": \"%1$s\",\n" +
-            "\"protocol\": \"dataspace-protocol-http\",\n" +
-            "\"providerId\": \"%3$s\",\n" +
-            "\"connectorId\": \"%2$s\",\n" +
-            "\"offer\": {\n" +
-            "  \"offerId\": \"%4$s\",\n" +
-            "  \"assetId\": \"%5$s\",\n" +
-            "  \"policy\": %6$s\n" +
-            "}\n" +
-            "}";
+    public static final String NEGOTIATION_REQUEST_BODY =
+            "{\n" +
+                    "    \"@context\": {\n" +
+                    "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n" +
+                    "    },\n" +
+                    "    \"@type\": \"https://w3id.org/edc/v0.0.1/ns/ContractRequest\",\n" +
+                    "    \"counterPartyAddress\": \"%1$s\",\n" +
+                    "    \"protocol\": \"dataspace-protocol-http\",\n" +
+                    "    \"policy\": {\n" +
+                    "        \"@context\": \"http://www.w3.org/ns/odrl.jsonld\",\n" +
+                    "        \"@type\": \"odrl:Offer\",\n" +
+                    "        \"@id\": \"%4$s\",\n" +
+                    "        \"target\": \"%5$s\",\n" +
+                    "        \"assigner\": \"%3$s\",\n" +
+                    "        \"odrl:permission\": %6$s,\n" +
+                    "        \"odrl:prohibition\": %7$s,\n" +
+                    "        \"odrl:obligation\": %8$s\n" +
+                    "    }\n" +
+                    "}";
 
     public static final String NEGOTIATION_INITIATE_CALL = "%s/v2/contractnegotiations";
     public static final String NEGOTIATION_CHECK_CALL = "%s/v2/contractnegotiations/%s";
@@ -133,28 +141,25 @@ public class DataManagement {
 
     public static final String TRANSFER_REQUEST_BODY = "{\n" +
             "    \"@context\": {\n" +
-            "        \"odrl\": \"http://www.w3.org/ns/odrl/2/\"\n" +
+            "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n" +
             "    },\n" +
+            "    \"@type\": \"TransferRequest\",\n" +
             "    \"assetId\": \"%1$s\",\n" +
-            "    \"connectorAddress\": \"%2$s\",\n" +
-            "    \"connectorId\": \"%5$s\",\n" +
             "    \"contractId\": \"%3$s\",\n" +
+            "    \"counterPartyAddress\": \"%2$s\",\n" +
             "    \"dataDestination\": {\n" +
             "        \"type\": \"HttpProxy\"\n" +
             "    },\n" +
-            "    \"managedResources\": false,\n" +
             "    \"protocol\": \"dataspace-protocol-http\",\n" +
-            "    \"transferType\": {\n" +
-            "        \"contentType\": \"application/octet-stream\",\n" +
-            "        \"isFinite\": true\n" +
-            "    }\n" +
+            "    \"transferType\": \"HttpData-PULL\",\n" +
+            "    \"privateProperties\": {},\n" +
             "    \"callbackAddresses\": [\n" +
             "      {\n" +
             "        \"transactional\": false,\n" +
             "        \"uri\": \"%4$s\",\n" +
             "        \"events\": [\n" +
             "          \"transfer.process.started\"\n" +
-            "        ],\n" +
+            "        ]\n" +
             "      }\n" +
             "    ] \n" +
             "}";
@@ -198,20 +203,24 @@ public class DataManagement {
         QuerySpec findAsset = QuerySpec.Builder.newInstance().filter(
                 List.of(new Criterion("https://w3id.org/edc/v0.0.1/ns/id", "=", assetId))
         ).build();
-        return getCatalog(remoteControlPlaneIdsUrl, findAsset);
+        String partnerId = config.getDataspaceSynchronizationConnectors().entrySet()
+                .stream().filter(entry -> entry.getValue().equals(remoteControlPlaneIdsUrl))
+                .findFirst().map(entry -> entry.getKey()).orElse(UUID.randomUUID().toString());
+        return getCatalog(partnerId, remoteControlPlaneIdsUrl, findAsset);
     }
 
     /**
      * Access the catalogue
      *
+     * @param partnerId                business partner id
      * @param remoteControlPlaneIdsUrl url of the remote control plane ids endpoint
      * @param spec                     query specification
      * @return catalog object
      * @throws IOException in case something went wrong
      */
-    public DcatCatalog getCatalog(String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
+    public DcatCatalog getCatalog(String partnerId, String remoteControlPlaneIdsUrl, QuerySpec spec) throws IOException {
         var url = String.format(CATALOG_CALL, config.getControlPlaneManagementUrl());
-        var catalogSpec = String.format(CATALOG_REQUEST_BODY, String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
+        var catalogSpec = String.format(CATALOG_REQUEST_BODY, partnerId, String.format(DSP_PATH, remoteControlPlaneIdsUrl), objectMapper.writeValueAsString(spec));
 
         var request = new Request.Builder().url(url).post(RequestBody.create(catalogSpec, MediaType.parse("application/json")));
         config.getControlPlaneManagementHeaders().forEach(request::addHeader);
@@ -388,7 +397,10 @@ public class DataManagement {
                 negotiationRequest.getRemoteBusinessPartnerNumber(),
                 negotiationRequest.getOffer().getOfferId(),
                 negotiationRequest.getOffer().getAssetId(),
-                negotiationRequest.getOffer().getPolicy().asString());
+                negotiationRequest.getOffer().getPolicy().getPermissionAsString(),
+                negotiationRequest.getOffer().getPolicy().getObligationAsString(),
+                negotiationRequest.getOffer().getPolicy().getProhibitionAsString()
+                );
 
         var requestBody = RequestBody.create(negotiateSpec, MediaType.parse("application/json"));
 
@@ -490,8 +502,7 @@ public class DataManagement {
                 transferRequest.getAssetId(),
                 transferRequest.getConnectorAddress(),
                 transferRequest.getContractId(),
-                transferRequest.getCallbackAddresses().get(0).getUri(),
-                transferRequest.getConnectorAddress());
+                transferRequest.getCallbackAddresses().get(0).getUri());
 
         var requestBody = RequestBody.create(transferSpec, MediaType.parse("application/json"));
 
