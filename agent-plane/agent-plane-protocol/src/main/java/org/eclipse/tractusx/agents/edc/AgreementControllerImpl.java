@@ -110,7 +110,7 @@ public class AgreementControllerImpl implements AgreementController {
      */
     @Override
     public String toString() {
-        return super.toString() + "/endpoint-data-reference";
+        return super.toString() + "/transfer-process-started";
     }
 
     /**
