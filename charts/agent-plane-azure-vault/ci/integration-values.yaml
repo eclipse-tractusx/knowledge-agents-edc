@@ -27,7 +27,7 @@ install:
 image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-azure-vault
 #  tag: 1.12.19-SNAPSHOT
-  
+
 controlplane:
   endpoints:
     management:
@@ -42,14 +42,14 @@ token:
     publickey_alias: "cert"
 
 iatp:
- sts:
-  oauth:
-   token_url: "http://keycloak/oauth/token"
-   client:
-    id: "dummy"
-    secret_alias: "dummy"
-  dim:
-    url: "http://sts.server"
+  sts:
+    oauth:
+      token_url: "http://keycloak/oauth/token"
+    client:
+      id: "dummy"
+      secret_alias: "dummy"
+    dim:
+      url: "http://sts.server"
 
 vault:
   azure:
