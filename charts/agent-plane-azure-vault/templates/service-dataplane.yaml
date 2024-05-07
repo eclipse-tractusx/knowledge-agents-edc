@@ -35,27 +35,17 @@ spec:
       targetPort: default
       protocol: TCP
       name: default
-    - port: {{ $dataplane.endpoints.control.port }}
+    - port: {{ $dataplane.endpoints.signaling.port }}
       targetPort: control
       protocol: TCP
-      name: control
+      name: signaling
     - port: {{ $dataplane.endpoints.public.port }}
       targetPort: public
       protocol: TCP
       name: public
-    - port: {{ $dataplane.endpoints.metrics.port }}
-      targetPort: metrics
-      protocol: TCP
-      name: metrics
-    - port: {{ $dataplane.endpoints.proxy.port }}
-      targetPort: proxy
-      protocol: TCP
-      name: proxy
-  {{- if $dataplane.endpoints.callback }}
     - port: {{ $dataplane.endpoints.callback.port }}
       targetPort: callback
       protocol: TCP
       name: callback
-  {{- end }}
   selector:
     {{- include "txdc.dataplane.selectorLabels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}

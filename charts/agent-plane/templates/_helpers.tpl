@@ -168,12 +168,12 @@ Data Control URL (Expects the Chart Root to be accessible via .root, the current
 Data Public URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txdc.dataplane.url.public" -}}
-{{- $dataplane := .dataplane -}}
-{{- $root := .root -}}
-{{- if .dataplane.url.public }}{{/* if public api url has been specified explicitly */}}
-{{- .dataplane.url.public }}
+{{- $dataplane := .Values -}}
+{{- $root := . -}}
+{{- if $dataplane.url.public }}{{/* if public api url has been specified explicitly */}}
+{{- $dataplane.url.public }}
 {{- else }}{{/* else when public api url has not been specified explicitly */}}
-{{- with (index .dataplane.ingresses 0) }}
+{{- with (index $dataplane.ingresses 0) }}
 {{- if .enabled }}{{/* if ingress enabled */}}
 {{- if .tls.enabled }}{{/* if TLS enabled */}}
 {{- printf "https://%s%s" .hostname $dataplane.endpoints.public.path -}}
@@ -203,7 +203,7 @@ Create the name of the service account to use
 join a map
 */}}
 {{- define "txdc.remotes" -}}
-{{- $res := := dict "servers" (list) -}}
+{{- $res := dict "servers" (list) -}}
 {{- range $bpn, $connector := .Values.agent.connectors -}}
 {{- $noop := printf "$s=%s" $bpn $connector | append $res.servers | set $res "servers" -}}
 {{- end -}}

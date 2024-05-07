@@ -51,5 +51,11 @@ home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
 sources:
   - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
 dependencies:
+  # PostgreSQL
+  - name: postgresql
+    alias: postgresql
+    version: "15.2.1"
+    repository: https://charts.bitnami.com/bitnami
+    condition: install.postgresql
 maintainers:
   - name: 'Tractus-X Knowledge Agents Team'

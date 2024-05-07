@@ -3,7 +3,7 @@
 {{ $dataplane := .Values }}
 ---
 #
-#  Copyright (c) 2023, 2024 T-Systems International GmbH
+#  Copyright (c) 2023,2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
@@ -63,11 +63,9 @@ spec:
           securityContext:
             {{- toYaml $dataplane.securityContext | nindent 12 }}
           {{- if $dataplane.image.repository }}
-          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default "0.6.0" }}"
-          {{- else if $dataplane.agent }}
-          image: "{{ $root.Values.imageRegistry }}tractusx/agentplane-azure-vault:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
           {{- else }}
-          image: "tractusx/edc-data-plane-azure-vault:{{ $dataplane.image.tag | default "0.6.0" }}"
+          image: "{{ $root.Values.imageRegistry }}tractusx/agentplane-azure-vault:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ $dataplane.image.pullPolicy }}
           ports:
@@ -112,23 +110,87 @@ spec:
             {{- end }}
           {{- end }}
 
+            ########################
+            ## ID CONFIGURATION ##
+            ########################
+            - name: EDC_PARTICIPANT_ID
+              value: {{ .Values.participant.id | required ".Values.participant.id is required" | quote }}
+            - name: "EDC_IAM_ISSUER_ID"
+              value: {{ .Values.iatp.id | required ".Values.iatp.id is required" | quote}}
+              
             #######
             # API #
             #######
+            - name: "EDC_API_AUTH_KEY"
+              value: {{ .Values.controlplane.endpoints.management.authKey | required ".Values.controlplane.endpoints.mangement.authKey is required" | quote }}
+
             - name: "WEB_HTTP_DEFAULT_PORT"
               value: {{ $dataplane.endpoints.default.port | quote }}
             - name: "WEB_HTTP_DEFAULT_PATH"
               value: {{ $dataplane.endpoints.default.path | quote }}
-            - name: "WEB_HTTP_CONTROL_PORT"
-              value: {{ $dataplane.endpoints.control.port | quote }}
-            - name: "WEB_HTTP_CONTROL_PATH"
-              value: {{ $dataplane.endpoints.control.path | quote }}
             - name: "WEB_HTTP_PUBLIC_PORT"
               value: {{ $dataplane.endpoints.public.port | quote }}
             - name: "WEB_HTTP_PUBLIC_PATH"
               value: {{ $dataplane.endpoints.public.path | quote }}
+            - name: "WEB_HTTP_SIGNALING_PORT"
+              value: {{ $dataplane.endpoints.signaling.port | quote }}
+            - name: "WEB_HTTP_SIGNALING_PATH"
+              value: {{ $dataplane.endpoints.signaling.path | quote }}
+            - name: "WEB_HTTP_CALLBACK_PORT"
+              value: {{ $dataplane.endpoints.callback.port | quote }}
+            - name: "WEB_HTTP_CALLBACK_PATH"
+              value: {{ $dataplane.endpoints.callback.path | quote }}
+
             - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
               value: {{ include "txdc.controlplane.url.validation" $root}}
+
+            ###########
+            ## VAULT ##
+            ###########
+
+            - name: "EDC_VAULT_CLIENTID"
+              value: {{ .Values.vault.azure.client | quote  }}
+            - name: "EDC_VAULT_TENANTID"
+              value: {{ .Values.vault.azure.tenant | quote }}
+            - name: "EDC_VAULT_NAME"
+              value: {{ .Values.vault.azure.name | quote }}
+            # only set the env var if config value not null
+            {{- if .Values.vault.azure.secret }}
+            - name: "EDC_VAULT_CLIENTSECRET"
+              value: {{ .Values.vault.azure.secret | quote }}
+            {{- end }}
+            # only set the env var if config value not null
+            {{- if .Values.vault.azure.certificate }}
+            - name: "EDC_VAULT_CERTIFICATE"
+              value: {{ .Values.vault.azure.certificate | quote }}
+            {{- end }}
+
+            ##################
+            ## TOKEN REFRESH
+            ##################
+            {{- if $dataplane.token.refresh.expiry_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY"
+              value: {{ $dataplane.token.refresh.expiry_seconds | quote}}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.expiry_tolerance_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY_TOLERANCE"
+              value: {{ $dataplane.token.refresh.expiry_tolerance_seconds | quote }}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.refresh_endpoint }}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ $dataplane.token.refresh.refresh_endpoint }}
+            {{- else}}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ include "txdc.dataplane.url.public" . }}/token
+            {{- end}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
+              value: {{ $dataplane.token.signer.privatekey_alias | required ".Values.token.signer.privatekey_alias is required" | quote}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS"
+              value: {{ $dataplane.token.verifier.publickey_alias | required ".Values.token.verifier.publickey_alias" | quote }}
 
             ###################
             # AUTH (JWT)      #
@@ -166,50 +228,58 @@ spec:
           {{- end }}
           {{- end }}
 
-          {{- if $dataplane.endpoints.callback }}
+            #############################
+            ## IATP / STS / DIM CONFIG ##
+            #############################
+            - name: "EDC_IAM_STS_OAUTH_TOKEN_URL"
+              value: {{ .Values.iatp.sts.oauth.token_url | required ".Values.iatp.sts.oauth.token_url is required" | quote}}
+            - name: "EDC_IAM_STS_OAUTH_CLIENT_ID"
+              value: {{ .Values.iatp.sts.oauth.client.id | required ".Values.iatp.sts.oauth.client.id is required" | quote}}
+            - name: "EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS"
+              value: {{ .Values.iatp.sts.oauth.client.secret_alias | required ".Values.iatp.sts.oauth.client.secret_alias is required" | quote}}
+            - name: "EDC_IAM_STS_DIM_URL"
+              value: {{ .Values.iatp.sts.dim.url | required ".Values.iatp.sts.dim.url is required" | quote}}
+          {{- range $key, $value := .Values.iatp.trustedIssuers }}
+            - name: {{- printf "EDC_IAM_TRUSTED-ISSUER_%s_ID" (upper $key) | quote }}
+              value: {{- $value | quote }}
+          {{- end }}
+
+            #########################
+            ## DATA PLANE PUBLIC API
+            ########################
+            - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
+              value: {{ include "txdc.dataplane.url.public" . }}
 
             ###################
             # AGENT CALLBACK  #
             ###################
-            - name: "WEB_HTTP_CALLBACK_PORT"
-              value: {{ $dataplane.endpoints.callback.port | quote }}
-            - name: "WEB_HTTP_CALLBACK_PATH"
-              value: {{ $dataplane.endpoints.callback.path | quote }}
             - name: "CX_AGENT_CALLBACK"
               value: {{ printf "http://%s-%s:%v%s/endpoint-data-reference" ( include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
-            - name: "EDC_API_AUTH_KEY"
-              value: {{ $root.Values.controlplane.endpoints.management.authKey | required ".Values.controlplane.endpoints.mangement.authKey is required" | quote }}
-            - name: "EDC_PARTICIPANT_ID"
-              value: {{ $root.Values.participant.id | quote }}
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
               value: {{ printf "http://%s-controlplane:%v" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.protocol.port | quote }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
               value: {{ printf "http://%s-controlplane:%v%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path | quote }}
-          {{- end }}
-
-          {{- if $dataplane.agent }}
-            - name: "CX_AGENT_EDC_VERSION"
-              value: {{ $dataplane.agent.edcVersion | quote }}
-          {{- end }}
 
           {{- if $dataplane.agent.matchmaking }}
             - name: "CX_AGENT_MATCHMAKING"
               value: {{ $dataplane.agent.matchmaking | quote }}
           {{- end }}
 
-          {{- if $dataplane.agent.default }}
+          {{- if $dataplane.agent.skillcontract }}
+            - name: "CX_AGENT_SKILL_CONTRACT_DEFAULT"
+              value: {{ $dataplane.agent.skillcontract | quote }}
+          {{- end }}
 
+          {{- if $dataplane.agent.default }}
             ###############
             # AGENT INIT  #
             ###############
             - name: "CX_AGENT_ASSET_FILE"
               value: {{ join "," $dataplane.agent.default | quote }} 
-            - name: "CX_AGENT_SKILL_CONTRACT_DEFAULT"
-              value: {{ $dataplane.agent.skillcontract | quote }}
           {{- end }}
 
-          {{- if $dataplane.agent.services }}
 
+          {{- if $dataplane.agent.services }}
             ###################
             # AGENT SERVICES #
             ###################
@@ -233,18 +303,15 @@ spec:
           {{- end }}
           {{- end }}
           
-          {{- if $dataplane.agent.connectors }}
-
             ###################
             # AGENT SYNC      #
             ###################
             - name: "CX_AGENT_DATASPACE_REMOTES"
-              value: {{ join "," $dataplane.agent.connectors | quote }} 
+              value: {{- include "txdc.remotes" . }}
             - name: "CX_AGENT_DATASPACE_SYNCHRONIZATION"
               value: {{ $dataplane.agent.synchronization | required (printf ".Values.dataplane.%s.agent.synchronization should be set if connectors are specified" $dataplane_name) | quote }}
             - name: "CX_AGENT_FEDERATION_BATCH_MAX"
               value: {{ $dataplane.agent.maxbatchsize | quote }} 
-          {{- end }}
 
             #######
             # AWS #
@@ -262,26 +329,39 @@ spec:
               value: {{ $dataplane.aws.accessKeyId | quote }}
             {{- end }}
 
-            ###########
-            ## VAULT ##
-            ###########
+            ################
+            ## POSTGRESQL ##
+            ################
 
-            - name: "EDC_VAULT_CLIENTID"
-              value: {{ .Values.vault.azure.client | quote  }}
-            - name: "EDC_VAULT_TENANTID"
-              value: {{ .Values.vault.azure.tenant | quote }}
-            - name: "EDC_VAULT_NAME"
-              value: {{ .Values.vault.azure.name | quote }}
-            # only set the env var if config value not null
-            {{- if .Values.vault.azure.secret }}
-            - name: "EDC_VAULT_CLIENTSECRET"
-              value: {{ .Values.vault.azure.secret | quote }}
-            {{- end }}
-            # only set the env var if config value not null
-            {{- if .Values.vault.azure.certificate }}
-            - name: "EDC_VAULT_CERTIFICATE"
-              value: {{ .Values.vault.azure.certificate | quote }}
-            {{- end }}
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/common/store/sql/edr-index-sql
+            - name: "EDC_DATASOURCE_EDR_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_EDR_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_EDR_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_EDR_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
+
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/data-plane/store/sql/data-plane-store-sql
+            - name: "EDC_DATASOURCE_DATAPLANE_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_DATAPLANE_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_DATAPLANE_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_DATAPLANE_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
+
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/data-plane/store/sql/accesstokendata-store-sql
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
 
             ######################################
             ## Additional environment variables ##

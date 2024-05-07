@@ -24,7 +24,9 @@
 # Declare variables to be passed into your templates.
 
 install:
+  postgresql: false
   vault: false
+
 fullnameOverride: ""
 nameOverride: ""
 # -- Image registry to use
@@ -34,9 +36,36 @@ imagePullSecrets: []
 # -- To add some custom labels
 customLabels: {}
 
+postgresql:
+  jdbcUrl: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/edc"
+  primary:
+    persistence:
+      enabled: false
+  readReplicas:
+    persistence:
+      enabled: false
+  auth:
+    database: "edc"
+    username: "user"
+    password: "password"
+
 participant:
   # -- BPN Number
   id: ""
+
+iatp:
+  # Decentralized IDentifier
+  id: "did:web:changeme"
+  # -- Configures the trusted issuers for this runtime
+  trustedIssuers: []
+  sts:
+    dim:
+      url:
+    oauth:
+      token_url:
+      client:
+        id:
+        secret_alias:
 
 # -- References to the control plane deployment
 controlplane:
@@ -61,6 +90,7 @@ controlplane:
       port: 8084
       # -- path for incoming api calls
       path: /api/v1/dsp
+
 # -- the name of the dataplane
 name: "agentplane"
 # -- a comma-separated list of supported asset types
@@ -116,18 +146,26 @@ endpoints:
   public:
     port: 8081
     path: /api/public
-  control:
+  signaling:
     port: 8083
-    path: /api/dataplane/control
-  proxy:
-    port: 8186
-    path: /proxy
+    path: /api/signaling
   callback:
     port: 8087
     path: /callback
-  metrics:
-    port: 9090
-    path: /metrics
+
+token:
+  refresh:
+    expiry_seconds: 300
+    expiry_tolerance_seconds: 10
+    # optional URL that can be provided where clients go to refresh tokens.
+    refresh_endpoint:
+  signer:
+    # alias under which the private key is stored in the vault (JWK or PEM format)
+    privatekey_alias:
+  verifier:
+    # alias under which the public key is stored in the vault, that belongs to the private key ("privatekey_alias", JWK or PEM format)
+    publickey_alias:
+
 # -- Data Plane Authentication using the KA-EDC-AUTH-JWT extension, any entry has a type (api-key, jwt or composite) and a (set of) path contexts (see endpoints) followed by type-specific entries
 auth:
   # -- the default authentication service

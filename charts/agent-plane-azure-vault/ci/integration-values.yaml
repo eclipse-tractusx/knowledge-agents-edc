@@ -22,11 +22,34 @@
 #
 
 install:
+  postgresql: true
 
+image:
+  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-azure-vault
+  tag: 1.12.19-SNAPSHOT
+  
 controlplane:
   endpoints:
     management:
       authKey: "bla"
+
+token:
+  signer:
+    # alias under which the private key is stored in the vault (JWK or PEM format)
+    privatekey_alias: "key"
+  verifier:
+    # alias under which the public key is stored in the vault, that belongs to the private key ("privatekey_alias", JWK or PEM format)
+    publickey_alias: "cert"
+
+iatp:
+ sts:
+  oauth:
+   token_url: "http://keycloak/oauth/token"
+   client:
+    id: "dummy"
+    secret_alias: "dummy"
+  dim:
+    url: "http://sts.server"
 
 vault:
   azure:
