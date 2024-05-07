@@ -90,8 +90,6 @@ public class AgentConfig {
     public static final String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
     public static final String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
-    public static final String TX_EDC_VERSION_PROPERTY = "cx.agent.edc.version";
-
     public static final String MATCHMAKING_URL = "cx.agent.matchmaking";
 
     /**
@@ -381,24 +379,6 @@ public class AgentConfig {
      */
     public Pattern getServiceAssetDenyPattern() {
         return serviceAssetDenyPattern;
-    }
-
-    /**
-     * access
-     *
-     * @return tx edc version as a string
-     */
-    public String getEdcVersion() {
-        return config.getString(TX_EDC_VERSION_PROPERTY, "0.5.0");
-    }
-
-    /**
-     * check
-     *
-     * @return whether the edc version is less than 23.09
-     */
-    public boolean isPrerelease() {
-        return getEdcVersion().compareTo("0.5.0") <= 0;
     }
 
     /**

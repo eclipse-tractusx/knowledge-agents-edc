@@ -389,7 +389,7 @@ public class AgreementControllerImpl implements AgreementController {
         startTime = System.currentTimeMillis();
 
         // EDC 0.5.1 has a problem with the checker configuration and wont process to COMPLETED
-        String expectedTransferState = config.isPrerelease() ? "COMPLETED" : "STARTED";
+        String expectedTransferState = "STARTED";
 
         try {
             while ((System.currentTimeMillis() - startTime < config.getNegotiationTimeout()) && (process == null || !process.getState().equals(expectedTransferState))) {

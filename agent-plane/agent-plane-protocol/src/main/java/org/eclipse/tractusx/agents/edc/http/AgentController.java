@@ -455,7 +455,7 @@ public class AgentController {
                               @QueryParam("denyServicesPattern") String denyServicePattern,
                               @QueryParam("ontology") String[] ontologies
     ) {
-        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s %s %s ", asset, name, description, version, contract, mode.getMode(), isFederated, allowServicePattern, denyServicePattern, query));
+        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s %s %s ", asset, name, description, version, contract, mode, isFederated, allowServicePattern, denyServicePattern, query));
         Response.ResponseBuilder rb;
         if (skillStore.put(asset, query, name, description, version, contract, mode, isFederated, allowServicePattern, denyServicePattern, ontologies) != null) {
             rb = Response.ok();

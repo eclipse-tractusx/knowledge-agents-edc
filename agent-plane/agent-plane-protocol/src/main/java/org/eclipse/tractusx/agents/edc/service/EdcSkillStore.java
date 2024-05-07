@@ -64,6 +64,9 @@ public class EdcSkillStore implements SkillStore {
         if (contract == null) {
             contract = config.getDefaultSkillContract();
         }
+        if (dist == null) {
+            dist = SkillDistribution.ALL;
+        }
         String ontologiesString = String.join(",", ontologies);
         try {
             return management.createOrUpdateSkill(
