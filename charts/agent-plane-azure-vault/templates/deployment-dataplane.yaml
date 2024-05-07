@@ -254,7 +254,7 @@ spec:
             # AGENT CALLBACK  #
             ###################
             - name: "CX_AGENT_CALLBACK"
-              value: {{ printf "http://%s-%s:%v%s/endpoint-data-reference" ( include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
+              value: {{ printf "http://%s-%s:%v%s/transfer-process-started" ( include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
               value: {{ printf "http://%s-controlplane:%v" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.protocol.port | quote }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
