@@ -25,9 +25,9 @@ install:
   postgresql: true
 
 image:
-  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-hashicorp
-  tag: 1.12.19-SNAPSHOT
-  
+#  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-hashicorp
+#  tag: 1.12.19-SNAPSHOT
+
 controlplane:
   endpoints:
     management:
