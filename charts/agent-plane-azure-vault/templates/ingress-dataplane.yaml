@@ -1,12 +1,10 @@
-{{- $fullName := include "txdc.fullname" . }}
+{{- $fullName := include "txap.fullname" . }}
 {{- $gitVersion := .Capabilities.KubeVersion.GitVersion }}
 {{- $namespace := .Release.Namespace }}
 {{ $dataplane_name := .Values.name }}
 {{ $dataplane := .Values }}
-{{ $root := . }}
 {{- $dataEdcEndpoints := $dataplane.endpoints }}
-{{- $dataLabels := include "txdc.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
-
+{{- $dataLabels := include "txap.dataplane.labels" . | nindent 4 }}
 {{- range $dataplane.ingresses }}
 {{- if and .enabled .endpoints }}
 {{- $dataIngressName := printf "%s-%s-%s" $fullName $dataplane.name .hostname }}

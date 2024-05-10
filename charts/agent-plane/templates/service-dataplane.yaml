@@ -1,6 +1,3 @@
-{{ $root := . }}
-{{ $dataplane_name := .Values.name }}
-{{ $dataplane := .Values }}
 ---
 #
 #  Copyright (c) 2024 T-Systems International GmbH
@@ -24,28 +21,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "txdc.fullname" $root }}-{{ $dataplane.name }}
-  namespace: {{ $root.Release.Namespace | default "default" | quote }}
+  name: {{ include "txap.fullname" . }}-{{ .Values.name }}
+  namespace: {{.Release.Namespace | default "default" | quote }}
   labels:
-    {{- include "txdc.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
+    {{- include "txap.dataplane.labels" . | nindent 4 }}
 spec:
-  type: {{ $dataplane.service.type }}
+  type: {{ .Values.service.type }}
   ports:
-    - port: {{ $dataplane.endpoints.default.port }}
+    - port: {{ .Values.endpoints.default.port }}
       targetPort: default
       protocol: TCP
       name: default
-    - port: {{ $dataplane.endpoints.signaling.port }}
+    - port: {{ .Values.endpoints.signaling.port }}
       targetPort: control
       protocol: TCP
       name: signaling
-    - port: {{ $dataplane.endpoints.public.port }}
+    - port: {{ .Values.endpoints.public.port }}
       targetPort: public
       protocol: TCP
       name: public
-    - port: {{ $dataplane.endpoints.callback.port }}
+    - port: {{ .Values.endpoints.callback.port }}
       targetPort: callback
       protocol: TCP
       name: callback
   selector:
-    {{- include "txdc.dataplane.selectorLabels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
+    {{- include "txap.dataplane.selectorLabels" . | nindent 4 }}

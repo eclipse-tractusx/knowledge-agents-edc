@@ -28,14 +28,14 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "txdc.fullname" $root }}-{{ $dataplane.name }}
+  name: {{ include "txap.fullname" $root }}-{{ $dataplane.name }}
   labels:
-    {{- include "txdc.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
+    {{- include "txap.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "txdc.fullname" $root }}-{{ $dataplane.name }}
+    name: {{ include "txap.fullname" $root }}-{{ $dataplane.name }}
   minReplicas: {{ $dataplane.autoscaling.minReplicas }}
   maxReplicas: {{ $dataplane.autoscaling.maxReplicas }}
   metrics:

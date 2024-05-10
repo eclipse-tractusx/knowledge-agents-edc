@@ -1,4 +1,3 @@
-{{ $root := . }}
 {{ $dataplane_name := .Values.name }}
 {{ $dataplane := .Values }}
 ---
@@ -27,16 +26,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "txdc.fullname" $root }}-{{ $dataplane.name }}
+  name: {{ include "txap.fullname" . }}-{{ $dataplane.name }}
   labels:
-    {{- include "txdc.dataplane.labels" (dict "dataplane" $dataplane "root" $root) | nindent 4 }}
+    {{- include "txap.dataplane.labels" . | nindent 4 }}
 spec:
   {{- if not $dataplane.autoscaling.enabled }}
   replicas: {{ $dataplane.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "txdc.dataplane.selectorLabels" (dict "dataplane" $dataplane "root" $root) | nindent 6 }}
+      {{- include "txap.dataplane.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with $dataplane.podAnnotations }}
@@ -44,28 +43,28 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "txdc.dataplane.selectorLabels" (dict "dataplane" $dataplane "root" $root) | nindent 8 }}
+        {{- include "txap.dataplane.selectorLabels" . | nindent 8 }}
         {{- with $dataplane.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with $root.Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "txdc.serviceAccountName" $root }}
+      serviceAccountName: {{ include "txap.serviceAccountName" . }}
       securityContext:
         {{- toYaml $dataplane.podSecurityContext | nindent 8 }}
       initContainers:
         {{- toYaml $dataplane.initContainers | nindent 8 }}
       containers:
-        - name: {{ $root.Chart.Name }}
+        - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml $dataplane.securityContext | nindent 12 }}
           {{- if $dataplane.image.repository }}
-          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
           {{- else }}
-          image: "{{ $root.Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "{{ .Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ $dataplane.image.pullPolicy }}
           ports:
@@ -117,7 +116,7 @@ spec:
               value: {{ .Values.participant.id | required ".Values.participant.id is required" | quote }}
             - name: "EDC_IAM_ISSUER_ID"
               value: {{ .Values.iatp.id | required ".Values.iatp.id is required" | quote}}
-              
+
             #######
             # API #
             #######
@@ -142,7 +141,7 @@ spec:
               value: {{ $dataplane.endpoints.callback.path | quote }}
 
             - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
-              value: {{ include "txdc.controlplane.url.validation" $root}}
+              value: {{ include "txap.controlplane.url.validation" .}}
 
             ###########
             ## VAULT ##
@@ -182,7 +181,7 @@ spec:
               value: {{ $dataplane.token.refresh.refresh_endpoint }}
             {{- else}}
             - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
-              value: {{ include "txdc.dataplane.url.public" . }}/token
+              value: {{ include "txap.agentplane.url.public" . }}/token
             {{- end}}
 
             - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
@@ -195,7 +194,7 @@ spec:
             # AUTH (JWT)      #
             ###################
           {{- if $dataplane.auth }}
-          {{- range $auth, $authDef := $dataplane.auth }} 
+          {{- range $auth, $authDef := $dataplane.auth }}
             - name: {{ printf "TRACTUSX_AUTH_%s_TYPE" (upper $auth) | quote }}
               value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
             - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
@@ -208,19 +207,19 @@ spec:
             - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
               value: {{ $authDef.register | quote }}
           {{- end }}
-          {{- if $authDef.apiCode }}   
+          {{- if $authDef.apiCode }}
             - name: {{ printf "TRACTUSX_AUTH_%s_APICODE" (upper $auth) | quote }}
               value: {{ $authDef.apiCode | quote }}
           {{- end }}
-          {{- if $authDef.vaultKey }}   
+          {{- if $authDef.vaultKey }}
             - name: {{ printf "TRACTUSX_AUTH_%s_VAULTKEY" (upper $auth) | quote }}
               value: {{ $authDef.vaultKey | quote }}
           {{- end }}
-          {{- if $authDef.publicKey }}   
+          {{- if $authDef.publicKey }}
             - name: {{ printf "TRACTUSX_AUTH_%s_PUBLICKEY" (upper $auth) | quote }}
               value: {{ $authDef.publicKey | quote }}
           {{- end }}
-          {{- if $authDef.checkExpiry }}   
+          {{- if $authDef.checkExpiry }}
             - name: {{ printf "TRACTUSX_AUTH_%s_CHECKEXPIRY" (upper $auth) | quote }}
               value: {{ $authDef.checkExpiry | quote }}
           {{- end }}
@@ -238,26 +237,26 @@ spec:
               value: {{ .Values.iatp.sts.oauth.client.secret_alias | required ".Values.iatp.sts.oauth.client.secret_alias is required" | quote}}
             - name: "EDC_IAM_STS_DIM_URL"
               value: {{ .Values.iatp.sts.dim.url | required ".Values.iatp.sts.dim.url is required" | quote}}
-          {{- range $key, $value := .Values.iatp.trustedIssuers }}
-            - name: {{- printf "EDC_IAM_TRUSTED-ISSUER_%s_ID" (upper $key) | quote }}
-              value: {{- $value | quote }}
-          {{- end }}
+            {{- range $index, $issuer := .Values.iatp.trustedIssuers }}
+            - name: "EDC_IAM_TRUSTED-ISSUER_{{$index}}-ISSUER_ID"
+              value: {{ $issuer | quote }}
+            {{- end }}
 
             #########################
             ## DATA PLANE PUBLIC API
             ########################
             - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
-              value: {{ include "txdc.dataplane.url.public" . }}
+              value: {{ include "txap.agentplane.url.public" . }}
 
             ###################
             # AGENT CALLBACK  #
             ###################
             - name: "CX_AGENT_CALLBACK"
-              value: {{ printf "http://%s-%s:%v%s/transfer-process-started" ( include "txdc.fullname" $root ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
+              value: {{ printf "http://%s-%s:%v%s/transfer-process-started" ( include "txap.fullname" . ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
-              value: {{ printf "http://%s-controlplane:%v" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.protocol.port | quote }}
+              value: {{ printf "http://%s-controlplane:%v" ( include "txap.fullname" . ) .Values.controlplane.endpoints.protocol.port | quote }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
-              value: {{ printf "http://%s-controlplane:%v%s" ( include "txdc.fullname" $root ) $root.Values.controlplane.endpoints.management.port $root.Values.controlplane.endpoints.management.path | quote }}
+              value: {{ printf "http://%s-controlplane:%v%s" ( include "txap.fullname" . ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path | quote }}
 
           {{- if $dataplane.agent.matchmaking }}
             - name: "CX_AGENT_MATCHMAKING"
@@ -276,7 +275,6 @@ spec:
             - name: "CX_AGENT_ASSET_FILE"
               value: {{ join "," $dataplane.agent.default | quote }} 
           {{- end }}
-
 
           {{- if $dataplane.agent.services }}
             ###################
@@ -306,7 +304,7 @@ spec:
             # AGENT SYNC      #
             ###################
             - name: "CX_AGENT_DATASPACE_REMOTES"
-              value: {{- include "txdc.remotes" . }}
+              value: {{ include "txap.remotes" . }}
             - name: "CX_AGENT_DATASPACE_SYNCHRONIZATION"
               value: {{ $dataplane.agent.synchronization | required (printf ".Values.dataplane.%s.agent.synchronization should be set if connectors are specified" $dataplane_name) | quote }}
             - name: "CX_AGENT_FEDERATION_BATCH_MAX"
@@ -366,7 +364,7 @@ spec:
             ## Additional environment variables ##
             ######################################
             - name: "EDC_CONNECTOR_NAME"
-              value: {{ include "txdc.fullname" $root}}-{{ $dataplane.name }}
+              value: {{ include "txap.fullname" .}}-{{ $dataplane.name }}
           {{- range $key, $value := $dataplane.envValueFrom }}
             - name: {{ $key | quote }}
               valueFrom:
@@ -405,7 +403,7 @@ spec:
       volumes:
         - name: "configuration"
           configMap:
-            name: {{ include "txdc.fullname" $root }}-{{ $dataplane_name }}
+            name: {{ include "txap.fullname" . }}-{{ $dataplane_name }}
             items:
               - key: "opentelemetry.properties"
                 path: "opentelemetry.properties"
