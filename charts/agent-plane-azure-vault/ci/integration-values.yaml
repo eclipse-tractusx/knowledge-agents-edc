@@ -24,7 +24,7 @@
 install:
   postgresql: true
 
-image:
+#image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-azure-vault
 #  tag: 1.12.19-SNAPSHOT
 
