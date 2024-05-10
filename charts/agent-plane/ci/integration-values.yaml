@@ -3,7 +3,7 @@
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
 #  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
-#  Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
+#  Copyright (c) 2021, 2024 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -24,6 +24,9 @@
 install:
   postgresql: true
 
+participant:
+  id: "BPNL0000000DUMMY"
+
 #image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-hashicorp
 #  tag: 1.12.19-SNAPSHOT
@@ -32,24 +35,6 @@ controlplane:
   endpoints:
     management:
       authKey: "bla"
-
-token:
-  signer:
-    # alias under which the private key is stored in the vault (JWK or PEM format)
-    privatekey_alias: "key"
-  verifier:
-    # alias under which the public key is stored in the vault, that belongs to the private key ("privatekey_alias", JWK or PEM format)
-    publickey_alias: "cert"
-
-iatp:
-  sts:
-    oauth:
-      token_url: "http://keycloak/oauth/token"
-    client:
-      id: "dummy"
-      secret_alias: "dummy"
-    dim:
-      url: "http://sts.server"
 
 vault:
   azure:
@@ -66,5 +51,23 @@ vault:
     transferProxyTokenSignerPrivateKey: "key"
     transferProxyTokenSignerPublicKey: "cert"
     transferProxyTokenEncryptionAesKey: "symmetric-key"
-participant:
-  id: "BPNL0000000DUMMY"
+
+token:
+  signer:
+    # alias under which the private key is stored in the vault (JWK or PEM format)
+    privatekey_alias: "key"
+  verifier:
+    # alias under which the public key is stored in the vault, that belongs to the private key ("privatekey_alias", JWK or PEM format)
+    publickey_alias: "cert"
+
+iatp:
+  sts:
+    oauth:
+      token_url: "http://keycloak/oauth/token"
+      client:
+        id: "dummy"
+        secret_alias: "dummy"
+    dim:
+      url: "http://sts.server"
+
+
