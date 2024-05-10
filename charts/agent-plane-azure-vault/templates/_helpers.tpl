@@ -179,7 +179,7 @@ Data Public URL
 {{- printf "http://%s%s" .hostname $.Values.endpoints.public.path -}}
 {{- end }}{{/* end if tls */}}
 {{- else }}{{/* else when ingress not enabled */}}
-{{- printf "http://%s-dataplane:%v%s" (include "txdc.fullname" . ) $.Values.endpoints.public.port $.Values.endpoints.public.path -}}
+{{- printf "http://%s-dataplane:%v%s" (include "txap.fullname" $ ) $.Values.endpoints.public.port $.Values.endpoints.public.path -}}
 {{- end }}{{/* end if ingress */}}
 {{- end }}{{/* end with ingress */}}
 {{- end }}{{/* end if .Values.url.public */}}
