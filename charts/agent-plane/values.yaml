@@ -93,6 +93,8 @@ controlplane:
       port: 8084
       # -- path for incoming api calls
       path: /api/v1/dsp
+  ingresses:
+   - enabled: false
 
 # -- the name of the dataplane
 name: "agentplane"

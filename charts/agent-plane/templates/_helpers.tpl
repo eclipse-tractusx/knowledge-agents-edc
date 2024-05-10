@@ -113,7 +113,7 @@ Create the name of the service account to use
 Control DSP URL
 */}}
 {{- define "txap.controlplane.url.protocol" -}}
-{{- if .Values.controlplane.url.protocol }}{{/* if dsp api url has been specified explicitly */}}
+{{- if (and .Values.controlplane.url .Values.controlplane.url.protocol) }}{{/* if dsp api url has been specified explicitly */}}
 {{- .Values.controlplane.url.protocol }}
 {{- else }}{{/* else when dsp api url has not been specified explicitly */}}
 {{- with (index .Values.controlplane.ingresses 0) }}
@@ -124,7 +124,7 @@ Control DSP URL
 {{- printf "http://%s" .hostname -}}
 {{- end }}{{/* end if tls */}}
 {{- else }}{{/* else when ingress not enabled */}}
-{{- printf "http://%s-controlplane:%v" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.protocol.port -}}
+{{- printf "http://%s-controlplane:%v" ( include "txap.connector.fullname" $ ) $.Values.controlplane.endpoints.protocol.port -}}
 {{- end }}{{/* end if ingress */}}
 {{- end }}{{/* end with ingress */}}
 {{- end }}{{/* end if .Values.controlplane.url.protocol */}}
@@ -138,6 +138,13 @@ Validation URL
 {{- end }}
 
 {{/*
+Validation URL
+*/}}
+{{- define "txap.controlplane.url.management" -}}
+{{- printf "http://%s-controlplane:%v%s/management" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path -}}
+{{- end }}
+
+{{/*
 Data Control URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txap.dataplane.url.signaling" -}}
@@ -145,9 +152,16 @@ Data Control URL (Expects the Chart Root to be accessible via .root, the current
 {{- end }}
 
 {{/*
+Data Control URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
+*/}}
+{{- define "txap.dataplane.url.callback" -}}
+{{- printf "http://%s-dataplane:%v%s" (include "txap.fullname" . ) .Values.endpoints.callback.port .Values.endpoints.callback.path -}}
+{{- end }}
+
+{{/*
 Data Public URL
 */}}
-{{- define "txap.agentplane.url.public" -}}
+{{- define "txap.dataplane.url.public" -}}
 {{- if .Values.url.public }}{{/* if public api url has been specified explicitly */}}
 {{- .Values.url.public }}
 {{- else }}{{/* else when public api url has not been specified explicitly */}}

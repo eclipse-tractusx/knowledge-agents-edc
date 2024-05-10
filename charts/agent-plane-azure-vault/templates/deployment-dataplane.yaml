@@ -182,7 +182,7 @@ spec:
               value: {{ $dataplane.token.refresh.refresh_endpoint }}
             {{- else}}
             - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
-              value: {{ include "txap.agentplane.url.public" . }}/token
+              value: {{ include "txap.dataplane.url.public" . }}/token
             {{- end}}
 
             - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
@@ -247,18 +247,18 @@ spec:
             ## DATA PLANE PUBLIC API
             ########################
             - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
-              value: {{ include "txap.agentplane.url.public" . }}
+              value: {{ include "txap.dataplane.url.public" . }}
 
             ###################
             # AGENT CALLBACK  #
             ###################
             - name: "CX_AGENT_CALLBACK"
-              value: {{ printf "http://%s-%s:%v%s/transfer-process-started" ( include "txap.fullname" . ) $dataplane.name $dataplane.endpoints.callback.port $dataplane.endpoints.callback.path | quote }}
+              value: {{ include "txap.dataplane.url.callback" . }}/transfer-process-started"
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
-              value: {{ printf "http://%s-controlplane:%v" ( include "txap.fullname" . ) .Values.controlplane.endpoints.protocol.port | quote }}
+              value: {{ include "txap.controlplane.url.protocol" . }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
-              value: {{ printf "http://%s-controlplane:%v%s" ( include "txap.fullname" . ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path | quote }}
-
+              value: {{ include "txap.controlplane.url.management" . }}
+ 
           {{- if $dataplane.agent.matchmaking }}
             - name: "CX_AGENT_MATCHMAKING"
               value: {{ $dataplane.agent.matchmaking | quote }}
