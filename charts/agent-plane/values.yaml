@@ -67,6 +67,9 @@ iatp:
         id:
         secret_alias:
 
+# -- Name of the connector deployment
+connector: ""
+
 # -- References to the control plane deployment
 controlplane:
   endpoints:

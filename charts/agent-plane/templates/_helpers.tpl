@@ -46,6 +46,19 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 
 {{/*
+Create a default fully qualified app name for the connector.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "txap.connector.fullname" -}}
+{{- if .Values.connector }}
+{{- printf "%s-%s" .Release.Name .Values.connector | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s" .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "txap.chart" -}}
@@ -64,20 +77,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Control Common labels
-*/}}
-{{- define "txap.controlplane.labels" -}}
-helm.sh/chart: {{ include "txap.chart" . }}
-{{ include "txap.controlplane.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/component: edc-controlplane
-app.kubernetes.io/part-of: edc
-{{- end }}
-
-{{/*
 Data Common labels (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txap.dataplane.labels" -}}
@@ -92,30 +91,11 @@ app.kubernetes.io/part-of: edc
 {{- end }}
 
 {{/*
-Control Selector labels
-*/}}
-{{- define "txap.controlplane.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "txap.name" . }}-controlplane
-app.kubernetes.io/instance: {{ .Release.Name }}-controlplane
-{{- end }}
-
-{{/*
 Data Selector labels (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txap.dataplane.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "txap.name" . }}-{{ .Values.name }}
 app.kubernetes.io/instance: {{ .Release.Name }}-{{ .Values.name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "txap.controlplane.serviceaccount.name" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "txap.fullname" . ) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
 {{- end }}
 
 {{/*
@@ -144,7 +124,7 @@ Control DSP URL
 {{- printf "http://%s" .hostname -}}
 {{- end }}{{/* end if tls */}}
 {{- else }}{{/* else when ingress not enabled */}}
-{{- printf "http://%s-controlplane:%v" ( include "txap.fullname" $ ) .Values.controlplane.endpoints.protocol.port -}}
+{{- printf "http://%s-controlplane:%v" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.protocol.port -}}
 {{- end }}{{/* end if ingress */}}
 {{- end }}{{/* end with ingress */}}
 {{- end }}{{/* end if .Values.controlplane.url.protocol */}}
@@ -154,7 +134,7 @@ Control DSP URL
 Validation URL
 */}}
 {{- define "txap.controlplane.url.validation" -}}
-{{- printf "http://%s-controlplane:%v%s/token" ( include "txap.fullname" $ ) .Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
+{{- printf "http://%s-controlplane:%v%s/token" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
 {{- end }}
 
 {{/*
@@ -195,7 +175,6 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
 
 {{/*
 join a map
