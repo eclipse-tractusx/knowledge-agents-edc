@@ -133,15 +133,15 @@ Control DSP URL
 {{/*
 Validation URL
 */}}
-{{- define "txap.controlplane.url.validation" -}}
-{{- printf "http://%s-controlplane:%v%s/token" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
+{{- define "txap.controlplane.url.control" -}}
+{{- printf "http://%s-controlplane:%v%s" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
 {{- end }}
 
 {{/*
 Validation URL
 */}}
 {{- define "txap.controlplane.url.management" -}}
-{{- printf "http://%s-controlplane:%v%s/management" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path -}}
+{{- printf "http://%s-controlplane:%v%s" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path -}}
 {{- end }}
 
 {{/*

@@ -141,7 +141,7 @@ spec:
               value: {{ $dataplane.endpoints.callback.path | quote }}
 
             - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
-              value: {{ include "txap.controlplane.url.validation" .}}
+              value: {{ include "txap.controlplane.url.control" .}}/token
 
             ###########
             ## VAULT ##
