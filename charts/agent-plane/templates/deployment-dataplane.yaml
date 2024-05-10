@@ -64,7 +64,7 @@ spec:
           {{- if $dataplane.image.repository }}
           image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
           {{- else }}
-          image: "{{ .Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default $root.Chart.AppVersion }}"
+          image: "{{ .Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
           {{- end }}
           imagePullPolicy: {{ $dataplane.image.pullPolicy }}
           ports:
@@ -149,19 +149,19 @@ spec:
 
             # see extension https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-extensions/hashicorp-vault
             - name: "EDC_VAULT_HASHICORP_URL"
-              value: {{ tpl $root.Values.vault.hashicorp.url $root | required ".Values.vault.hashicorp.url is required" | quote }}
+              value: {{ tpl .Values.vault.hashicorp.url . | required ".Values.vault.hashicorp.url is required" | quote }}
             - name: "EDC_VAULT_HASHICORP_TOKEN"
-              value: {{ $root.Values.vault.hashicorp.token | required ".Values.vault.hashicorp.token is required" | quote }}
+              value: {{ .Values.vault.hashicorp.token | required ".Values.vault.hashicorp.token is required" | quote }}
             - name: "EDC_VAULT_HASHICORP_TIMEOUT_SECONDS"
-              value: {{ $root.Values.vault.hashicorp.timeout | quote }}
+              value: {{ .Values.vault.hashicorp.timeout | quote }}
             - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_ENABLED"
-              value: {{ $root.Values.vault.hashicorp.healthCheck.enabled | quote }}
+              value: {{ .Values.vault.hashicorp.healthCheck.enabled | quote }}
             - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_STANDBY_OK"
-              value: {{ $root.Values.vault.hashicorp.healthCheck.standbyOk | quote }}
+              value: {{ .Values.vault.hashicorp.healthCheck.standbyOk | quote }}
             - name: "EDC_VAULT_HASHICORP_API_SECRET_PATH"
-              value: {{ $root.Values.vault.hashicorp.paths.secret | quote }}
+              value: {{ .Values.vault.hashicorp.paths.secret | quote }}
             - name: "EDC_VAULT_HASHICORP_API_HEALTH_CHECK_PATH"
-              value: {{ $root.Values.vault.hashicorp.paths.health | quote }}
+              value: {{ .Values.vault.hashicorp.paths.health | quote }}
 
             ##################
             ## TOKEN REFRESH
