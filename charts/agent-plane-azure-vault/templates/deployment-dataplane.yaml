@@ -253,7 +253,7 @@ spec:
             # AGENT CALLBACK  #
             ###################
             - name: "CX_AGENT_CALLBACK"
-              value: {{ include "txap.dataplane.url.callback" . }}/transfer-process-started"
+              value: {{ include "txap.dataplane.url.callback" . }}/transfer-process-started
             - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
               value: {{ include "txap.controlplane.url.protocol" . }}
             - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
