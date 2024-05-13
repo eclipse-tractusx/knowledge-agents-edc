@@ -114,7 +114,10 @@ jobs:
       # install the chart to the kind cluster and run helm test
       # define charts to test with the --charts parameter
       - name: Run chart-testing (install)
-        run: ct install --charts charts/agent-plane,charts/agent-plane-azure-vault --config charts/config/chart-testing-config.yaml --helm-extra-set-args="--set=imageRegistry=kind-registry:5000/"
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add hashicorp https://helm.releases.hashicorp.com
+          ct install --charts charts/agent-plane,charts/agent-plane-azure-vault --config charts/config/chart-testing-config.yaml --helm-extra-set-args="--set=imageRegistry=kind-registry:5000/"
         if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
 
       # Upgrade the released chart version with the locally available chart
