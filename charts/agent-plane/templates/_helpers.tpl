@@ -141,21 +141,21 @@ Validation URL
 Validation URL
 */}}
 {{- define "txap.controlplane.url.management" -}}
-{{- printf "http://%s-controlplane:%v%" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path -}}
+{{- printf "http://%s-controlplane:%v%s" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.management.port .Values.controlplane.endpoints.management.path -}}
 {{- end }}
 
 {{/*
 Data Control URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txap.dataplane.url.signaling" -}}
-{{- printf "http://%s-dataplane:%v%s" (include "txap.fullname" . ) .Values.endpoints.signaling.port .Values.endpoints.signaling.path -}}
+{{- printf "http://%s-%s:%v%s" (include "txap.fullname" . ) .Values.name .Values.endpoints.signaling.port .Values.endpoints.signaling.path -}}
 {{- end }}
 
 {{/*
 Data Control URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
 {{- define "txap.dataplane.url.callback" -}}
-{{- printf "http://%s-dataplane:%v%s" (include "txap.fullname" . ) .Values.endpoints.callback.port .Values.endpoints.callback.path -}}
+{{- printf "http://%s-%s:%v%s" (include "txap.fullname" . ) .Values.name .Values.endpoints.callback.port .Values.endpoints.callback.path -}}
 {{- end }}
 
 {{/*
@@ -173,7 +173,7 @@ Data Public URL
 {{- printf "http://%s%s" .hostname $.Values.endpoints.public.path -}}
 {{- end }}{{/* end if tls */}}
 {{- else }}{{/* else when ingress not enabled */}}
-{{- printf "http://%s-dataplane:%v%s" (include "txap.fullname" $ ) $.Values.endpoints.public.port $.Values.endpoints.public.path -}}
+{{- printf "http://%s-%s:%v%s" (include "txap.fullname" $ ) $.Values.name $.Values.endpoints.public.port $.Values.endpoints.public.path -}}
 {{- end }}{{/* end if ingress */}}
 {{- end }}{{/* end with ingress */}}
 {{- end }}{{/* end if .Values.url.public */}}
