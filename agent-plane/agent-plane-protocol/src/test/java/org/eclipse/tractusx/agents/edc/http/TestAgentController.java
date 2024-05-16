@@ -80,7 +80,7 @@ public class TestAgentController extends RestControllerTestBase {
 
 
     SparqlQueryProcessor processor=new SparqlQueryProcessor(serviceExecutorReg,monitor,agentConfig,store, typeManager);
-    InMemorySkillStore skillStore=new InMemorySkillStore();
+    InMemorySkillStore skillStore=new InMemorySkillStore(agentConfig);
 
     DelegationServiceImpl delegationService=new DelegationServiceImpl(mockController,monitor,client,typeManager,agentConfig);
     AgentController agentController=new AgentController(monitor,mockController,agentConfig,processor,skillStore,delegationService);

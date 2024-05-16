@@ -99,6 +99,7 @@ public class AgentConfig {
     protected final Pattern serviceDenyPattern;
     protected final Pattern serviceAssetAllowPattern;
     protected final Pattern serviceAssetDenyPattern;
+    protected static final Pattern ASSET_REFERENCE_PATTERN = Pattern.compile("((?<url>[^#]+)#)?(?<asset>.+)");
 
     /**
      * references to EDC services
@@ -379,6 +380,15 @@ public class AgentConfig {
      */
     public Pattern getServiceAssetDenyPattern() {
         return serviceAssetDenyPattern;
+    }
+
+    /**
+     * access
+     *
+     * @return regular expression for asset references
+     */
+    public static Pattern getAssetReferencePattern() {
+        return ASSET_REFERENCE_PATTERN;
     }
 
     /**

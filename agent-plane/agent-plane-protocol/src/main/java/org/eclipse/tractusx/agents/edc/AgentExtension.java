@@ -52,7 +52,6 @@ import org.eclipse.tractusx.agents.edc.validation.SwitchingDataPlaneTokenValidat
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.regex.Pattern;
 
 /**
  * EDC extension that initializes the Agent subsystem (Agent Sources, Agent Endpoint and Federation Callbacks
@@ -65,9 +64,6 @@ public class AgentExtension implements ServiceExtension {
      */
     protected static final String DEFAULT_CONTEXT_ALIAS = "default";
     protected static final String CALLBACK_CONTEXT_ALIAS = "callback";
-    public static final Pattern GRAPH_PATTERN = Pattern.compile("((?<url>[^#]+)#)?(?<graph>.*Graph(Asset)?.*)");
-    public static final Pattern SKILL_PATTERN = Pattern.compile("((?<url>[^#]+)#)?(?<skill>.*Skill(Asset)?.*)");
-
 
     /**
      * dependency injection part
