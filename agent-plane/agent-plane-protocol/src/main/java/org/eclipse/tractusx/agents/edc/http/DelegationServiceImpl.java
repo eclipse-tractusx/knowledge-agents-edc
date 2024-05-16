@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -183,8 +184,8 @@ public class DelegationServiceImpl implements DelegationService {
         return new DelegationResponse(sendRequest(newRequest, response), Response.status(response.getStatus()).build());
     }
 
-    protected static final Pattern PARAMETER_KEY_ALLOW = Pattern.compile("^(?!asset$)[^&?=]+$");
-    protected static final Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^.+$");
+    protected static final Pattern PARAMETER_KEY_ALLOW = Pattern.compile("^(?<param>(?!asset$)[^&?=]+)$");
+    protected static final Pattern PARAMETER_VALUE_ALLOW = Pattern.compile("^(?<value>[^&]+)$");
 
     /**
      * computes the url to target the given data plane
@@ -209,11 +210,13 @@ public class DelegationServiceImpl implements DelegationService {
         HttpUrl.Builder httpBuilder = Objects.requireNonNull(okhttp3.HttpUrl.parse(url)).newBuilder();
         for (Map.Entry<String, List<String>> param : uri.getQueryParameters().entrySet()) {
             String key = param.getKey();
-            if (PARAMETER_KEY_ALLOW.matcher(key).matches()) {
+            Matcher keyMatcher = PARAMETER_KEY_ALLOW.matcher(key);
+            if (keyMatcher.matches()) {
+                String recodeKey = HttpUtils.urlEncodeParameter(keyMatcher.group("param"));
                 for (String value : param.getValue()) {
-                    if (PARAMETER_VALUE_ALLOW.matcher(value).matches()) {
-                        String recodeKey = HttpUtils.urlEncodeParameter(key);
-                        String recodeValue = HttpUtils.urlEncodeParameter(value);
+                    Matcher valueMatcher = PARAMETER_VALUE_ALLOW.matcher(value);
+                    if (valueMatcher.matches()) {
+                        String recodeValue = HttpUtils.urlEncodeParameter(valueMatcher.group("value"));
                         httpBuilder = httpBuilder.addQueryParameter(recodeKey, recodeValue);
                     }
                 }
