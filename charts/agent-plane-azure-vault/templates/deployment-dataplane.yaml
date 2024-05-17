@@ -147,20 +147,20 @@ spec:
             ## VAULT ##
             ###########
 
-            - name: "EDC_VAULT_CLIENTID"
+            - name: "AZURE_CLIENT_ID"
               value: {{ .Values.vault.azure.client | quote  }}
-            - name: "EDC_VAULT_TENANTID"
+            - name: "AZURE_TENANT_ID"
               value: {{ .Values.vault.azure.tenant | quote }}
             - name: "EDC_VAULT_NAME"
               value: {{ .Values.vault.azure.name | quote }}
             # only set the env var if config value not null
             {{- if .Values.vault.azure.secret }}
-            - name: "EDC_VAULT_CLIENTSECRET"
+            - name: "AZURE_CLIENT_SECRET"
               value: {{ .Values.vault.azure.secret | quote }}
             {{- end }}
             # only set the env var if config value not null
             {{- if .Values.vault.azure.certificate }}
-            - name: "EDC_VAULT_CERTIFICATE"
+            - name: "AZURE_CLIENT_CERTIFICATE"
               value: {{ .Values.vault.azure.certificate | quote }}
             {{- end }}
 
