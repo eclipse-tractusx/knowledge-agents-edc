@@ -33,7 +33,7 @@ spec:
       protocol: TCP
       name: default
     - port: {{ .Values.endpoints.signaling.port }}
-      targetPort: control
+      targetPort: signaling
       protocol: TCP
       name: signaling
     - port: {{ .Values.endpoints.public.port }}
