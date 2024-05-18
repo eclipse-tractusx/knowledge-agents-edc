@@ -39,9 +39,9 @@ controlplane:
 vault:
   azure:
     name: "AZURE_NAME"
-    tenant: "AZURE_TENANT"
-    client: "AZURE_CLIENT"
-    secret: "AZURE_SECRET"
+    tenant: ""
+    client: ""
+    secret: ""
   hashicorp:
     url: "https://vault.demo"
     token: "VAULT_TOKEN"
