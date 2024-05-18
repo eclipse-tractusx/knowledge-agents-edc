@@ -369,10 +369,10 @@ agent:
 vault:
   azure:
     name: "<AZURE_NAME>"
-    client: 
-    tenant: 
-    secret: 
-    certificate: 
+    client:
+    tenant:
+    secret:
+    certificate:
 
   secretNames:
     # -- sign handed out tokens with this key
