@@ -30,6 +30,7 @@ All notable changes to this product will be documented in this file.
 
 - Federated Catalogue: Support for sh:shape in top-level graph for implementing goal-oriented skills, operate according to the CS 24.05 standard
 - Matchmaking Agent: Possibility to use an external matchmaking agent (which can host actual graph data)
+- Charts for Agent Plane Only Deployments (agent-plane, agent-plane-vault) in Umbrella with Tractus-X Connector (tractusx-connector, tractusx-connector-azure-vault)
 
 ### Changed
 
@@ -40,6 +41,7 @@ All notable changes to this product will be documented in this file.
 ### Removed
 
 - Support for Tractus-X EDC <0.6.x, compatibility modes
+- Charts for Complete Connector Deployments (agent-connector)
 
 ## [1.11.16] - 2024-02-20
 

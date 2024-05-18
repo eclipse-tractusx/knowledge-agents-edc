@@ -21,12 +21,12 @@
 
 # agent-plane
 
-![Version: 1.12.19-SNAPSHOT](https://img.shields.io/badge/Version-1.12.18--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.19-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.18--SNAPSHOT-informational?style=flat-square)
+![Version: 1.12.19-SNAPSHOT](https://img.shields.io/badge/Version-1.12.19--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.19-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.19--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers at a running
 Control Plane.
 
-This chart is intended for use with an _existing_ HashiCorp Vault.
+This chart is intended for use with an _existing_ HashiCorp Vault and Tractusx Connector.
 
 **Homepage:** <https://github.com/eclipse-tractusx/knowledge-agents-edc/>
 
@@ -76,15 +76,16 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://helm.releases.hashicorp.com | vault(vault) | 0.20.0 |
+| https://charts.bitnami.com/bitnami | postgresql(postgresql) | 15.2.1 |
+| https://helm.releases.hashicorp.com | vault(vault) | 0.27.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| agent | object | `{"connectors":[],"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
-| agent.connectors | list | `[]` | The list of remote connector IDS URLs to synchronize with |
+| agent | object | `{"connectors":{},"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
+| agent.connectors | object | `{}` | A map of partner ids to remote connector IDS URLs to synchronize with |
 | agent.default | list | `["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"]` | A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue |
 | agent.maxbatchsize | string | `"9223372036854775807"` | Sets the maximal batch size when delegating to agents and services |
 | agent.services | object | `{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"}` | A set of configs for regulating outgoing service calls |
@@ -115,30 +116,18 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | aws.secretAccessKey | string | `""` |  |
 | configs | object | `{"dataspace.ttl":"#################################################################\n# Catena-X Agent Bootstrap Graph in TTL/RDF/OWL FORMAT\n#################################################################\n@prefix : <GraphAsset?local=Dataspace> .\n@base <GraphAsset?local=Dataspace> .\n"}` | A set of additional configuration files |
 | configs."dataspace.ttl" | string | `"#################################################################\n# Catena-X Agent Bootstrap Graph in TTL/RDF/OWL FORMAT\n#################################################################\n@prefix : <GraphAsset?local=Dataspace> .\n@base <GraphAsset?local=Dataspace> .\n"` | An example of an empty graph in ttl syntax |
+| connector | string | `""` | Name of the connector deployment |
+| controlplane | object | `{"endpoints":{"control":{"path":"/control","port":8083},"management":{"authKey":"","path":"/management","port":8081},"protocol":{"path":"/api/v1/dsp","port":8084}},"ingresses":[{"enabled":false}]}` | References to the control plane deployment |
+| controlplane.endpoints.control | object | `{"path":"/control","port":8083}` | control api, used for internal control calls. can be added to the internal ingress, but should probably not |
+| controlplane.endpoints.control.path | string | `"/control"` | path for incoming api calls |
+| controlplane.endpoints.control.port | int | `8083` | port for incoming api calls |
 | controlplane.endpoints.management | object | `{"authKey":"","path":"/management","port":8081}` | data management api, used by internal users, can be added to an ingress and must not be internet facing |
 | controlplane.endpoints.management.authKey | string | `""` | authentication key, must be attached to each 'X-Api-Key' request header |
 | controlplane.endpoints.management.path | string | `"/management"` | path for incoming api calls |
 | controlplane.endpoints.management.port | int | `8081` | port for incoming api calls |
-| controlplane.ingresses[0].annotations | object | `{}` | Additional ingress annotations to add |
-| controlplane.ingresses[0].certManager.clusterIssuer | string | `""` | If preset enables certificate generation via cert-manager cluster-wide issuer |
-| controlplane.ingresses[0].certManager.issuer | string | `""` | If preset enables certificate generation via cert-manager namespace scoped issuer |
-| controlplane.ingresses[0].className | string | `""` | Defines the [ingress class](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class)  to use |
-| controlplane.ingresses[0].enabled | bool | `false` |  |
-| controlplane.ingresses[0].endpoints | list | `["protocol"]` | EDC endpoints exposed by this ingress resource |
-| controlplane.ingresses[0].hostname | string | `"edc-control.local"` | The hostname to be used to precisely map incoming traffic onto the underlying network service |
-| controlplane.ingresses[0].tls | object | `{"enabled":false,"secretName":""}` | TLS [tls class](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) applied to the ingress resource |
-| controlplane.ingresses[0].tls.enabled | bool | `false` | Enables TLS on the ingress resource |
-| controlplane.ingresses[0].tls.secretName | string | `""` | If present overwrites the default secret name |
-| controlplane.ingresses[1].annotations | object | `{}` | Additional ingress annotations to add |
-| controlplane.ingresses[1].certManager.clusterIssuer | string | `""` | If preset enables certificate generation via cert-manager cluster-wide issuer |
-| controlplane.ingresses[1].certManager.issuer | string | `""` | If preset enables certificate generation via cert-manager namespace scoped issuer |
-| controlplane.ingresses[1].className | string | `""` | Defines the [ingress class](https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class)  to use |
-| controlplane.ingresses[1].enabled | bool | `false` |  |
-| controlplane.ingresses[1].endpoints | list | `["management","control"]` | EDC endpoints exposed by this ingress resource |
-| controlplane.ingresses[1].hostname | string | `"edc-control.intranet"` | The hostname to be used to precisely map incoming traffic onto the underlying network service |
-| controlplane.ingresses[1].tls | object | `{"enabled":false,"secretName":""}` | TLS [tls class](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) applied to the ingress resource |
-| controlplane.ingresses[1].tls.enabled | bool | `false` | Enables TLS on the ingress resource |
-| controlplane.ingresses[1].tls.secretName | string | `""` | If present overwrites the default secret name |
+| controlplane.endpoints.protocol | object | `{"path":"/api/v1/dsp","port":8084}` | dsp api, used for inter connector communication and must be internet facing |
+| controlplane.endpoints.protocol.path | string | `"/api/v1/dsp"` | path for incoming api calls |
+| controlplane.endpoints.protocol.port | int | `8084` | port for incoming api calls |
 | customLabels | object | `{}` | To add some custom labels |
 | debug.enabled | bool | `false` |  |
 | debug.port | int | `1044` |  |
@@ -146,21 +135,23 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | destinationTypes | string | `"HttpProxy,AmazonS3"` | a comma-separated list of supported transfer types |
 | endpoints.callback.path | string | `"/callback"` |  |
 | endpoints.callback.port | int | `8087` |  |
-| endpoints.control.path | string | `"/api/dataplane/control"` |  |
-| endpoints.control.port | int | `8083` |  |
 | endpoints.default.path | string | `"/api"` |  |
 | endpoints.default.port | int | `8080` |  |
-| endpoints.metrics.path | string | `"/metrics"` |  |
-| endpoints.metrics.port | int | `9090` |  |
-| endpoints.proxy.path | string | `"/proxy"` |  |
-| endpoints.proxy.port | int | `8186` |  |
 | endpoints.public.path | string | `"/api/public"` |  |
 | endpoints.public.port | int | `8081` |  |
+| endpoints.signaling.path | string | `"/api/signaling"` |  |
+| endpoints.signaling.port | int | `8083` |  |
 | env | object | `{}` |  |
 | envConfigMapNames | list | `[]` |  |
 | envSecretNames | list | `[]` |  |
 | envValueFrom | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
+| iatp.id | string | `"did:web:changeme"` |  |
+| iatp.sts.dim.url | string | `nil` |  |
+| iatp.sts.oauth.client.id | string | `nil` |  |
+| iatp.sts.oauth.client.secret_alias | string | `nil` |  |
+| iatp.sts.oauth.token_url | string | `nil` |  |
+| iatp.trustedIssuers | list | `[]` | Configures the trusted issuers for this runtime |
 | image.pullPolicy | string | `"IfNotPresent"` | [Kubernetes image pull policy](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) to use |
 | image.repository | string | `""` | Which derivate of the data plane to use. when left empty the deployment will select the correct image automatically |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
@@ -177,7 +168,10 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | ingresses[0].tls.enabled | bool | `false` | Enables TLS on the ingress resource |
 | ingresses[0].tls.secretName | string | `""` | If present overwrites the default secret name |
 | initContainers | list | `[]` |  |
+| install.postgresql | bool | `false` |  |
 | install.vault | bool | `false` |  |
+| limits.cpu | float | `1.5` |  |
+| limits.memory | string | `"1024Mi"` |  |
 | livenessProbe.enabled | bool | `true` | Whether to enable kubernetes [liveness-probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) |
 | livenessProbe.failureThreshold | int | `6` | when a probe fails kubernetes will try 6 times before giving up |
 | livenessProbe.initialDelaySeconds | int | `30` | seconds to wait before performing the first liveness check |
@@ -197,6 +191,12 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | podSecurityContext.runAsGroup | int | `10001` | Processes within a pod will belong to this guid |
 | podSecurityContext.runAsUser | int | `10001` | Runs all processes within a pod with a special uid |
 | podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` | Restrict a Container's Syscalls with seccomp |
+| postgresql.auth.database | string | `"edc"` |  |
+| postgresql.auth.password | string | `"password"` |  |
+| postgresql.auth.username | string | `"user"` |  |
+| postgresql.jdbcUrl | string | `"jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/edc"` |  |
+| postgresql.primary.persistence.enabled | bool | `false` |  |
+| postgresql.readReplicas.persistence.enabled | bool | `false` |  |
 | readinessProbe.enabled | bool | `true` | Whether to enable kubernetes [readiness-probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) |
 | readinessProbe.failureThreshold | int | `6` | when a probe fails kubernetes will try 6 times before giving up |
 | readinessProbe.initialDelaySeconds | int | `30` | seconds to wait before performing the first readiness check |
@@ -204,6 +204,8 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | readinessProbe.successThreshold | int | `1` | number of consecutive successes for the probe to be considered successful after having failed |
 | readinessProbe.timeoutSeconds | int | `5` | number of seconds after which the probe times out |
 | replicaCount | int | `1` |  |
+| requests.cpu | string | `"500m"` |  |
+| requests.memory | string | `"128Mi"` |  |
 | resources | object | `{}` | [resource management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for the container |
 | securityContext.allowPrivilegeEscalation | bool | `false` | Controls [Privilege Escalation](https://kubernetes.io/docs/concepts/security/pod-security-policy/#privilege-escalation) enabling setuid binaries changing the effective user ID |
 | securityContext.capabilities.add | list | `[]` | Specifies which capabilities to add to issue specialized syscalls |
@@ -220,6 +222,11 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
 | sourceTypes | string | `"cx-common:Protocol?w3c:http:SPARQL,cx-common:Protocol?w3c:http:SKILL,HttpData,AmazonS3"` | a comma-separated list of supported asset types |
 | tests | object | `{"hookDeletePolicy":"before-hook-creation,hook-succeeded"}` | Configurations for Helm tests |
 | tests.hookDeletePolicy | string | `"before-hook-creation,hook-succeeded"` | Configure the hook-delete-policy for Helm tests |
+| token.refresh.expiry_seconds | int | `300` |  |
+| token.refresh.expiry_tolerance_seconds | int | `10` |  |
+| token.refresh.refresh_endpoint | string | `nil` |  |
+| token.signer.privatekey_alias | string | `nil` |  |
+| token.verifier.publickey_alias | string | `nil` |  |
 | tolerations | list | `[]` |  |
 | url.public | string | `""` | Explicitly declared url for reaching the public api (e.g. if ingresses not used) |
 | vault | object | `{"hashicorp":{"healthCheck":{"enabled":true,"standbyOk":true},"paths":{"health":"/v1/sys/health","secret":"/v1/secret"},"timeout":30,"token":"","url":"http://{{ .Release.Name }}-vault:8200"},"injector":{"enabled":false},"secretNames":{"transferProxyTokenEncryptionAesKey":null,"transferProxyTokenSignerPrivateKey":null,"transferProxyTokenSignerPublicKey":null},"server":{"dev":{"devRootToken":"root","enabled":true},"postStart":null}}` | Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden |

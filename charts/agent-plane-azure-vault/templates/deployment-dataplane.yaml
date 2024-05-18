@@ -147,10 +147,14 @@ spec:
             ## VAULT ##
             ###########
 
+            {{- if .Values.vault.azure.client }}
             - name: "AZURE_CLIENT_ID"
               value: {{ .Values.vault.azure.client | quote  }}
+            {{- end }}
+            {{- if .Values.vault.azure.tenant }}
             - name: "AZURE_TENANT_ID"
               value: {{ .Values.vault.azure.tenant | quote }}
+            {{- end }}
             - name: "EDC_VAULT_NAME"
               value: {{ .Values.vault.azure.name | quote }}
             # only set the env var if config value not null

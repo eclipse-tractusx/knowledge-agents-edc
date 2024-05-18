@@ -365,14 +365,14 @@ agent:
       # -- A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property)
       deny: 'https?://.*'
 
-# -- Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden
+# -- Standard settings for vault, "client", "tenant", "secret" or "certificate", "transferProxyTokenSignerPrivateKey" and "transferProxyTokenSignerPublicKey" need to be overridden
 vault:
   azure:
     name: "<AZURE_NAME>"
-    client: "<AZURE_CLIENT_ID>"
-    tenant: "<AZURE_TENANT_ID>"
-    secret:
-    certificate:
+    client: 
+    tenant: 
+    secret: 
+    certificate: 
 
   secretNames:
     # -- sign handed out tokens with this key
