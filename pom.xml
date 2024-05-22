@@ -44,7 +44,7 @@
         <failsafe.version>3.3.2</failsafe.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.6.0</okio.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
         <com.nimbusds.version>9.37.3</com.nimbusds.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
