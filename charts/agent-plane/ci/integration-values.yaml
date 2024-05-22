@@ -29,7 +29,7 @@ participant:
 
 # image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-hashicorp
-#  tag: 1.12.19-SNAPSHOT
+#  tag: 1.12.19
 
 controlplane:
   endpoints:
