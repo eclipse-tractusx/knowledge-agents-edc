@@ -53,7 +53,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@d43c1f16c00cfd3978dde6c07f4bbcf9eb6993ca # v0.16.1
         with:
@@ -99,7 +99,7 @@ jobs:
           fi
           exit 0
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
       # Enable repository access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
