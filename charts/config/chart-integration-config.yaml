@@ -18,7 +18,5 @@
 ---
 # Config for testing charts
 validate-maintainers: false
-helm-extra-args:
+helm-extra-set-args: "--set=imageRegistry=kind-registry:5000/"
 chart-repos:
- - helm=https://helm.releases.hashicorp.com
- - bitnami=https://charts.bitnami.com/bitnami

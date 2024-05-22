@@ -19,7 +19,9 @@ package org.eclipse.tractusx.agents.edc;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.system.configuration.Config;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -49,20 +51,20 @@ public class AgentConfig {
 
     public static final String NEGOTIATION_TIMEOUT_PROPERTY = "cx.agent.negotiation.timeout";
     public static final long DEFAULT_NEGOTIATION_TIMEOUT = 30000;
-    
+
     public static final String NEGOTIATION_POLLINTERVAL_PROPERTY = "cx.agent.negotiation.poll";
     public static final long DEFAULT_NEGOTIATION_POLLINTERVAL = 1000;
-    
+
     public static final String DATASPACE_SYNCINTERVAL_PROPERTY = "cx.agent.dataspace.synchronization";
     public static final long DEFAULT_DATASPACE_SYNCINTERVAL = -1;
-    
+
     public static final String DATASPACE_SYNCCONNECTORS_PROPERTY = "cx.agent.dataspace.remotes";
-        
+
     public static final String VALIDATION_ENDPOINTS = "edc.dataplane.token.validation.endpoints";
-    
+
     public static final String FEDERATION_SERVICE_BATCH_SIZE = "cx.agent.federation.batch.max";
     public static final long DEFAULT_FEDERATION_SERVICE_BATCH_SIZE = Long.MAX_VALUE;
-    
+
     public static final String THREAD_POOL_SIZE = "cx.agent.threadpool.size";
     public static final int DEFAULT_THREAD_POOL_SIZE = 4;
 
@@ -88,8 +90,6 @@ public class AgentConfig {
     public static final String SERVICE_DENY_ASSET_PROPERTY = "cx.agent.service.asset.deny";
     public static final String DEFAULT_SERVICE_DENY_ASSET_PATTERN = "^$";
 
-    public static final String TX_EDC_VERSION_PROPERTY = "cx.agent.edc.version";
-    
     public static final String MATCHMAKING_URL = "cx.agent.matchmaking";
 
     /**
@@ -99,7 +99,8 @@ public class AgentConfig {
     protected final Pattern serviceDenyPattern;
     protected final Pattern serviceAssetAllowPattern;
     protected final Pattern serviceAssetDenyPattern;
-    
+    protected static final Pattern ASSET_REFERENCE_PATTERN = Pattern.compile("((?<url>[^#]+)#)?(?<asset>.+)");
+
     /**
      * references to EDC services
      */
@@ -110,7 +111,7 @@ public class AgentConfig {
      * creates the typed config
      *
      * @param monitor logger
-     * @param config untyped config
+     * @param config  untyped config
      */
     public AgentConfig(Monitor monitor, Config config) {
         this.monitor = monitor;
@@ -242,19 +243,37 @@ public class AgentConfig {
         return config.getLong(DATASPACE_SYNCINTERVAL_PROPERTY, DEFAULT_DATASPACE_SYNCINTERVAL);
     }
 
+    protected volatile Map<String, String> knownConnectors;
+
     /**
      * access
      *
-     * @return array of connector urls to synchronize, null if no sync
+     * @return map of business partner ids to connector urls to synchronize with, null if no sync
      */
-    public String[] getDataspaceSynchronizationConnectors() {
-        String[] connectors = config.getString(DATASPACE_SYNCCONNECTORS_PROPERTY, "").split(",");
-        if (connectors.length == 1 && (connectors[0] == null || connectors[0].length() == 0)) {
-            return null;
+    public Map<String, String> getDataspaceSynchronizationConnectors() {
+        if (knownConnectors == null) {
+            synchronized (config) {
+                if (knownConnectors == null) {
+                    knownConnectors = new HashMap<>();
+                    String[] connectors = config.getString(DATASPACE_SYNCCONNECTORS_PROPERTY, "").split(",");
+                    for (String connector : connectors) {
+                        String[] entry = connector.split("=");
+                        if (entry.length > 0) {
+                            String key = UUID.randomUUID().toString();
+                            String value = entry[0];
+                            if (entry.length > 1) {
+                                key = entry[0];
+                                value = entry[1];
+                            }
+                            knownConnectors.put(key, value);
+                        }
+                    }
+                }
+            }
         }
-        return connectors;
+        return knownConnectors;
     }
-    
+
     /**
      * access
      *
@@ -326,7 +345,7 @@ public class AgentConfig {
     public String getDefaultSkillContract() {
         return config.getString(DEFAULT_SKILL_CONTRACT_PROPERTY, null);
     }
-    
+
     /**
      * access
      *
@@ -366,21 +385,12 @@ public class AgentConfig {
     /**
      * access
      *
-     * @return tx edc version as a string
+     * @return regular expression for asset references
      */
-    public String getEdcVersion() {
-        return config.getString(TX_EDC_VERSION_PROPERTY, "0.5.0");
+    public static Pattern getAssetReferencePattern() {
+        return ASSET_REFERENCE_PATTERN;
     }
 
-    /**
-     * check
-     *
-     * @return whether the edc version is less than 23.09
-     */
-    public boolean isPrerelease() {
-        return getEdcVersion().compareTo("0.5.0") <= 0;
-    }
-    
     /**
      * access
      *
@@ -389,5 +399,5 @@ public class AgentConfig {
     public String getMatchmakingAgentUrl() {
         return config.getString(MATCHMAKING_URL, null);
     }
-    
+
 }

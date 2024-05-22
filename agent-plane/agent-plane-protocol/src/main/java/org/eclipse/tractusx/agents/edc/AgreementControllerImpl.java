@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -28,6 +28,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.edc.connector.controlplane.transfer.spi.event.TransferProcessStarted;
+import org.eclipse.edc.spi.event.EventEnvelope;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.spi.types.domain.callback.CallbackAddress;
@@ -59,7 +61,7 @@ import java.util.Set;
  * An endpoint/service that receives information from the control plane
  */
 @Consumes({MediaType.APPLICATION_JSON})
-@Path("/endpoint-data-reference")
+@Path("/transfer-process-started")
 public class AgreementControllerImpl implements AgreementController {
 
     /**
@@ -108,7 +110,7 @@ public class AgreementControllerImpl implements AgreementController {
      */
     @Override
     public String toString() {
-        return super.toString() + "/endpoint-data-reference";
+        return super.toString() + "/transfer-process-started";
     }
 
     /**
@@ -117,21 +119,20 @@ public class AgreementControllerImpl implements AgreementController {
      * @param dataReference contains the actual call token
      */
     @POST
-    public void receiveEdcCallback(EndpointDataReference dataReference) {
-        var agreementId = dataReference.getId();
-        monitor.debug(String.format("An endpoint data reference for agreement %s has been posted.", agreementId));
-        synchronized (processStore) {
-            for (Map.Entry<String, TransferProcess> process : processStore.entrySet()) {
-                if (process.getValue().getId().equals(agreementId)) {
-                    synchronized (endpointStore) {
-                        monitor.debug(String.format("Agreement %s belongs to asset %s.", agreementId, process.getKey()));
-                        endpointStore.put(process.getKey(), dataReference);
-                        return;
-                    }
-                }
-            }
+    public void receiveEdcCallback(EventEnvelope<TransferProcessStarted> dataReference) {
+        var processId = dataReference.getPayload().getTransferProcessId();
+        var assetId = dataReference.getPayload().getAssetId();
+        monitor.debug(String.format("A transfer process %s for asset %s has been started.", processId, assetId));
+        synchronized (endpointStore) {
+            EndpointDataReference newRef = EndpointDataReference.Builder.newInstance()
+                    .id(dataReference.getId())
+                    .contractId(dataReference.getPayload().getContractId())
+                    .endpoint(dataReference.getPayload().getDataAddress().getStringProperty("https://w3id.org/edc/v0.0.1/ns/endpoint", null))
+                    .authKey("Authorization")
+                    .authCode(dataReference.getPayload().getDataAddress().getStringProperty("https://w3id.org/edc/v0.0.1/ns/authorization", null))
+                    .build();
+            endpointStore.put(assetId, newRef);
         }
-        monitor.debug(String.format("Agreement %s has no active asset. Guess that came for another plane. Ignoring.", agreementId));
     }
 
     /**
@@ -369,7 +370,7 @@ public class AgreementControllerImpl implements AgreementController {
         monitor.debug(String.format("About to initiate transfer for agreement %s (for asset %s at connector %s)", negotiation.getContractAgreementId(), asset, remoteUrl));
 
         String transferId;
-        TransferProcess process = null;
+        TransferProcess process;
 
         try {
             synchronized (processStore) {
@@ -388,7 +389,7 @@ public class AgreementControllerImpl implements AgreementController {
         startTime = System.currentTimeMillis();
 
         // EDC 0.5.1 has a problem with the checker configuration and wont process to COMPLETED
-        String expectedTransferState = config.isPrerelease() ? "COMPLETED" : "STARTED";
+        String expectedTransferState = "STARTED";
 
         try {
             while ((System.currentTimeMillis() - startTime < config.getNegotiationTimeout()) && (process == null || !process.getState().equals(expectedTransferState))) {

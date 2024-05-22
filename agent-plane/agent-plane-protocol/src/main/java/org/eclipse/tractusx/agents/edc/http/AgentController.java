@@ -32,7 +32,6 @@ import jakarta.ws.rs.core.UriInfo;
 import org.apache.http.HttpStatus;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
-import org.eclipse.tractusx.agents.edc.AgentExtension;
 import org.eclipse.tractusx.agents.edc.AgreementController;
 import org.eclipse.tractusx.agents.edc.SkillDistribution;
 import org.eclipse.tractusx.agents.edc.SkillStore;
@@ -62,6 +61,7 @@ public class AgentController {
     // the actual Matchmaking Agent is a Fuseki engine
     protected final SparqlQueryProcessor processor;
     protected final DelegationService delegationService;
+
 
     /**
      * creates a new agent controller
@@ -378,17 +378,15 @@ public class AgentController {
         String remoteUrl = null;
 
         if (asset != null) {
-            Matcher matcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
+            Matcher matcher = config.getAssetReferencePattern().matcher(asset);
             if (matcher.matches()) {
                 remoteUrl = matcher.group("url");
-                graph = matcher.group("graph");
-            } else {
-                matcher = SkillStore.matchSkill(asset);
-                if (!matcher.matches()) {
-                    return Response.status(Response.Status.BAD_REQUEST).build();
+                asset = matcher.group("asset");
+                if (asset.contains("Graph")) {
+                    graph = asset;
+                } else if (asset.contains("Skill")) {
+                    skill = asset;
                 }
-                remoteUrl = matcher.group("url");
-                skill = matcher.group("skill");
             }
         }
 
@@ -406,15 +404,14 @@ public class AgentController {
         }
 
         try {
-            // exchange skill against text
-            if (asset != null) {
-                if (skillStore.isSkill(asset)) {
-                    Optional<String> skillOption = skillStore.get(asset);
-                    if (skillOption.isPresent()) {
-                        skill = skillOption.get();
-                    } else {
-                        return HttpUtils.respond(monitor, headers, HttpStatus.SC_NOT_FOUND, "The requested skill is not registered.", null);
-                    }
+            // exchange skill against text locally
+            if (asset != null && skill != null) {
+                Optional<String> skillOption = skillStore.get(skill);
+                if (skillOption.isPresent()) {
+                    skill = skillOption.get();
+                } else {
+                    skill = null;
+                    return HttpUtils.respond(monitor, headers, HttpStatus.SC_NOT_FOUND, "The requested skill is not registered.", null);
                 }
             }
 
@@ -455,7 +452,7 @@ public class AgentController {
                               @QueryParam("denyServicesPattern") String denyServicePattern,
                               @QueryParam("ontology") String[] ontologies
     ) {
-        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s %s %s ", asset, name, description, version, contract, mode.getMode(), isFederated, allowServicePattern, denyServicePattern, query));
+        monitor.debug(String.format("Received a POST skill request %s %s %s %s %s %b %s %s %s ", asset, name, description, version, contract, mode, isFederated, allowServicePattern, denyServicePattern, query));
         Response.ResponseBuilder rb;
         if (skillStore.put(asset, query, name, description, version, contract, mode, isFederated, allowServicePattern, denyServicePattern, ontologies) != null) {
             rb = Response.ok();

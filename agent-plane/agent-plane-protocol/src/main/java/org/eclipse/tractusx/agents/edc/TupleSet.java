@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.eclipse.tractusx.agents.edc;
 
-import org.apache.jena.ext.com.google.common.collect.ArrayListMultimap;
+import com.github.jsonldjava.shaded.com.google.common.collect.ArrayListMultimap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * Implementation of a compact representation of

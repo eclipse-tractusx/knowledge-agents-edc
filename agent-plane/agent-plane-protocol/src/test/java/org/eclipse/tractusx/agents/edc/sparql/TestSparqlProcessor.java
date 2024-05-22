@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.apache.jena.sparql.service.ServiceExecutorRegistry;
+import org.eclipse.edc.json.JacksonTypeManager;
 import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.*;
@@ -50,7 +51,7 @@ public class TestSparqlProcessor {
     OkHttpClient client=new OkHttpClient();
     AgreementController mockController = new MockAgreementController();
     ExecutorService threadedExecutor= Executors.newSingleThreadExecutor();
-    TypeManager typeManager = new TypeManager();
+    TypeManager typeManager = new JacksonTypeManager();
     DataspaceServiceExecutor exec=new DataspaceServiceExecutor(monitor,mockController,agentConfig,client,threadedExecutor,typeManager);
     RdfStore store = new RdfStore(agentConfig,monitor);
 

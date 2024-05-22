@@ -24,9 +24,9 @@ import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.StreamResult;
-import org.eclipse.edc.spi.http.EdcHttpClient;
-import org.eclipse.edc.spi.types.domain.transfer.DataFlowRequest;
-import org.eclipse.tractusx.agents.edc.AgentExtension;
+import org.eclipse.edc.http.spi.EdcHttpClient;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
+import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.SkillDistribution;
 import org.eclipse.tractusx.agents.edc.SkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
@@ -69,8 +69,8 @@ public class AgentSource implements DataSource {
     protected SparqlQueryProcessor processor;
     protected SkillStore skillStore;
 
-    protected DataFlowRequest request;
-    
+    protected DataFlowStartMessage request;
+
     protected String matchmakingAgentUrl;
 
     public static final String AGENT_BOUNDARY = "--";
@@ -102,35 +102,36 @@ public class AgentSource implements DataSource {
         String graph = null;
         String asset = String.valueOf(request.getSourceDataAddress().getProperties().get(AgentSourceHttpParamsDecorator.ASSET_PROP_ID));
         if (asset != null && asset.length() > 0) {
-            Matcher graphMatcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
-            if (graphMatcher.matches()) {
-                graph = asset;
-            }
-            Matcher skillMatcher = SkillStore.matchSkill(asset);
-            if (skillMatcher.matches()) {
-                var skillText = skillStore.get(asset);
-                if (skillText.isEmpty()) {
-                    return StreamResult.error(format("Skill %s does not exist.", asset));
-                }
-                SkillDistribution distribution = skillStore.getDistribution(asset);
-                String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
-                SkillDistribution runMode = SkillDistribution.ALL;
-                if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
-                    runMode = SkillDistribution.PROVIDER;
-                } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
-                    runMode = SkillDistribution.CONSUMER;
-                }
-                if (runMode == SkillDistribution.CONSUMER) {
-                    if (distribution == SkillDistribution.PROVIDER) {
-                        return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
+            Matcher assetMatcher = AgentConfig.getAssetReferencePattern().matcher(asset);
+            if (assetMatcher.matches()) {
+                if (assetMatcher.group("asset").contains("Graph")) {
+                    graph = asset;
+                } else if (assetMatcher.group("asset").contains("Skill")) {
+                    var skillText = skillStore.get(asset);
+                    if (skillText.isEmpty()) {
+                        return StreamResult.error(format("Skill %s does not exist.", asset));
                     }
-                    return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
-                } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
-                    return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
+                    SkillDistribution distribution = skillStore.getDistribution(asset);
+                    String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
+                    SkillDistribution runMode = SkillDistribution.ALL;
+                    if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
+                        runMode = SkillDistribution.PROVIDER;
+                    } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
+                        runMode = SkillDistribution.CONSUMER;
+                    }
+                    if (runMode == SkillDistribution.CONSUMER) {
+                        if (distribution == SkillDistribution.PROVIDER) {
+                            return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
+                        }
+                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                    } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
+                        return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
+                    }
+                    skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
                 }
-                skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
             }
         }
+
         try (Response response = processor.execute(this.requestFactory.toRequest(params), skill, graph, request.getSourceDataAddress().getProperties())) {
             if (!response.isSuccessful()) {
                 return StreamResult.error(format("Received code transferring HTTP data for request %s: %s - %s.", requestId, response.code(), response.message()));
@@ -147,7 +148,7 @@ public class AgentSource implements DataSource {
             return StreamResult.error(e.getMessage());
         }
     }
-    
+
     /**
      * executes a KA-MATCHMAKING REST API call and pipes the results into KA-TRANSFER
      *
@@ -165,33 +166,33 @@ public class AgentSource implements DataSource {
 
         String url = baseUrl + "?asset=" + asset;
         if (asset != null && asset.length() > 0) {
-            Matcher graphMatcher = AgentExtension.GRAPH_PATTERN.matcher(asset);
-            if (graphMatcher.matches()) {
-                graph = asset;
-            }
-            Matcher skillMatcher = SkillStore.matchSkill(asset);
-            if (skillMatcher.matches()) {
-                var skillText = skillStore.get(asset);
-                if (skillText.isEmpty()) {
-                    return StreamResult.error(format("Skill %s does not exist.", asset));
-                }
-                SkillDistribution distribution = skillStore.getDistribution(asset);
-                String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
-                SkillDistribution runMode = SkillDistribution.ALL;
-                if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
-                    runMode = SkillDistribution.PROVIDER;
-                } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
-                    runMode = SkillDistribution.CONSUMER;
-                }
-                if (runMode == SkillDistribution.CONSUMER) {
-                    if (distribution == SkillDistribution.PROVIDER) {
-                        return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
+            Matcher assetMatcher = AgentConfig.getAssetReferencePattern().matcher(asset);
+            if (assetMatcher.matches()) {
+                if (assetMatcher.group("asset").contains("Graph")) {
+                    graph = asset;
+                } else if (assetMatcher.group("asset").contains("Skill")) {
+                    var skillText = skillStore.get(asset);
+                    if (skillText.isEmpty()) {
+                        return StreamResult.error(format("Skill %s does not exist.", asset));
                     }
-                    return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
-                } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
-                    return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
+                    SkillDistribution distribution = skillStore.getDistribution(asset);
+                    String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
+                    SkillDistribution runMode = SkillDistribution.ALL;
+                    if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
+                        runMode = SkillDistribution.PROVIDER;
+                    } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
+                        runMode = SkillDistribution.CONSUMER;
+                    }
+                    if (runMode == SkillDistribution.CONSUMER) {
+                        if (distribution == SkillDistribution.PROVIDER) {
+                            return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
+                        }
+                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                    } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
+                        return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
+                    }
+                    skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
                 }
-                skill = skillText.get(); // default execution for runMode=ALL or runMode=provider and DistributionMode is ALL or provider
             }
         }
 
@@ -202,7 +203,7 @@ public class AgentSource implements DataSource {
             } else {
                 assetValue = skill;
             }
-   
+
             HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
             urlBuilder.addQueryParameter("asset", assetValue);
             // Put parameters into request
@@ -238,6 +239,11 @@ public class AgentSource implements DataSource {
     @Override
     public String toString() {
         return String.format("AgentSource(%s,%s)", requestId, name);
+    }
+
+    @Override
+    public void close() throws Exception {
+
     }
 
     /**
@@ -285,16 +291,16 @@ public class AgentSource implements DataSource {
             return this;
         }
 
-        public AgentSource.Builder request(DataFlowRequest request) {
+        public AgentSource.Builder request(DataFlowStartMessage request) {
             dataSource.request = request;
             return this;
         }
-        
+
         public AgentSource.Builder matchmakingAgentUrl(String matchmakingAgentUrl) {
             dataSource.matchmakingAgentUrl = matchmakingAgentUrl;
             return this;
         }
-        
+
         public AgentSource build() {
             Objects.requireNonNull(dataSource.requestId, "requestId");
             Objects.requireNonNull(dataSource.httpClient, "httpClient");

@@ -1,0 +1,429 @@
+{{ $dataplane_name := .Values.name }}
+{{ $dataplane := .Values }}
+---
+#
+#  Copyright (c) 2023,2024 T-Systems International GmbH
+#  Copyright (c) 2023 ZF Friedrichshafen AG
+#  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
+#  Copyright (c) 2023 Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
+#  Copyright (c) 2021,2024 Contributors to the Eclipse Foundation
+#
+#  See the NOTICE file(s) distributed with this work for additional
+#  information regarding copyright ownership.
+#
+#  This program and the accompanying materials are made available under the
+#  terms of the Apache License, Version 2.0 which is available at
+#  https://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations
+#  under the License.
+#
+#  SPDX-License-Identifier: Apache-2.0
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "txap.fullname" . }}-{{ $dataplane.name }}
+  labels:
+    {{- include "txap.dataplane.labels" . | nindent 4 }}
+spec:
+  {{- if not $dataplane.autoscaling.enabled }}
+  replicas: {{ $dataplane.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "txap.dataplane.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with $dataplane.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "txap.dataplane.selectorLabels" . | nindent 8 }}
+        {{- with $dataplane.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "txap.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml $dataplane.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- toYaml $dataplane.initContainers | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml $dataplane.securityContext | nindent 12 }}
+          {{- if $dataplane.image.repository }}
+          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "{{ .Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ $dataplane.image.pullPolicy }}
+          ports:
+          {{- range $key,$value := $dataplane.endpoints }}
+            - name: {{ $key }}
+              containerPort: {{ $value.port }}
+              protocol: TCP
+          {{- end }}
+          {{- if $dataplane.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ $dataplane.endpoints.default.path }}/check/liveness
+              port: {{ $dataplane.endpoints.default.port }}
+            initialDelaySeconds: {{ $dataplane.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $dataplane.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ $dataplane.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ $dataplane.livenessProbe.failureThreshold }}
+            successThreshold: {{ $dataplane.livenessProbe.successThreshold }}
+          {{- end }}
+          {{- if $dataplane.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ $dataplane.endpoints.default.path }}/check/readiness
+              port: {{ $dataplane.endpoints.default.port }}
+            initialDelaySeconds: {{ $dataplane.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $dataplane.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $dataplane.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ $dataplane.readinessProbe.failureThreshold }}
+            successThreshold: {{ $dataplane.readinessProbe.successThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml $dataplane.resources | nindent 12 }}
+          env:
+          {{- if $dataplane.debug.enabled }}
+            - name: "JAVA_TOOL_OPTIONS"
+            {{- if and $dataplane.debug.enabled $dataplane.debug.suspendOnStart }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=%v" $dataplane.debug.port }}
+            {{- else }}
+              value: >-
+                {{ printf "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%v" $dataplane.debug.port }}
+            {{- end }}
+          {{- end }}
+
+            ########################
+            ## ID CONFIGURATION ##
+            ########################
+            - name: EDC_PARTICIPANT_ID
+              value: {{ .Values.participant.id | required ".Values.participant.id is required" | quote }}
+            - name: "EDC_IAM_ISSUER_ID"
+              value: {{ .Values.iatp.id | required ".Values.iatp.id is required" | quote}}
+
+            #######
+            # API #
+            #######
+            - name: "EDC_API_AUTH_KEY"
+              value: {{ .Values.controlplane.endpoints.management.authKey | required ".Values.controlplane.endpoints.mangement.authKey is required" | quote }}
+
+            - name: "WEB_HTTP_DEFAULT_PORT"
+              value: {{ $dataplane.endpoints.default.port | quote }}
+            - name: "WEB_HTTP_DEFAULT_PATH"
+              value: {{ $dataplane.endpoints.default.path | quote }}
+            - name: "WEB_HTTP_PUBLIC_PORT"
+              value: {{ $dataplane.endpoints.public.port | quote }}
+            - name: "WEB_HTTP_PUBLIC_PATH"
+              value: {{ $dataplane.endpoints.public.path | quote }}
+            - name: "WEB_HTTP_SIGNALING_PORT"
+              value: {{ $dataplane.endpoints.signaling.port | quote }}
+            - name: "WEB_HTTP_SIGNALING_PATH"
+              value: {{ $dataplane.endpoints.signaling.path | quote }}
+            - name: "WEB_HTTP_CALLBACK_PORT"
+              value: {{ $dataplane.endpoints.callback.port | quote }}
+            - name: "WEB_HTTP_CALLBACK_PATH"
+              value: {{ $dataplane.endpoints.callback.path | quote }}
+
+            - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
+              value: {{ include "txap.controlplane.url.control" .}}/token
+
+            ###########
+            ## VAULT ##
+            ###########
+
+            # see extension https://github.com/eclipse-tractusx/tractusx-edc/tree/main/edc-extensions/hashicorp-vault
+            - name: "EDC_VAULT_HASHICORP_URL"
+              value: {{ tpl .Values.vault.hashicorp.url . | required ".Values.vault.hashicorp.url is required" | quote }}
+            - name: "EDC_VAULT_HASHICORP_TOKEN"
+              value: {{ .Values.vault.hashicorp.token | required ".Values.vault.hashicorp.token is required" | quote }}
+            - name: "EDC_VAULT_HASHICORP_TIMEOUT_SECONDS"
+              value: {{ .Values.vault.hashicorp.timeout | quote }}
+            - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_ENABLED"
+              value: {{ .Values.vault.hashicorp.healthCheck.enabled | quote }}
+            - name: "EDC_VAULT_HASHICORP_HEALTH_CHECK_STANDBY_OK"
+              value: {{ .Values.vault.hashicorp.healthCheck.standbyOk | quote }}
+            - name: "EDC_VAULT_HASHICORP_API_SECRET_PATH"
+              value: {{ .Values.vault.hashicorp.paths.secret | quote }}
+            - name: "EDC_VAULT_HASHICORP_API_HEALTH_CHECK_PATH"
+              value: {{ .Values.vault.hashicorp.paths.health | quote }}
+
+            ##################
+            ## TOKEN REFRESH
+            ##################
+            {{- if $dataplane.token.refresh.expiry_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY"
+              value: {{ $dataplane.token.refresh.expiry_seconds | quote}}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.expiry_tolerance_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY_TOLERANCE"
+              value: {{ $dataplane.token.refresh.expiry_tolerance_seconds | quote }}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.refresh_endpoint }}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ $dataplane.token.refresh.refresh_endpoint }}
+            {{- else}}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ include "txap.dataplane.url.public" . }}/token
+            {{- end}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
+              value: {{ $dataplane.token.signer.privatekey_alias | required ".Values.token.signer.privatekey_alias is required" | quote}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS"
+              value: {{ $dataplane.token.verifier.publickey_alias | required ".Values.token.verifier.publickey_alias" | quote }}
+
+            ###################
+            # AUTH (JWT)      #
+            ###################
+          {{- if $dataplane.auth }}
+          {{- range $auth, $authDef := $dataplane.auth }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_TYPE" (upper $auth) | quote }}
+              value: {{ $authDef.type | required "Authentication Service needs a type" | quote }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_PATHS" (upper $auth) | quote }}
+              value: {{ $authDef.context | required "Authentication Service needs a context" | quote }}
+          {{- if $authDef.exclude }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_EXCLUDE" (upper $auth) | quote }}
+              value: {{ $authDef.exclude | quote }}
+          {{- end }}
+          {{- if $authDef.register }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_REGISTER" (upper $auth) | quote }}
+              value: {{ $authDef.register | quote }}
+          {{- end }}
+          {{- if $authDef.apiCode }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_APICODE" (upper $auth) | quote }}
+              value: {{ $authDef.apiCode | quote }}
+          {{- end }}
+          {{- if $authDef.vaultKey }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_VAULTKEY" (upper $auth) | quote }}
+              value: {{ $authDef.vaultKey | quote }}
+          {{- end }}
+          {{- if $authDef.publicKey }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_PUBLICKEY" (upper $auth) | quote }}
+              value: {{ $authDef.publicKey | quote }}
+          {{- end }}
+          {{- if $authDef.checkExpiry }}
+            - name: {{ printf "TRACTUSX_AUTH_%s_CHECKEXPIRY" (upper $auth) | quote }}
+              value: {{ $authDef.checkExpiry | quote }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+
+            #############################
+            ## IATP / STS / DIM CONFIG ##
+            #############################
+            - name: "EDC_IAM_STS_OAUTH_TOKEN_URL"
+              value: {{ .Values.iatp.sts.oauth.token_url | required ".Values.iatp.sts.oauth.token_url is required" | quote}}
+            - name: "EDC_IAM_STS_OAUTH_CLIENT_ID"
+              value: {{ .Values.iatp.sts.oauth.client.id | required ".Values.iatp.sts.oauth.client.id is required" | quote}}
+            - name: "EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS"
+              value: {{ .Values.iatp.sts.oauth.client.secret_alias | required ".Values.iatp.sts.oauth.client.secret_alias is required" | quote}}
+            - name: "EDC_IAM_STS_DIM_URL"
+              value: {{ .Values.iatp.sts.dim.url | required ".Values.iatp.sts.dim.url is required" | quote}}
+            {{- range $index, $issuer := .Values.iatp.trustedIssuers }}
+            - name: "EDC_IAM_TRUSTED-ISSUER_{{$index}}-ISSUER_ID"
+              value: {{ $issuer | quote }}
+            {{- end }}
+
+            #########################
+            ## DATA PLANE PUBLIC API
+            ########################
+            - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
+              value: {{ include "txap.dataplane.url.public" . }}
+
+            ###################
+            # AGENT CALLBACK  #
+            ###################
+            - name: "CX_AGENT_CALLBACK"
+              value: {{ include "txap.dataplane.url.callback" . }}/transfer-process-started
+            - name: "CX_AGENT_CONTROLPLANE_PROTOCOL"
+              value: {{ include "txap.controlplane.url.protocol" . }}
+            - name: "CX_AGENT_CONTROLPLANE_MANAGEMENT"
+              value: {{ include "txap.controlplane.url.management" . }}
+ 
+          {{- if $dataplane.agent.matchmaking }}
+            - name: "CX_AGENT_MATCHMAKING"
+              value: {{ $dataplane.agent.matchmaking | quote }}
+          {{- end }}
+
+          {{- if $dataplane.agent.skillcontract }}
+            - name: "CX_AGENT_SKILL_CONTRACT_DEFAULT"
+              value: {{ $dataplane.agent.skillcontract | quote }}
+          {{- end }}
+
+          {{- if $dataplane.agent.default }}
+            ###############
+            # AGENT INIT  #
+            ###############
+            - name: "CX_AGENT_ASSET_FILE"
+              value: {{ join "," $dataplane.agent.default | quote }} 
+          {{- end }}
+
+          {{- if $dataplane.agent.services }}
+            ###################
+            # AGENT SERVICES #
+            ###################
+          {{- if $dataplane.agent.services.allow }}
+            - name: "CX_AGENT_SERVICE_ALLOW"
+              value: {{ $dataplane.agent.services.allow | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.deny }}
+            - name: "CX_AGENT_SERVICE_DENY"
+              value: {{ $dataplane.agent.services.deny | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.asset }}
+          {{- if $dataplane.agent.services.asset.allow }}
+            - name: "CX_AGENT_SERVICE_ASSET_ALLOW"
+              value: {{ $dataplane.agent.services.asset.allow | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.asset.deny }}
+            - name: "CX_AGENT_SERVICE_ASSET_DENY"
+              value: {{ $dataplane.agent.services.asset.deny | quote }} 
+          {{- end }}
+          {{- end }}
+          {{- end }}
+          
+            ###################
+            # AGENT SYNC      #
+            ###################
+            - name: "CX_AGENT_DATASPACE_REMOTES"
+              value: {{ include "txap.remotes" . }}
+            - name: "CX_AGENT_DATASPACE_SYNCHRONIZATION"
+              value: {{ $dataplane.agent.synchronization | required (printf ".Values.dataplane.%s.agent.synchronization should be set if connectors are specified" $dataplane_name) | quote }}
+            - name: "CX_AGENT_FEDERATION_BATCH_MAX"
+              value: {{ $dataplane.agent.maxbatchsize | quote }} 
+
+            #######
+            # AWS #
+            #######
+            {{- if $dataplane.aws.endpointOverride }}
+            - name: "EDC_AWS_ENDPOINT_OVERRIDE"
+              value: {{ $dataplane.aws.endpointOverride | quote }}
+            {{- end   }}
+            {{- if $dataplane.aws.secretAccessKey }}
+            - name: "AWS_SECRET_ACCESS_KEY"
+              value: {{ $dataplane.aws.secretAccessKey | quote }}
+            {{- end }}
+            {{- if $dataplane.aws.accessKeyId }}
+            - name: "AWS_ACCESS_KEY_ID"
+              value: {{ $dataplane.aws.accessKeyId | quote }}
+            {{- end }}
+
+            ################
+            ## POSTGRESQL ##
+            ################
+
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/common/store/sql/edr-index-sql
+            - name: "EDC_DATASOURCE_EDR_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_EDR_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_EDR_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_EDR_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
+
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/data-plane/store/sql/data-plane-store-sql
+            - name: "EDC_DATASOURCE_DATAPLANE_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_DATAPLANE_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_DATAPLANE_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_DATAPLANE_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
+
+            # see extension https://github.com/eclipse-edc/Connector/tree/main/extensions/data-plane/store/sql/accesstokendata-store-sql
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_NAME"
+              value: "edr"
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_USER"
+              value: {{ .Values.postgresql.auth.username | required ".Values.postgresql.auth.username is required" | quote }}
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_PASSWORD"
+              value: {{ .Values.postgresql.auth.password | required ".Values.postgresql.auth.password is required" | quote }}
+            - name: "EDC_DATASOURCE_ACCESSTOKENDATA_URL"
+              value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
+
+            ######################################
+            ## Additional environment variables ##
+            ######################################
+            - name: "EDC_CONNECTOR_NAME"
+              value: {{ include "txap.fullname" .}}-{{ $dataplane.name }}
+          {{- range $key, $value := $dataplane.envValueFrom }}
+            - name: {{ $key | quote }}
+              valueFrom:
+                {{- tpl (toYaml $value) $ | nindent 16 }}
+          {{- end }}
+          {{- range $key, $value := $dataplane.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- if and (or $dataplane.envSecretNames $dataplane.envConfigMapNames) (or (gt (len $dataplane.envSecretNames) 0) (gt (len $dataplane.envConfigMapNames) 0)) }}
+          envFrom:
+          {{- range $value := $dataplane.envSecretNames }}
+            - secretRef:
+                name: {{ $value | quote }}
+          {{- end }}
+          {{- range $value := $dataplane.envConfigMapNames }}
+            - configMapRef:
+                name: {{ $value | quote }}
+          {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: "configuration"
+              mountPath: "/app/opentelemetry.properties"
+              subPath: "opentelemetry.properties"
+            - name: "configuration"
+              mountPath: "/app/logging.properties"
+              subPath: "logging.properties"
+            - name: "tmp"
+              mountPath: "/tmp"
+
+            {{- range $config_name, $config_value := $dataplane.configs }}
+            - name: "configuration"
+              mountPath: {{ printf "/app/%s" $config_name | quote }}
+              subPath: {{ printf "%s" $config_name | quote }}
+            {{- end }}
+      volumes:
+        - name: "configuration"
+          configMap:
+            name: {{ include "txap.fullname" . }}-{{ $dataplane_name }}
+            items:
+              - key: "opentelemetry.properties"
+                path: "opentelemetry.properties"
+              - key: "logging.properties"
+                path: "logging.properties"
+            {{- range $config_name, $config_value := $dataplane.configs }}
+              - key: {{ printf "%s" $config_name | quote }}
+                path: {{ printf "%s" $config_name | quote }}
+            {{- end }}
+        - name: "tmp"
+          emptyDir: { }
+      {{- with $dataplane.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $dataplane.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $dataplane.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

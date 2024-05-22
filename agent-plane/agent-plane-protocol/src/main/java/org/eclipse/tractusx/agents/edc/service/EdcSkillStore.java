@@ -29,6 +29,7 @@ import org.eclipse.tractusx.agents.edc.model.Asset;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 /**
  * Implements a skill store based on EDC assets
@@ -47,7 +48,8 @@ public class EdcSkillStore implements SkillStore {
 
     @Override
     public boolean isSkill(String key) {
-        return SkillStore.matchSkill(key).matches();
+        Matcher matcher = config.getAssetReferencePattern().matcher(key);
+        return matcher.matches() && matcher.group("asset").contains("Skill");
     }
 
     @Override
@@ -63,6 +65,9 @@ public class EdcSkillStore implements SkillStore {
         }
         if (contract == null) {
             contract = config.getDefaultSkillContract();
+        }
+        if (dist == null) {
+            dist = SkillDistribution.ALL;
         }
         String ontologiesString = String.join(",", ontologies);
         try {

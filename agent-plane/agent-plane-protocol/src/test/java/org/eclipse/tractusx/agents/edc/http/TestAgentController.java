@@ -26,6 +26,7 @@ import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 import okhttp3.*;
 import org.apache.jena.sparql.service.ServiceExecutorRegistry;
+import org.eclipse.edc.json.JacksonTypeManager;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.*;
 import org.junit.jupiter.api.AfterEach;
@@ -73,13 +74,13 @@ public class TestAgentController extends RestControllerTestBase {
     OkHttpClient client=new OkHttpClient();
     AgreementController mockController = new MockAgreementController("test",port);
     ExecutorService threadedExecutor= Executors.newSingleThreadExecutor();
-    TypeManager typeManager = new TypeManager();
+    TypeManager typeManager = new JacksonTypeManager();
     DataspaceServiceExecutor exec=new DataspaceServiceExecutor(monitor,mockController,agentConfig,client,threadedExecutor,typeManager);
     RdfStore store = new RdfStore(agentConfig,monitor);
 
 
     SparqlQueryProcessor processor=new SparqlQueryProcessor(serviceExecutorReg,monitor,agentConfig,store, typeManager);
-    InMemorySkillStore skillStore=new InMemorySkillStore();
+    InMemorySkillStore skillStore=new InMemorySkillStore(agentConfig);
 
     DelegationServiceImpl delegationService=new DelegationServiceImpl(mockController,monitor,client,typeManager,agentConfig);
     AgentController agentController=new AgentController(monitor,mockController,agentConfig,processor,skillStore,delegationService);

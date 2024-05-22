@@ -55,7 +55,7 @@ public class MockAgreementController implements AgreementController {
     @Override
     public EndpointDataReference get(String assetId) {
         EndpointDataReference.Builder builder= EndpointDataReference.Builder.newInstance();
-        builder.endpoint(String.format("http://localhost:%d/%s#%s",port,path,assetId));
+        builder.id(assetId).contractId(assetId).endpoint(String.format("http://localhost:%d/%s#%s",port,path,assetId));
         return builder.build();
     }
 

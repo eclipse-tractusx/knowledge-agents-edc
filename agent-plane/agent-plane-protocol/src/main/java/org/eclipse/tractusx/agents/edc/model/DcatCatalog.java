@@ -1,4 +1,4 @@
-// Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+// Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
 //
 // See the NOTICE file(s) distributed with this work for additional
 // information regarding copyright ownership.
@@ -32,7 +32,10 @@ public class DcatCatalog extends JsonLdObject {
 
     public DcatCatalog(JsonObject node) {
         super(node);
-        JsonValue dataset = node.get("https://www.w3.org/ns/dcat/dataset");
+        JsonValue dataset = node.getOrDefault(
+                "https://www.w3.org/ns/dcat/dataset",
+                node.get("http://www.w3.org/ns/dcat#dataset")
+        );
         if (dataset != null) {
             if (dataset.getValueType() == JsonValue.ValueType.ARRAY) {
                 for (JsonValue ds : dataset.asJsonArray()) {
@@ -45,7 +48,7 @@ public class DcatCatalog extends JsonLdObject {
     }
 
     public String getParticipantId() {
-        return object.getString("https://w3id.org/edc/v0.0.1/ns/participantId", "anonymous");
+        return object.getString("https://w3id.org/dspace/v0.8/participantId", "anonymous");
     }
 
     public List<DcatDataset> getDatasets() {
