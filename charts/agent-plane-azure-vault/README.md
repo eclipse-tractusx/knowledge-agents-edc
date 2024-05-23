@@ -21,7 +21,7 @@
 
 # agent-plane-azure-vault
 
-![Version: 1.12.19-SNAPSHOT](https://img.shields.io/badge/Version-1.12.19--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.19-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.12.19--SNAPSHOT-informational?style=flat-square)
+![Version: 1.12.19](https://img.shields.io/badge/Version-1.12.19--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.12.19](https://img.shields.io/badge/AppVersion-1.12.19--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers at a running
 Control Plane.
@@ -59,7 +59,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-plane --version 1.12.19-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-plane --version 1.12.19
 ```
 
 ## Maintainers
