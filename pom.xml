@@ -46,7 +46,7 @@
         <okio.version>3.6.0</okio.version>
         <slf4j.version>2.0.12</slf4j.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <com.nimbusds.version>9.37.3</com.nimbusds.version>
+        <com.nimbusds.version>9.40</com.nimbusds.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
