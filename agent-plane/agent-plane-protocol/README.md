@@ -64,7 +64,7 @@ Add the following dependency to your data-plane artifact pom:
         <dependency>
             <groupId>org.eclipse.tractusx.agents.edc</groupId>
             <artifactId>agent-plane-protocol</artifactId>
-            <version>1.12.19-SNAPSHOT</version>
+            <version>1.13.20-SNAPSHOT</version>
         </dependency>
 ```
 
