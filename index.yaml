@@ -1128,6 +1128,34 @@ entries:
     version: 1.9.6-SNAPSHOT
   agent-plane:
   - apiVersion: v2
+    appVersion: 1.13.20-SNAPSHOT
+    created: "2024-06-19T08:06:31.314539987Z"
+    dependencies:
+    - alias: vault
+      condition: install.vault
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.27.0
+    - alias: postgresql
+      condition: install.postgresql
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.2.1
+    description: 'A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers
+      at a running Control Plane.  This chart is intended for use with an _existing_
+      HashiCorp Vault and Tractusx Connector. '
+    digest: daa1e3676531e06c0d0e36514b59d06f5e97dc231458847a49247d66263559f9
+    home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
+    maintainers:
+    - name: Tractus-X Knowledge Agents Team
+    name: agent-plane
+    sources:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
+    type: application
+    urls:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-plane-1.13.20-SNAPSHOT/agent-plane-1.13.20-SNAPSHOT.tgz
+    version: 1.13.20-SNAPSHOT
+  - apiVersion: v2
     appVersion: 1.12.19
     created: "2024-05-23T07:26:14.101074953Z"
     dependencies:
@@ -1185,6 +1213,29 @@ entries:
     version: 1.12.19-SNAPSHOT
   agent-plane-azure-vault:
   - apiVersion: v2
+    appVersion: 1.13.20-SNAPSHOT
+    created: "2024-06-19T08:06:31.445571113Z"
+    dependencies:
+    - alias: postgresql
+      condition: install.postgresql
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.2.1
+    description: 'A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers
+      at a running Control Plane.  This chart is intended for use with an _existing_
+      Azure Vault and Tractusx Connector. '
+    digest: 8bd263fd1f7a587b62b0e9b69d84e044eb4dae7648966f119ed78e3b314bacb6
+    home: https://github.com/eclipse-tractusx/knowledge-agents-edc/
+    maintainers:
+    - name: Tractus-X Knowledge Agents Team
+    name: agent-plane-azure-vault
+    sources:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/tree/main/charts/agent-connector
+    type: application
+    urls:
+    - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-plane-azure-vault-1.13.20-SNAPSHOT/agent-plane-azure-vault-1.13.20-SNAPSHOT.tgz
+    version: 1.13.20-SNAPSHOT
+  - apiVersion: v2
     appVersion: 1.12.19
     created: "2024-05-23T07:26:14.301730112Z"
     dependencies:
@@ -1230,4 +1281,4 @@ entries:
     urls:
     - https://github.com/eclipse-tractusx/knowledge-agents-edc/releases/download/agent-plane-azure-vault-1.12.19-SNAPSHOT/agent-plane-azure-vault-1.12.19-SNAPSHOT.tgz
     version: 1.12.19-SNAPSHOT
-generated: "2024-05-23T07:26:14.301849726Z"
+generated: "2024-06-19T08:06:31.445680827Z"
