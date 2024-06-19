@@ -1,22 +1,3 @@
-<!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
- *
- * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Apache License, Version 2.0 which is available at
- * https://www.apache.org/licenses/LICENSE-2.0.
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * SPDX-License-Identifier: Apache-2.0
--->
-
 # Contributing to Eclipse Tractus-X
 
 Thanks for your interest in this project.
@@ -35,6 +16,19 @@ Catena-X alliance focusing on parts traceability.
 
 * https://projects.eclipse.org/projects/automotive.tractusx
 
+## Project licenses
+
+The Tractus-X project uses the following licenses:
+
+* Apache-2.0 for code
+* CC-BY-4.0 for non-code
+
+## Terms of Use
+
+This repository is subject to the Terms of Use of the Eclipse Foundation
+
+* https://www.eclipse.org/legal/termsofuse.php
+
 ## Developer resources
 
 Information regarding source code management, builds, coding standards, and
@@ -42,9 +36,13 @@ more.
 
 * https://projects.eclipse.org/projects/automotive.tractusx/developer
 
-The project maintains the source code repositories in the following GitHub organization:
+Getting started:
 
-* https://github.com/eclipse-tractusx/
+* https://eclipse-tractusx.github.io/docs/developer
+
+The project maintains the following source code repositories
+
+* https://github.com/eclipse-tractusx/sig-infra
 
 ## Eclipse Development Process
 
