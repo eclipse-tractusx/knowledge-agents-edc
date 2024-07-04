@@ -47,7 +47,6 @@ import org.eclipse.tractusx.agents.edc.service.EdcSkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.DataspaceServiceExecutor;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQuerySerializerFactory;
-import org.eclipse.tractusx.agents.edc.validation.SwitchingDataPlaneTokenValidatorController;
 
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -139,12 +138,6 @@ public class AgentExtension implements ServiceExtension {
         executorService = Executors.newScheduledThreadPool(config.getThreadPoolSize());
         synchronizer = new DataspaceSynchronizer(executorService, config, catalogService, rdfStore, monitor);
 
-        SwitchingDataPlaneTokenValidatorController validatorController = new SwitchingDataPlaneTokenValidatorController(httpClient, config, monitor);
-        if (validatorController.isEnabled()) {
-            monitor.debug(String.format("Registering switching validator controller %s", validatorController));
-            webService.registerResource(DEFAULT_CONTEXT_ALIAS, validatorController);
-        }
-
         // EDC Remoting Support
         ServiceExecutorRegistry reg = new ServiceExecutorRegistry();
         reg.addBulkLink(new DataspaceServiceExecutor(monitor, agreementController, config, httpClient, executorService, typeManager));
@@ -170,8 +163,22 @@ public class AgentExtension implements ServiceExtension {
         monitor.debug(String.format("Initialized %s", name()));
 
         HttpRequestFactory httpRequestFactory = new HttpRequestFactory();
-        AgentSourceFactory sourceFactory = new AgentSourceFactory(edcHttpClient, new AgentSourceRequestParamsSupplier(vault, typeManager, config, monitor), monitor, httpRequestFactory, processor, skillStore);
-        pipelineService.registerFactory(sourceFactory);
+        AgentSourceFactory sparqlSourceFactory = new AgentSourceFactory(AgentProtocol.SPARQL_HTTP.getProtocolId(),
+                edcHttpClient,
+                new AgentSourceRequestParamsSupplier(vault, typeManager, config, monitor),
+                monitor,
+                httpRequestFactory,
+                processor,
+                skillStore);
+        AgentSourceFactory skillSourceFactory = new AgentSourceFactory(AgentProtocol.SKILL_HTTP.getProtocolId(),
+                edcHttpClient,
+                new AgentSourceRequestParamsSupplier(vault, typeManager, config, monitor),
+                monitor,
+                httpRequestFactory,
+                processor,
+                skillStore);
+        pipelineService.registerFactory(sparqlSourceFactory);
+        pipelineService.registerFactory(skillSourceFactory);
 
         var publicEndpoint = context.getSetting("edc.dataplane.api.public.baseurl", null);
         if (publicEndpoint == null) {

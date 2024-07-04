@@ -160,6 +160,10 @@
                     <groupId>net.java.dev.jna</groupId>
                     <artifactId>jna-platform</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.edc</groupId>
+                    <artifactId>core-spi</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 

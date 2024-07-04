@@ -115,15 +115,17 @@ public class DataManagement {
 
     public static final String ASSET_CALL = "%s%s/assets/request";
 
-    // negotiation request 0.5.>=1
+    // negotiation request 0.7.>=3
     public static final String NEGOTIATION_REQUEST_BODY =
             "{\n" +
                     "    \"@context\": {\n" +
-                    "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n" +
+                    "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\",\n" +
+                    "        \"edc\": \"https://w3id.org/edc/v0.0.1/ns/\"\n" +
                     "    },\n" +
                     "    \"@type\": \"https://w3id.org/edc/v0.0.1/ns/ContractRequest\",\n" +
                     "    \"counterPartyAddress\": \"%1$s\",\n" +
                     "    \"protocol\": \"dataspace-protocol-http\",\n" +
+                    "    \"providerId\": \"%2$s\",\n" +
                     "    \"policy\": {\n" +
                     "        \"@context\": \"http://www.w3.org/ns/odrl.jsonld\",\n" +
                     "        \"@type\": \"odrl:Offer\",\n" +

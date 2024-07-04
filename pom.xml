@@ -39,31 +39,31 @@
 
         <junit.version>5.10.2</junit.version>
         <mockito.version>5.2.0</mockito.version>
-        <tx.edc.version>0.7.0</tx.edc.version>
-        <edc.version>0.6.1</edc.version>
+        <tx.edc.version>0.7.3</tx.edc.version>
+        <edc.version>0.7.1</edc.version>
         <failsafe.version>3.3.2</failsafe.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.6.0</okio.version>
-        <slf4j.version>2.0.12</slf4j.version>
-        <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <com.nimbusds.version>9.37.3</com.nimbusds.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
+        <com.nimbusds.version>9.40</com.nimbusds.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
-        <com.azure.azure-identity.version>1.11.4</com.azure.azure-identity.version>
-        <com.azure.azure-security-keyvault-secrets.version>4.8.1</com.azure.azure-security-keyvault-secrets.version>
-        <jackson.version>2.17.0</jackson.version>
+        <com.azure.azure-identity.version>1.13.0</com.azure.azure-identity.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.8.3</com.azure.azure-security-keyvault-secrets.version>
+        <jackson.version>2.17.1</jackson.version>
         <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
         <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
         <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
         <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
         <jetbrains.kotlin.version>1.9.10</jetbrains.kotlin.version>
-        <io.micrometer.version>1.12.5</io.micrometer.version>
+        <io.micrometer.version>1.13.1</io.micrometer.version>
         <netty.nio.core-http2.version>4.1.108.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.26.0</commons.compress.version>
-        <jetty.version>11.0.20</jetty.version>
+        <jetty.version>11.0.21</jetty.version>
         <reactor.netty.version>1.0.44</reactor.netty.version>
-        <awssdk.version>2.24.10</awssdk.version>
+        <awssdk.version>2.26.7</awssdk.version>
 
         <!-- Source characteristics -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

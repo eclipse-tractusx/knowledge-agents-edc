@@ -17,21 +17,26 @@
 package org.eclipse.tractusx.edc.auth;
 
 import jakarta.ws.rs.container.ContainerRequestContext;
-import org.eclipse.edc.api.auth.spi.AuthenticationRequestFilter;
+import jakarta.ws.rs.container.ContainerRequestFilter;
 import org.eclipse.edc.api.auth.spi.AuthenticationService;
+import org.eclipse.edc.web.spi.exception.AuthenticationFailedException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * An authentication request filter with optional paths excluded
  */
-public class ExcludingAuthenticationRequestFilter extends AuthenticationRequestFilter {
+public class ExcludingAuthenticationRequestFilter implements ContainerRequestFilter {
 
     /**
      * the regex describing the excluded paths
      */
     protected final Pattern excludePattern;
+    protected final AuthenticationService service;
 
     /**
      * creates a new authentication request filter
@@ -40,8 +45,8 @@ public class ExcludingAuthenticationRequestFilter extends AuthenticationRequestF
      * @param excludePattern        the parsed regular expression of excluded paths, null if none
      */
     public ExcludingAuthenticationRequestFilter(AuthenticationService authenticationService, Pattern excludePattern) {
-        super(authenticationService);
         this.excludePattern = excludePattern;
+        this.service = authenticationService;
     }
 
     /**
@@ -59,6 +64,12 @@ public class ExcludingAuthenticationRequestFilter extends AuthenticationRequestF
                 return;
             }
         }
-        super.filter(requestContext);
+        if (!"OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+            Map<String, List<String>> headers = (Map) requestContext.getHeaders().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            boolean isAuthenticated = service.isAuthenticated(headers);
+            if (!isAuthenticated) {
+                throw new AuthenticationFailedException();
+            }
+        }
     }
 }
