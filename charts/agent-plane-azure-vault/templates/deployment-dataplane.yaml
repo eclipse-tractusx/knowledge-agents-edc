@@ -1,7 +1,7 @@
 {{ $dataplane_name := .Values.name }}
 {{ $dataplane := .Values }}
 ---
-#
+#################################################################################
 #  Copyright (c) 2023,2024 T-Systems International GmbH
 #  Copyright (c) 2023 ZF Friedrichshafen AG
 #  Copyright (c) 2023 Mercedes-Benz Tech Innovation GmbH
@@ -13,7 +13,7 @@
 #
 #  This program and the accompanying materials are made available under the
 #  terms of the Apache License, Version 2.0 which is available at
-#  https://www.apache.org/licenses/LICENSE-2.0
+#  https://www.apache.org/licenses/LICENSE-2.0.
 #
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -22,7 +22,7 @@
 #  under the License.
 #
 #  SPDX-License-Identifier: Apache-2.0
-#
+#################################################################################
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,8 +55,40 @@ spec:
       serviceAccountName: {{ include "txap.serviceAccountName" . }}
       securityContext:
         {{- toYaml $dataplane.podSecurityContext | nindent 8 }}
+      {{- if or $dataplane.initContainers .Values.customCaCerts }}
       initContainers:
+        {{- if $dataplane.initContainers }}
         {{- toYaml $dataplane.initContainers | nindent 8 }}
+        {{- end }}
+        {{- if .Values.customCaCerts }}
+        - name: custom-cacerts
+          # either use the specified image, or use the default one
+          {{- if $dataplane.image.repository }}
+          image: "{{ $dataplane.image.repository }}:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "{{ .Values.imageRegistry }}tractusx/agentplane-hashicorp:{{ $dataplane.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ $dataplane.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cp /opt/java/openjdk/lib/security/cacerts /workdir/
+              find /cacerts -type f \( -iname \*.crt -o -iname \*.pem \) -exec echo "{}" \; | while read PEM_FILE_PATH; do
+                PEM_FILE=${PEM_FILE_PATH##*/}
+                ALIAS=${PEM_FILE%.*}
+                echo "adding ${PEM_FILE} with alias ${ALIAS} to cacerts ..."
+                keytool -import -noprompt -trustcacerts -alias ${ALIAS} -file ${PEM_FILE_PATH} -keystore /workdir/cacerts -storepass changeit
+              done
+          securityContext:
+            {{- toYaml $dataplane.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: custom-cacertificates
+              mountPath: /cacerts
+            - name: custom-cacerts
+              mountPath: /workdir
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -122,26 +154,45 @@ spec:
             #######
             - name: "EDC_API_AUTH_KEY"
               value: {{ .Values.controlplane.endpoints.management.authKey | required ".Values.controlplane.endpoints.mangement.authKey is required" | quote }}
+            - name: "TX_EDC_DPF_CONSUMER_PROXY_AUTH_APIKEY"
+              value: {{ $dataplane.endpoints.proxy.authKey | required ".Values.dataplane.endpoints.proxy.authKey is required" | quote }}
 
             - name: "WEB_HTTP_DEFAULT_PORT"
               value: {{ $dataplane.endpoints.default.port | quote }}
             - name: "WEB_HTTP_DEFAULT_PATH"
               value: {{ $dataplane.endpoints.default.path | quote }}
+            - name: "WEB_HTTP_CONTROL_PORT"
+              value: {{ $dataplane.endpoints.control.port | quote }}
+            - name: "WEB_HTTP_CONTROL_PATH"
+              value: {{ $dataplane.endpoints.control.path | quote }}
             - name: "WEB_HTTP_PUBLIC_PORT"
               value: {{ $dataplane.endpoints.public.port | quote }}
             - name: "WEB_HTTP_PUBLIC_PATH"
               value: {{ $dataplane.endpoints.public.path | quote }}
-            - name: "WEB_HTTP_SIGNALING_PORT"
-              value: {{ $dataplane.endpoints.signaling.port | quote }}
-            - name: "WEB_HTTP_SIGNALING_PATH"
-              value: {{ $dataplane.endpoints.signaling.path | quote }}
             - name: "WEB_HTTP_CALLBACK_PORT"
               value: {{ $dataplane.endpoints.callback.port | quote }}
             - name: "WEB_HTTP_CALLBACK_PATH"
               value: {{ $dataplane.endpoints.callback.path | quote }}
+            - name: "EDC_CONTROL_ENDPOINT"
+              value: {{ include "txdc.dataplane.url.control" . }}
+            - name: "EDC_DPF_SELECTOR_URL"
+              value: {{ include "txap.controlplane.url.control" . }}/v1/dataplanes
 
-            - name: "EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT"
-              value: {{ include "txap.controlplane.url.control" .}}/token
+            #######
+            # AWS #
+            #######
+            {{- if $dataplane.aws.endpointOverride }}
+            - name: "EDC_AWS_ENDPOINT_OVERRIDE"
+              value: {{ $dataplane.aws.endpointOverride | quote }}
+            {{- end   }}
+            {{- if $dataplane.aws.secretAccessKey }}
+            - name: "AWS_SECRET_ACCESS_KEY"
+              value: {{ $dataplane.aws.secretAccessKey | quote }}
+            {{- end }}
+            {{- if $dataplane.aws.accessKeyId }}
+            - name: "AWS_ACCESS_KEY_ID"
+              value: {{ $dataplane.aws.accessKeyId | quote }}
+            {{- end }}
 
             ###########
             ## VAULT ##
@@ -168,32 +219,6 @@ spec:
               value: {{ .Values.vault.azure.certificate | quote }}
             {{- end }}
 
-            ##################
-            ## TOKEN REFRESH
-            ##################
-            {{- if $dataplane.token.refresh.expiry_seconds }}
-            - name: "EDC_DATAPLANE_TOKEN_EXPIRY"
-              value: {{ $dataplane.token.refresh.expiry_seconds | quote}}
-            {{- end}}
-
-            {{- if $dataplane.token.refresh.expiry_tolerance_seconds }}
-            - name: "EDC_DATAPLANE_TOKEN_EXPIRY_TOLERANCE"
-              value: {{ $dataplane.token.refresh.expiry_tolerance_seconds | quote }}
-            {{- end}}
-
-            {{- if $dataplane.token.refresh.refresh_endpoint }}
-            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
-              value: {{ $dataplane.token.refresh.refresh_endpoint }}
-            {{- else}}
-            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
-              value: {{ include "txap.dataplane.url.public" . }}/token
-            {{- end}}
-
-            - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
-              value: {{ $dataplane.token.signer.privatekey_alias | required ".Values.token.signer.privatekey_alias is required" | quote}}
-
-            - name: "EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS"
-              value: {{ $dataplane.token.verifier.publickey_alias | required ".Values.token.verifier.publickey_alias" | quote }}
 
             ###################
             # AUTH (JWT)      #
@@ -240,18 +265,12 @@ spec:
               value: {{ .Values.iatp.sts.oauth.client.id | required ".Values.iatp.sts.oauth.client.id is required" | quote}}
             - name: "EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS"
               value: {{ .Values.iatp.sts.oauth.client.secret_alias | required ".Values.iatp.sts.oauth.client.secret_alias is required" | quote}}
-            - name: "EDC_IAM_STS_DIM_URL"
+            - name: "TX_EDC_IAM_STS_DIM_URL"
               value: {{ .Values.iatp.sts.dim.url | required ".Values.iatp.sts.dim.url is required" | quote}}
             {{- range $index, $issuer := .Values.iatp.trustedIssuers }}
             - name: "EDC_IAM_TRUSTED-ISSUER_{{$index}}-ISSUER_ID"
               value: {{ $issuer | quote }}
             {{- end }}
-
-            #########################
-            ## DATA PLANE PUBLIC API
-            ########################
-            - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
-              value: {{ include "txap.dataplane.url.public" . }}
 
             ###################
             # AGENT CALLBACK  #
@@ -303,6 +322,16 @@ spec:
               value: {{ $dataplane.agent.services.asset.deny | quote }} 
           {{- end }}
           {{- end }}
+          {{- if $dataplane.agent.services.connector }}
+          {{- if $dataplane.agent.services.connector.allow }}
+            - name: "CX_AGENT_SERVICE_CONNECTOR_ALLOW"
+              value: {{ $dataplane.agent.services.connector.allow | quote }} 
+          {{- end }}
+          {{- if $dataplane.agent.services.connector.deny }}
+            - name: "CX_AGENT_SERVICE_CONNECTOR_DENY"
+              value: {{ $dataplane.agent.services.connector.deny | quote }} 
+          {{- end }}
+          {{- end }}
           {{- end }}
           
             ###################
@@ -314,22 +343,6 @@ spec:
               value: {{ $dataplane.agent.synchronization | required (printf ".Values.dataplane.%s.agent.synchronization should be set if connectors are specified" $dataplane_name) | quote }}
             - name: "CX_AGENT_FEDERATION_BATCH_MAX"
               value: {{ $dataplane.agent.maxbatchsize | quote }} 
-
-            #######
-            # AWS #
-            #######
-            {{- if $dataplane.aws.endpointOverride }}
-            - name: "EDC_AWS_ENDPOINT_OVERRIDE"
-              value: {{ $dataplane.aws.endpointOverride | quote }}
-            {{- end   }}
-            {{- if $dataplane.aws.secretAccessKey }}
-            - name: "AWS_SECRET_ACCESS_KEY"
-              value: {{ $dataplane.aws.secretAccessKey | quote }}
-            {{- end }}
-            {{- if $dataplane.aws.accessKeyId }}
-            - name: "AWS_ACCESS_KEY_ID"
-              value: {{ $dataplane.aws.accessKeyId | quote }}
-            {{- end }}
 
             ################
             ## POSTGRESQL ##
@@ -365,10 +378,44 @@ spec:
             - name: "EDC_DATASOURCE_ACCESSTOKENDATA_URL"
               value: {{ tpl .Values.postgresql.jdbcUrl . | quote }}
 
+            #########################
+            ## DATA PLANE PUBLIC API
+            ########################
+            - name: "EDC_DATAPLANE_API_PUBLIC_BASEURL"
+              value: {{ include "txap.dataplane.url.public" . }}
+
+
+            ##################
+            ## TOKEN REFRESH
+            ##################
+            {{- if $dataplane.token.refresh.expiry_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY"
+              value: {{ $dataplane.token.refresh.expiry_seconds | quote}}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.expiry_tolerance_seconds }}
+            - name: "EDC_DATAPLANE_TOKEN_EXPIRY_TOLERANCE"
+              value: {{ $dataplane.token.refresh.expiry_tolerance_seconds | quote }}
+            {{- end}}
+
+            {{- if $dataplane.token.refresh.refresh_endpoint }}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ $dataplane.token.refresh.refresh_endpoint }}
+            {{- else}}
+            - name: "EDC_DATAPLANE_TOKEN_REFRESH_ENDPOINT"
+              value: {{ include "txap.dataplane.url.public" . }}/token
+            {{- end}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS"
+              value: {{ $dataplane.token.signer.privatekey_alias | required ".Values.token.signer.privatekey_alias is required" | quote}}
+
+            - name: "EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS"
+              value: {{ $dataplane.token.verifier.publickey_alias | required ".Values.token.verifier.publickey_alias" | quote }}
+
             ######################################
             ## Additional environment variables ##
             ######################################
-            - name: "EDC_CONNECTOR_NAME"
+            - name: "EDC_RUNTIME_ID"
               value: {{ include "txap.fullname" .}}-{{ $dataplane.name }}
           {{- range $key, $value := $dataplane.envValueFrom }}
             - name: {{ $key | quote }}
@@ -391,21 +438,31 @@ spec:
           {{- end }}
           {{- end }}
           volumeMounts:
+           {{- if $dataplane.volumeMounts }}
+           {{- toYaml $dataplane.volumeMounts | nindent 12 }}
+           {{- end}}
             - name: "configuration"
               mountPath: "/app/opentelemetry.properties"
               subPath: "opentelemetry.properties"
             - name: "configuration"
               mountPath: "/app/logging.properties"
               subPath: "logging.properties"
+            {{- if .Values.customCaCerts }}
+            - name: custom-cacerts
+              mountPath: /opt/java/openjdk/lib/security/cacerts
+              subPath: cacerts
+            {{- end }}
             - name: "tmp"
               mountPath: "/tmp"
-
             {{- range $config_name, $config_value := $dataplane.configs }}
             - name: "configuration"
               mountPath: {{ printf "/app/%s" $config_name | quote }}
               subPath: {{ printf "%s" $config_name | quote }}
             {{- end }}
       volumes:
+       {{- if $dataplane.volumeMounts }}
+       {{- toYaml $dataplane.volumes | nindent 8 }}
+       {{- end}}
         - name: "configuration"
           configMap:
             name: {{ include "txap.fullname" . }}-{{ $dataplane_name }}
@@ -418,6 +475,15 @@ spec:
               - key: {{ printf "%s" $config_name | quote }}
                 path: {{ printf "%s" $config_name | quote }}
             {{- end }}
+        {{- if .Values.customCaCerts }}
+        - name: custom-cacertificates
+          configMap:
+            name: {{ include "txdc.fullname" . }}-custom-cacerts
+            defaultMode: 0400
+        - name: custom-cacerts
+          emptyDir:
+            sizeLimit: 1Mi
+        {{- end }}        
         - name: "tmp"
           emptyDir: { }
       {{- with $dataplane.nodeSelector }}

@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-2. Get the data plane URL(s) by running these commands:
+2. Get the data plane URL by running these commands:
 {{- $dataplane_name := .Values.name }}
 {{- $dataplane := .Values }}
 {{ with index $dataplane.ingresses 0}}
