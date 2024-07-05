@@ -65,3 +65,4 @@ dependencies:
     condition: install.postgresql
 maintainers:
   - name: 'Tractus-X Knowledge Agents Team'
+    url: https://github.com/eclipse-tractusx

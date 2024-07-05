@@ -35,7 +35,12 @@ controlplane:
   endpoints:
     management:
       authKey: "bla"
-
+  ingresses:
+    - enabled: true
+      hostname: 67dd349198194b508a8fd5e2dd24c173.api.mockbin.io
+      tls:
+        enabled: true
+        
 vault:
   azure:
     name: "AZURE_NAME"
@@ -69,3 +74,8 @@ iatp:
         secret_alias: "dummy"
     dim:
       url: "http://sts.server"
+
+#debug:
+#  enabled: true
+#  port: 4046
+#  suspendOnStart: true

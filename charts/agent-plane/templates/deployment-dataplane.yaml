@@ -174,7 +174,7 @@ spec:
             - name: "WEB_HTTP_CALLBACK_PATH"
               value: {{ $dataplane.endpoints.callback.path | quote }}
             - name: "EDC_CONTROL_ENDPOINT"
-              value: {{ include "txdc.dataplane.url.control" . }}
+              value: {{ include "txap.dataplane.url.control" . }}
             - name: "EDC_DPF_SELECTOR_URL"
               value: {{ include "txap.controlplane.url.control" . }}/v1/dataplanes
 

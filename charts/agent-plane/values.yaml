@@ -89,6 +89,11 @@ controlplane:
       port: 8084
       # -- path for incoming api calls
       path: /api/v1/dsp
+  ingresses:
+    - enabled: true
+      tls: 
+        enabled: true
+      hostname: 67dd349198194b508a8fd5e2dd24c173.api.mockbin.io
 
 # -- the name of the dataplane
 name: "agentplane"
