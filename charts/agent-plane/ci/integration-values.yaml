@@ -42,6 +42,11 @@ controlplane:
       tls:
         enabled: true
 
+livenessProbe:
+  initialDelaySeconds: 60
+readinessProbe:
+  initialDelaySeconds: 60
+
 vault:
   azure:
     name: "AZURE_NAME"

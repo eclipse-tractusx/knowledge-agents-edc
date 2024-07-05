@@ -176,6 +176,10 @@
                     <groupId>org.eclipse.edc</groupId>
                     <artifactId>asset-index-sql</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.edc</groupId>
+                    <artifactId>control-plane-spi</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
