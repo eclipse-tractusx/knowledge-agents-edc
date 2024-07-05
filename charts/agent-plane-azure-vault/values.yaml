@@ -88,7 +88,7 @@ controlplane:
       # -- path for incoming api calls
       path: /api/v1/dsp
   ingresses:
-   - enabled: false
+    - enabled: false
 
 # -- the name of the dataplane
 name: "agentplane"

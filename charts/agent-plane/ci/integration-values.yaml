@@ -72,7 +72,7 @@ iatp:
     dim:
       url: "http://sts.server"
 
-#debug:
+# debug:
 #  enabled: true
 #  port: 4046
 #  suspendOnStart: true

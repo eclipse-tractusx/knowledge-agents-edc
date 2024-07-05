@@ -91,7 +91,7 @@ controlplane:
       path: /api/v1/dsp
   ingresses:
     - enabled: true
-      tls: 
+      tls:
         enabled: true
       hostname: 67dd349198194b508a8fd5e2dd24c173.api.mockbin.io
 
