@@ -164,6 +164,18 @@
                     <groupId>org.eclipse.edc</groupId>
                     <artifactId>core-spi</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.edc</groupId>
+                    <artifactId>contract-spi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.edc</groupId>
+                    <artifactId>catalog-spi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.edc</groupId>
+                    <artifactId>asset-index-sql</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
