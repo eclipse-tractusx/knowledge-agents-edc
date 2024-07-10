@@ -161,7 +161,6 @@ maven/mavencentral/org.eclipse.edc.azure/vault-azure/0.7.1, Apache-2.0, approved
 maven/mavencentral/org.eclipse.edc/accesstokendata-store-sql/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/api-core/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/api-observability/0.7.1, Apache-2.0, approved, technology.edc
-maven/mavencentral/org.eclipse.edc/asset-index-sql/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/asset-spi/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/auth-spi/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/boot-lib/0.7.1, Apache-2.0, approved, technology.edc
@@ -174,7 +173,6 @@ maven/mavencentral/org.eclipse.edc/contract-spi/0.7.1, Apache-2.0, approved, tec
 maven/mavencentral/org.eclipse.edc/control-api-configuration/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/control-plane-api-client-spi/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/control-plane-api-client/0.7.1, Apache-2.0, approved, technology.edc
-maven/mavencentral/org.eclipse.edc/control-plane-spi/0.7.1-SNAPSHOT, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/core-spi/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/crypto-common-lib/0.7.1, Apache-2.0, approved, technology.edc
 maven/mavencentral/org.eclipse.edc/data-address-http-data-spi/0.7.1, Apache-2.0, approved, technology.edc
