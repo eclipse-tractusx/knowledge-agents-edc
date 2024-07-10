@@ -1,5 +1,5 @@
 <!--
- * Copyright (c) 2022,2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022,2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,6 +23,14 @@
 All notable changes to this product will be documented in this file.
 
 # Released
+
+## [1.13.21] - 2024-07-15
+
+### Added
+
+### Changed
+
+- Adapted to Tractus-X EDC 0.7.3
 
 ## [1.12.19] - 2024-05-17
 
