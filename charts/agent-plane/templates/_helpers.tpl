@@ -117,7 +117,7 @@ Control DSP URL
 {{- .Values.controlplane.url.protocol }}
 {{- else }}{{/* else when dsp api url has not been specified explicitly */}}
 {{- with (index .Values.controlplane.ingresses 0) }}
-{{- if .enabled }}{{/* if ingress enabled */}}
+{{- if or .enabled (not .enabled) }}{{/* if ingress enabled */}}
 {{- if .tls.enabled }}{{/* if TLS enabled */}}
 {{- printf "https://%s" .hostname -}}
 {{- else }}{{/* else when TLS not enabled */}}
@@ -126,16 +126,24 @@ Control DSP URL
 {{- else }}{{/* else when ingress not enabled */}}
 {{- printf "http://%s-controlplane:%v" ( include "txap.connector.fullname" $ ) $.Values.controlplane.endpoints.protocol.port -}}
 {{- end }}{{/* end if ingress */}}
-{{- end }}{{/* end with ingress */}}
-{{- end }}{{/* end if .Values.controlplane.url.protocol */}}
+{{- end }}{{/* end with ingress */}}{{- end }}{{/* end if .Values.controlplane.url.protocol */}}
 {{- end }}
 
 {{/*
-Validation URL
+Control URL
 */}}
 {{- define "txap.controlplane.url.control" -}}
-{{- printf "http://%s-controlplane:%v%s" ( include "txap.connector.fullname" $ ) .Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
-{{- end }}
+{{- with (index .Values.controlplane.ingresses 0) }}
+{{- if or .enabled (not .enabled) }}{{/* if ingress enabled */}}
+{{- if .tls.enabled }}{{/* if TLS enabled */}}
+{{- printf "https://%s%s" .hostname $.Values.controlplane.endpoints.control.path -}}
+{{- else }}{{/* else when TLS not enabled */}}
+{{- printf "http://%s%s" .hostname $.Values.controlplane.endpoints.control.path -}}
+{{- end }}{{/* end if tls */}}
+{{- else }}{{/* else when ingress not enabled */}}
+{{- printf "http://%s-controlplane:%v%s" ( include "txap.connector.fullname" $ ) $.Values.controlplane.endpoints.control.port .Values.controlplane.endpoints.control.path -}}
+{{- end }}{{/* end if ingress */}}
+{{- end }}{{/* end with ingress */}}{{- end }}{{/* end if .Values.controlplane.url.protocol */}}
 
 {{/*
 Validation URL
@@ -147,8 +155,8 @@ Validation URL
 {{/*
 Data Control URL (Expects the Chart Root to be accessible via .root, the current dataplane via .dataplane)
 */}}
-{{- define "txap.dataplane.url.signaling" -}}
-{{- printf "http://%s-%s:%v%s" (include "txap.fullname" . ) .Values.name .Values.endpoints.signaling.port .Values.endpoints.signaling.path -}}
+{{- define "txap.dataplane.url.control" -}}
+{{- printf "http://%s-%s:%v%s" (include "txap.fullname" . ) .Values.name .Values.endpoints.control.port .Values.endpoints.control.path -}}
 {{- end }}
 
 {{/*

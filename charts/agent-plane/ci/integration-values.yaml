@@ -23,18 +23,29 @@
 
 install:
   postgresql: true
+  vault: true
 
 participant:
   id: "BPNL0000000DUMMY"
 
 # image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-hashicorp
-#  tag: 1.13.20-SNAPSHOT
+#  tag: 1.13.21-SNAPSHOT
 
 controlplane:
   endpoints:
     management:
       authKey: "bla"
+  ingresses:
+    - enabled: true
+      hostname: 67dd349198194b508a8fd5e2dd24c173.api.mockbin.io
+      tls:
+        enabled: true
+
+livenessProbe:
+  initialDelaySeconds: 60
+readinessProbe:
+  initialDelaySeconds: 60
 
 vault:
   azure:
@@ -42,15 +53,6 @@ vault:
     tenant: "AZURE_TENANT"
     client: "AZURE_CLIENT"
     secret: "AZURE_SECRET"
-  hashicorp:
-    url: "https://vault.demo"
-    token: "VAULT_TOKEN"
-    paths:
-      secret: "/v1/secrets"
-  secretNames:
-    transferProxyTokenSignerPrivateKey: "key"
-    transferProxyTokenSignerPublicKey: "cert"
-    transferProxyTokenEncryptionAesKey: "symmetric-key"
 
 token:
   signer:
@@ -69,3 +71,8 @@ iatp:
         secret_alias: "dummy"
     dim:
       url: "http://sts.server"
+
+# debug:
+#  enabled: true
+#  port: 4046
+#  suspendOnStart: true

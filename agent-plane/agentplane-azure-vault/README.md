@@ -54,7 +54,7 @@ mvn -s ../../../settings.xml install -Pwith-docker-image
 Alternatively, after a sucessful [build](#building) the docker image of the Agent Plane is created using
 
 ```console
-docker build -t tractusx//agentplane-azure-vault:1.13.20-SNAPSHOT -f src/main/docker/Dockerfile .
+docker build -t tractusx//agentplane-azure-vault:1.13.21-SNAPSHOT -f src/main/docker/Dockerfile .
 ```
 
 To run the docker image, you could invoke this command
@@ -90,7 +90,7 @@ Project license: Apache License, Version 2.0
 
 **Used base image**
 
-- [eclipse-temurin:17-jre-alpine](https://github.com/adoptium/containers)
+- [eclipse-temurin:22-jre-alpine](https://github.com/adoptium/containers)
 - Official Eclipse Temurin DockerHub page: https://hub.docker.com/_/eclipse-temurin
 - Eclipse Temurin Project: https://projects.eclipse.org/projects/adoptium.temurin
 - Additional information about the Eclipse Temurin images: https://github.com/docker-library/repo-info/tree/master/repos/eclipse-temurin

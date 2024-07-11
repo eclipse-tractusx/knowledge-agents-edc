@@ -22,7 +22,6 @@ import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.edc.http.spi.EdcHttpClient;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
-import org.eclipse.tractusx.agents.edc.AgentProtocol;
 import org.eclipse.tractusx.agents.edc.SkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 
@@ -37,7 +36,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
     final SparqlQueryProcessor processor;
     final SkillStore skillStore;
     final HttpRequestFactory requestFactory;
-
+    final String protocol;
 
     /**
      * create a new agent source factory
@@ -49,14 +48,20 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
      * @param processor the query processor/sparql engine
      * @param skillStore store for skills
      */
-    public AgentSourceFactory(EdcHttpClient httpClient, AgentSourceRequestParamsSupplier supplier, Monitor monitor, HttpRequestFactory requestFactory, SparqlQueryProcessor processor, SkillStore skillStore) {
+    public AgentSourceFactory(String protocol, EdcHttpClient httpClient, AgentSourceRequestParamsSupplier supplier, Monitor monitor, HttpRequestFactory requestFactory, SparqlQueryProcessor processor, SkillStore skillStore) {
         super(httpClient, supplier, monitor, requestFactory);
+        this.protocol = protocol;
         this.supplier = supplier;
         this.monitor = monitor;
         this.httpClient = httpClient;
         this.skillStore = skillStore;
         this.processor = processor;
         this.requestFactory = requestFactory;
+    }
+
+    @Override
+    public String supportedType() {
+        return protocol;
     }
 
     /**
@@ -67,8 +72,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
      */
     @Override
     public boolean canHandle(DataFlowStartMessage request) {
-        return AgentProtocol.SPARQL_HTTP.getProtocolId().equals(request.getSourceDataAddress().getType()) ||
-                AgentProtocol.SKILL_HTTP.getProtocolId().equals(request.getSourceDataAddress().getType());
+        return protocol.equals(request.getSourceDataAddress().getType());
     }
 
     /**

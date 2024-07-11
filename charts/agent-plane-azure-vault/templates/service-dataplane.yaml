@@ -1,5 +1,5 @@
 ---
-#
+#################################################################################
 #  Copyright (c) 2024 T-Systems International GmbH
 #  Copyright (c) 2024 Contributors to the Eclipse Foundation
 #
@@ -8,7 +8,7 @@
 #
 #  This program and the accompanying materials are made available under the
 #  terms of the Apache License, Version 2.0 which is available at
-#  https://www.apache.org/licenses/LICENSE-2.0
+#  https://www.apache.org/licenses/LICENSE-2.0.
 #
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -17,14 +17,21 @@
 #  under the License.
 #
 #  SPDX-License-Identifier: Apache-2.0
-#
+#################################################################################
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "txap.fullname" . }}-{{ .Values.name }}
   namespace: {{.Release.Namespace | default "default" | quote }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "txap.dataplane.labels" . | nindent 4 }}
+    {{- with .Values.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -32,14 +39,22 @@ spec:
       targetPort: default
       protocol: TCP
       name: default
-    - port: {{ .Values.endpoints.signaling.port }}
-      targetPort: signaling
+    - port: {{ .Values.endpoints.control.port }}
+      targetPort: control
       protocol: TCP
-      name: signaling
+      name: control
     - port: {{ .Values.endpoints.public.port }}
       targetPort: public
       protocol: TCP
       name: public
+    - port: {{ .Values.endpoints.metrics.port }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+    - port: {{ .Values.endpoints.proxy.port }}
+      targetPort: proxy
+      protocol: TCP
+      name: proxy
     - port: {{ .Values.endpoints.callback.port }}
       targetPort: callback
       protocol: TCP

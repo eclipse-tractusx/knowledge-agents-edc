@@ -29,12 +29,22 @@ participant:
 
 # image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-azure-vault
-#  tag: 1.13.20-SNAPSHOT
+#  tag: 1.13.21-SNAPSHOT
 
 controlplane:
   endpoints:
     management:
       authKey: "bla"
+  ingresses:
+    - enabled: true
+      hostname: 67dd349198194b508a8fd5e2dd24c173.api.mockbin.io
+      tls:
+        enabled: true
+
+livenessProbe:
+  initialDelaySeconds: 60
+readinessProbe:
+  initialDelaySeconds: 60
 
 vault:
   azure:
@@ -69,3 +79,8 @@ iatp:
         secret_alias: "dummy"
     dim:
       url: "http://sts.server"
+
+# debug:
+#  enabled: true
+#  port: 4046
+#  suspendOnStart: true
