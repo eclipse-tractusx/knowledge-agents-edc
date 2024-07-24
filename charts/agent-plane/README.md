@@ -21,7 +21,7 @@
 
 # agent-plane
 
-![Version: 1.13.21-SNAPSHOT](https://img.shields.io/badge/Version-1.13.21--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.13.21-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.13.21--SNAPSHOT-informational?style=flat-square)
+![Version: 1.13.22-SNAPSHOT](https://img.shields.io/badge/Version-1.13.22--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.13.22-SNAPSHOT](https://img.shields.io/badge/AppVersion-1.13.22--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for an Agent-Enabled Tractus-X Data Plane which registers at a running
 Control Plane.
@@ -59,7 +59,7 @@ Combined, run this shell command to start the in-memory Tractus-X EDC runtime:
 
 ```shell
 helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
-helm install my-release eclipse-tractusx/agent-plane --version 1.13.21-SNAPSHOT
+helm install my-release eclipse-tractusx/agent-plane --version 1.13.22-SNAPSHOT
 ```
 
 ## Maintainers
@@ -84,15 +84,17 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.13.21-SNAPSHOT
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | [affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) to configure which nodes the pods can be scheduled on |
-| agent | object | `{"connectors":{},"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
+| agent | object | `{"connectors":{},"default":["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"],"maxbatchsize":"9223372036854775807","services":{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"connector":{"allow":"https://.*","deny":"http://.*"},"deny":"http://.*"},"skillcontract":"Contract?partner=Skill","synchronization":-1}` | Agent-Specific Settings |
 | agent.connectors | object | `{}` | A map of partner ids to remote connector IDS URLs to synchronize with |
 | agent.default | list | `["dataspace.ttl","https://w3id.org/catenax/ontology.ttl"]` | A list of local or remote graph descriptions to build the default meta-graph/federated data catalogue |
 | agent.maxbatchsize | string | `"9223372036854775807"` | Sets the maximal batch size when delegating to agents and services |
-| agent.services | object | `{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"deny":"http://.*"}` | A set of configs for regulating outgoing service calls |
+| agent.services | object | `{"allow":"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)","asset":{"allow":"(edcs?://.*)","deny":"https?://.*"},"connector":{"allow":"https://.*","deny":"http://.*"},"deny":"http://.*"}` | A set of configs for regulating outgoing service calls |
 | agent.services.allow | string | `"(edcs?://.*)|(https://query\\\\.wikidata\\\\.org/sparql)"` | A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property) |
 | agent.services.asset | object | `{"allow":"(edcs?://.*)","deny":"https?://.*"}` | A set of configs for regulating outgoing service calls when providing an asset (when no specific asset property is given) |
 | agent.services.asset.allow | string | `"(edcs?://.*)"` | A regular expression which outgoing service URLs must match (unless overwritten by a specific asset property) |
 | agent.services.asset.deny | string | `"https?://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
+| agent.services.connector.allow | string | `"https://.*"` | A regular expression which outgoing connector URLs must match  |
+| agent.services.connector.deny | string | `"http://.*"` | A regular expression which outgoing connector URLs must not match  |
 | agent.services.deny | string | `"http://.*"` | A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property) |
 | agent.skillcontract | string | `"Contract?partner=Skill"` | Names the visible contract under which new skills are published (if not otherwise specified) |
 | agent.synchronization | int | `-1` | The synchronization interval in ms to update the federated data catalogue |
@@ -250,4 +252,4 @@ helm install my-release eclipse-tractusx/agent-plane --version 1.13.21-SNAPSHOT
 | volumes | list | `[]` | [volume](https://kubernetes.io/docs/concepts/storage/volumes/) directories |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.2](https://github.com/norwoodj/helm-docs/releases/v1.11.2)
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

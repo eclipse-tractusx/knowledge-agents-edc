@@ -24,13 +24,14 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
-## [1.13.21] - 2024-07-15
+## [1.13.22] - 2024-07-29
 
 ### Added
 
 ### Changed
 
 - Adapted to Tractus-X EDC 0.7.3
+- Add connector url allowance patterns to the chart values for easier configuration.
 
 ## [1.12.19] - 2024-05-17
 
