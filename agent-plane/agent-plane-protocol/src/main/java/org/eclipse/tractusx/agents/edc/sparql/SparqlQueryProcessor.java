@@ -43,8 +43,6 @@ import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.MonitorWrapper;
-import org.eclipse.tractusx.agents.edc.Tuple;
-import org.eclipse.tractusx.agents.edc.TupleSet;
 import org.eclipse.tractusx.agents.edc.http.AgentHttpAction;
 import org.eclipse.tractusx.agents.edc.http.HttpServletContextAdapter;
 import org.eclipse.tractusx.agents.edc.http.HttpServletRequestAdapter;
@@ -54,8 +52,6 @@ import org.eclipse.tractusx.agents.edc.http.JakartaAdapter;
 import org.eclipse.tractusx.agents.edc.http.transfer.AgentSourceHttpParamsDecorator;
 import org.eclipse.tractusx.agents.edc.rdf.RdfStore;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -317,78 +313,24 @@ public class SparqlQueryProcessor extends SPARQL_QueryGeneral.SPARQL_QueryProc {
                 queryString = HttpUtils.urlDecodeParameter(query.get());
             }
         }
-        TupleSet ts = ((AgentHttpAction) action).getInputBindings();
-        Pattern tuplePattern = Pattern.compile("\\([^()]*\\)");
-        Pattern variablePattern = Pattern.compile("@(?<name>[a-zA-Z0-9]+)");
-        Matcher tupleMatcher = tuplePattern.matcher(queryString);
-        StringBuilder replaceQuery = new StringBuilder();
-        int lastStart = 0;
-        while (tupleMatcher.find()) {
-            replaceQuery.append(queryString.substring(lastStart, tupleMatcher.start()));
-            String otuple = tupleMatcher.group(0);
-            Matcher variableMatcher = variablePattern.matcher(otuple);
-            List<String> variables = new java.util.ArrayList<>();
-            while (variableMatcher.find()) {
-                variables.add(variableMatcher.group("name"));
-            }
-            if (variables.size() > 0) {
-                try {
-                    boolean isFirst = true;
-                    Collection<Tuple> tuples = ts.getTuples(variables.toArray(new String[0]));
-                    for (Tuple rtuple : tuples) {
-                        if (isFirst) {
-                            isFirst = false;
-                        } else {
-                            replaceQuery.append(" ");
-                        }
-                        String newTuple = otuple;
-                        for (String key : rtuple.getVariables()) {
-                            newTuple = newTuple.replace("@" + key, rtuple.get(key));
-                        }
-                        replaceQuery.append(newTuple);
-                    }
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
-                    action.getResponse().setStatus(HttpStatus.SC_BAD_REQUEST);
-                    return;
-                }
-            } else {
-                replaceQuery.append(otuple);
-            }
-            lastStart = tupleMatcher.end();
-        }
-        replaceQuery.append(queryString.substring(lastStart));
-
-        queryString = replaceQuery.toString();
-        Matcher variableMatcher = variablePattern.matcher(queryString);
-        List<String> variables = new java.util.ArrayList<>();
-        while (variableMatcher.find()) {
-            variables.add(variableMatcher.group("name"));
-        }
+        // bind the query with the parameters
+        // code has been refactored into AgentHttpAction
         try {
-            Collection<Tuple> tuples = ts.getTuples(variables.toArray(new String[0]));
-            if (tuples.size() == 0 && variables.size() > 0) {
-                throw new BadRequestException(String.format("Error: Got variables %s on top-level but no bindings.", Arrays.toString(variables.toArray())));
-            } else if (tuples.size() > 1) {
-                System.err.println(String.format("Warning: Got %s tuples for top-level bindings of variables %s. Using only the first one.", tuples.size(), Arrays.toString(variables.toArray())));
-            }
-            if (tuples.size() > 0) {
-                Tuple rtuple = tuples.iterator().next();
-                for (String key : rtuple.getVariables()) {
-                    queryString = queryString.replace("@" + key, rtuple.get(key));
-                }
-            }
-        } catch (Exception e) {
-            throw new BadRequestException(String.format("Error: Could not bind variables"), e);
+            queryString = AgentHttpAction.bind(queryString, ((AgentHttpAction) action).getInputBindings());
+        }  catch (Exception e) {
+            System.err.println(e.getMessage());
+            action.getResponse().setStatus(HttpStatus.SC_BAD_REQUEST);
+            return;
         }
+
         if (action.getContext().isDefined(DataspaceServiceExecutor.ASSET_SYMBOL)) {
             String targetUrl = action.getContext().get(DataspaceServiceExecutor.TARGET_URL_SYMBOL);
             String asset = action.getContext().get(DataspaceServiceExecutor.ASSET_SYMBOL);
             asset = asset.replace("?", "\\?");
             String graphPattern = String.format("GRAPH\\s*\\<?(%s)?%s\\>?", UNSET_BASE, asset);
             Matcher graphMatcher = Pattern.compile(graphPattern).matcher(queryString);
-            replaceQuery = new StringBuilder();
-            lastStart = 0;
+            StringBuilder replaceQuery = new StringBuilder();
+            int lastStart = 0;
             while (graphMatcher.find()) {
                 replaceQuery.append(queryString.substring(lastStart, graphMatcher.start() - 1));
                 replaceQuery.append(String.format("SERVICE <%s>", targetUrl));

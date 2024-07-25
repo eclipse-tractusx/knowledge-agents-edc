@@ -21,6 +21,7 @@ import org.eclipse.edc.connector.dataplane.http.spi.HttpDataAddress;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.edc.http.spi.EdcHttpClient;
 import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.tractusx.agents.edc.SkillStore;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
@@ -36,6 +37,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
     final SparqlQueryProcessor processor;
     final SkillStore skillStore;
     final HttpRequestFactory requestFactory;
+    final TypeManager typeManager;
     final String protocol;
 
     /**
@@ -47,8 +49,9 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
      * @param requestFactory for outgoing calls
      * @param processor the query processor/sparql engine
      * @param skillStore store for skills
+     * @param typeManager type manager
      */
-    public AgentSourceFactory(String protocol, EdcHttpClient httpClient, AgentSourceRequestParamsSupplier supplier, Monitor monitor, HttpRequestFactory requestFactory, SparqlQueryProcessor processor, SkillStore skillStore) {
+    public AgentSourceFactory(String protocol, EdcHttpClient httpClient, AgentSourceRequestParamsSupplier supplier, Monitor monitor, HttpRequestFactory requestFactory, SparqlQueryProcessor processor, SkillStore skillStore, TypeManager typeManager) {
         super(httpClient, supplier, monitor, requestFactory);
         this.protocol = protocol;
         this.supplier = supplier;
@@ -57,6 +60,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
         this.skillStore = skillStore;
         this.processor = processor;
         this.requestFactory = requestFactory;
+        this.typeManager = typeManager;
     }
 
     @Override
@@ -93,6 +97,7 @@ public class AgentSourceFactory extends org.eclipse.edc.connector.dataplane.http
                 .name(dataAddress.getName())
                 .params(supplier.provideSourceParams(request))
                 .requestFactory(requestFactory)
+                .typeManager(typeManager)
                 .skillStore(skillStore)
                 .processor(processor)
                 .request(request)
