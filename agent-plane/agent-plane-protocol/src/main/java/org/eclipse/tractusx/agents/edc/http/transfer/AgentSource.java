@@ -20,6 +20,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.Buffer;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
@@ -137,10 +138,12 @@ public class AgentSource implements DataSource {
                         }
                         String query = skillText.get();
                         okhttp3.Request tempRequest = this.requestFactory.toRequest(this.params);
-                        if (tempRequest.body() != null && tempRequest.body().contentType().toString() == AgentHttpAction.RESULTSET_CONTENT_TYPE) {
+                        if (tempRequest.body() != null && AgentHttpAction.RESULTSET_CONTENT_TYPE.equals(tempRequest.body().contentType().toString())) {
                             TupleSet bindings = new TupleSet();
                             try {
-                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(tempRequest.body().toString()), bindings);
+                                Buffer buffer = new Buffer();
+                                tempRequest.body().writeTo(buffer);
+                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(buffer.readByteArray()), bindings);
                                 query = AgentHttpAction.bind(query, bindings);
                             } catch (Exception e) {
                                 return StreamResult.error(String.format("The query could not be bound to the given input tupleset.", e));
@@ -219,10 +222,12 @@ public class AgentSource implements DataSource {
                         }
                         String query = skillText.get();
                         okhttp3.Request tempRequest = this.requestFactory.toRequest(this.params);
-                        if (tempRequest.body() != null && tempRequest.body().contentType().toString() == AgentHttpAction.RESULTSET_CONTENT_TYPE) {
+                        if (tempRequest.body() != null && AgentHttpAction.RESULTSET_CONTENT_TYPE.equals(tempRequest.body().contentType().toString())) {
                             TupleSet bindings = new TupleSet();
                             try {
-                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(tempRequest.body().toString()), bindings);
+                                Buffer buffer = new Buffer();
+                                tempRequest.body().writeTo(buffer);
+                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(buffer.readByteArray()), bindings);
                                 query = AgentHttpAction.bind(query, bindings);
                             } catch (Exception e) {
                                 return StreamResult.error(String.format("The query could not be bound to the given input tupleset.", e));

@@ -21,7 +21,7 @@ ENV OTEL_AGENT_LOCATION "https://github.com/open-telemetry/opentelemetry-java-in
 
 HEALTHCHECK NONE
 
-RUN apk update && apk add curl=8.5.0-r0 --no-cache
+RUN apk update && apk add curl=8.9.0-r0 --no-cache
 RUN curl -L --proto "=https" -sSf ${OTEL_AGENT_LOCATION} --output /tmp/opentelemetry-javaagent.jar
 
 FROM eclipse-temurin:22-jre-alpine
