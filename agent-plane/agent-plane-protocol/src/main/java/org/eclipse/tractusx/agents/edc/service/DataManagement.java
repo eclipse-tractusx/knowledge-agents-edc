@@ -169,6 +169,20 @@ public class DataManagement {
     public static final String TRANSFER_CHECK_CALL = "%s/v2/transferprocesses/%s";
     public static final String AGREEMENT_CHECK_CALL = "%s/v2/contractagreements/%s";
 
+    public static final String DEFAULT_ID_RESPONSE = "{\n" +
+            "    \"@type\": \"IdResponse\",\n" +
+            "    \"@id\": \"%1$s\",\n" +
+            "    \"createdAt\": %2$d,\n" +
+            "    \"@context\": {\n" +
+            "        \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\",\n" +
+            "        \"edc\": \"https://w3id.org/edc/v0.0.1/ns/\",\n" +
+            "        \"tx\": \"https://w3id.org/tractusx/v0.0.1/ns/\",\n" +
+            "        \"tx-auth\": \"https://w3id.org/tractusx/auth/\",\n" +
+            "        \"cx-policy\": \"https://w3id.org/catenax/policy/\",\n" +
+            "        \"odrl\": \"http://www.w3.org/ns/odrl/2/\"\n" +
+            "    }\n" +
+            "}";
+
     /**
      * references to EDC services
      */
@@ -289,6 +303,7 @@ public class DataManagement {
 
         try (var response = httpClient.newCall(request.build()).execute()) {
             ResponseBody body = response.body();
+            String bodyString = String.format(DEFAULT_ID_RESPONSE, assetId, System.currentTimeMillis());
 
             if (!response.isSuccessful() || body == null) {
 
@@ -301,14 +316,17 @@ public class DataManagement {
                 config.getControlPlaneManagementHeaders().forEach(patchRequest::addHeader);
 
                 try (var patchResponse = httpClient.newCall(patchRequest.build()).execute()) {
-                    body = patchResponse.body();
-                    if (!patchResponse.isSuccessful() || body == null) {
+                    // patch will return an empty body
+                    if (!patchResponse.isSuccessful()) {
                         monitor.warning(format("Failure in updating the resource at %s. Ignoring", url));
                         return null;
                     }
                 }
+            } else {
+                // parse the actual id response
+                bodyString = body.string();
             }
-            return JsonLd.processIdResponse(body.string());
+            return JsonLd.processIdResponse(bodyString);
         } catch (Exception e) {
             monitor.severe(format("Error in calling the control plane at %s", url), e);
             throw e;

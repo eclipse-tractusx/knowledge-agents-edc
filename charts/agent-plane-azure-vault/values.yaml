@@ -408,6 +408,11 @@ agent:
       allow: '(edcs?://.*)'
       # -- A regular expression which outgoing service URLs must not match (unless overwritten by a specific asset property)
       deny: 'https?://.*'
+    connector:
+      # -- A regular expression which outgoing connector URLs must match
+      allow: 'https://.*'
+      # -- A regular expression which outgoing connector URLs must not match
+      deny: 'http://.*'
 
 # -- Standard settings for persistence, "jdbcUrl", "username" and "password" need to be overridden
 postgresql:

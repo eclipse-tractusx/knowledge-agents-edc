@@ -20,15 +20,19 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.Buffer;
 import org.eclipse.edc.connector.dataplane.http.params.HttpRequestFactory;
 import org.eclipse.edc.connector.dataplane.http.spi.HttpRequestParams;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.edc.connector.dataplane.spi.pipeline.StreamResult;
 import org.eclipse.edc.http.spi.EdcHttpClient;
+import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.tractusx.agents.edc.AgentConfig;
 import org.eclipse.tractusx.agents.edc.SkillDistribution;
 import org.eclipse.tractusx.agents.edc.SkillStore;
+import org.eclipse.tractusx.agents.edc.TupleSet;
+import org.eclipse.tractusx.agents.edc.http.AgentHttpAction;
 import org.eclipse.tractusx.agents.edc.sparql.SparqlQueryProcessor;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,6 +74,8 @@ public class AgentSource implements DataSource {
     protected SkillStore skillStore;
 
     protected DataFlowStartMessage request;
+
+    protected TypeManager typeManager;
 
     protected String matchmakingAgentUrl;
 
@@ -114,6 +120,13 @@ public class AgentSource implements DataSource {
                     SkillDistribution distribution = skillStore.getDistribution(asset);
                     String params = request.getProperties().get(AgentSourceHttpParamsDecorator.QUERY_PARAMS);
                     SkillDistribution runMode = SkillDistribution.ALL;
+                    // if we have no distribution constraints, let the runMode decide
+                    if (distribution == SkillDistribution.ALL) {
+                        distribution = runMode;
+                    } else if (runMode == SkillDistribution.ALL) {
+                        // if we have no runMode constraints, let the distribution decide
+                        runMode = distribution;
+                    }
                     if (params.contains("runMode=provider") || params.contains("runMode=PROVIDER")) {
                         runMode = SkillDistribution.PROVIDER;
                     } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
@@ -123,7 +136,20 @@ public class AgentSource implements DataSource {
                         if (distribution == SkillDistribution.PROVIDER) {
                             return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
                         }
-                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                        String query = skillText.get();
+                        okhttp3.Request tempRequest = this.requestFactory.toRequest(this.params);
+                        if (tempRequest.body() != null && AgentHttpAction.RESULTSET_CONTENT_TYPE.equals(tempRequest.body().contentType().toString())) {
+                            TupleSet bindings = new TupleSet();
+                            try {
+                                Buffer buffer = new Buffer();
+                                tempRequest.body().writeTo(buffer);
+                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(buffer.readByteArray()), bindings);
+                                query = AgentHttpAction.bind(query, bindings);
+                            } catch (Exception e) {
+                                return StreamResult.error(String.format("The query could not be bound to the given input tupleset.", e));
+                            }
+                        }
+                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", query.getBytes())));
                     } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
                         return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
                     }
@@ -183,11 +209,31 @@ public class AgentSource implements DataSource {
                     } else if (params.contains("runMode=consumer") || params.contains("runMode=CONSUMER")) {
                         runMode = SkillDistribution.CONSUMER;
                     }
+                    // if we have no distribution constraints, let the runMode decide
+                    if (distribution == SkillDistribution.ALL) {
+                        distribution = runMode;
+                    } else if (runMode == SkillDistribution.ALL) {
+                        // if we have no runMode constraints, let the distribution decide
+                        runMode = distribution;
+                    }
                     if (runMode == SkillDistribution.CONSUMER) {
                         if (distribution == SkillDistribution.PROVIDER) {
                             return StreamResult.error(String.format("Run distribution of skill %s should be consumer, but was set to provider only.", asset));
                         }
-                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", skillText.get().getBytes())));
+                        String query = skillText.get();
+                        okhttp3.Request tempRequest = this.requestFactory.toRequest(this.params);
+                        if (tempRequest.body() != null && AgentHttpAction.RESULTSET_CONTENT_TYPE.equals(tempRequest.body().contentType().toString())) {
+                            TupleSet bindings = new TupleSet();
+                            try {
+                                Buffer buffer = new Buffer();
+                                tempRequest.body().writeTo(buffer);
+                                AgentHttpAction.parseBinding(typeManager.getMapper().readTree(buffer.readByteArray()), bindings);
+                                query = AgentHttpAction.bind(query, bindings);
+                            } catch (Exception e) {
+                                return StreamResult.error(String.format("The query could not be bound to the given input tupleset.", e));
+                            }
+                        }
+                        return StreamResult.success(Stream.of(new AgentPart("application/sparql-query", query.getBytes())));
                     } else if (runMode == SkillDistribution.PROVIDER && distribution == SkillDistribution.CONSUMER) {
                         return StreamResult.error(String.format("Run distribution of skill %s should be provider, but was set to consumer only.", asset));
                     }
@@ -298,6 +344,11 @@ public class AgentSource implements DataSource {
 
         public AgentSource.Builder matchmakingAgentUrl(String matchmakingAgentUrl) {
             dataSource.matchmakingAgentUrl = matchmakingAgentUrl;
+            return this;
+        }
+
+        public AgentSource.Builder typeManager(TypeManager typeManager) {
+            dataSource.typeManager = typeManager;
             return this;
         }
 

@@ -169,14 +169,16 @@ public class AgentExtension implements ServiceExtension {
                 monitor,
                 httpRequestFactory,
                 processor,
-                skillStore);
+                skillStore,
+                typeManager);
         AgentSourceFactory skillSourceFactory = new AgentSourceFactory(AgentProtocol.SKILL_HTTP.getProtocolId(),
                 edcHttpClient,
                 new AgentSourceRequestParamsSupplier(vault, typeManager, config, monitor),
                 monitor,
                 httpRequestFactory,
                 processor,
-                skillStore);
+                skillStore,
+                typeManager);
         pipelineService.registerFactory(sparqlSourceFactory);
         pipelineService.registerFactory(skillSourceFactory);
 
