@@ -41,29 +41,30 @@
         <mockito.version>5.2.0</mockito.version>
         <tx.edc.version>0.8.0-rc3</tx.edc.version>
         <edc.version>0.10.0-20240918-SNAPSHOT</edc.version>
-        <failsafe.version>3.3.2</failsafe.version>
-        <okhttp.version>4.12.0</okhttp.version>
-        <okio.version>3.6.0</okio.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-        <com.nimbusds.version>9.41.1</com.nimbusds.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
+        <awssdk.version>2.26.7</awssdk.version>
         <com.azure.azure-identity.version>1.13.2</com.azure.azure-identity.version>
         <com.azure.azure-security-keyvault-secrets.version>4.8.5</com.azure.azure-security-keyvault-secrets.version>
-        <jackson.version>2.18.0</jackson.version>
-        <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
-        <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
-        <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
-        <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
-        <jetbrains.kotlin.version>1.9.10</jetbrains.kotlin.version>
-        <io.micrometer.version>1.13.1</io.micrometer.version>
-        <netty.nio.core-http2.version>4.1.110.Final</netty.nio.core-http2.version>
         <commons.compress.version>1.26.0</commons.compress.version>
+        <com.nimbusds.version>9.41.1</com.nimbusds.version>
+        <failsafe.version>3.3.2</failsafe.version>
+        <jackson.version>2.18.0</jackson.version>
+        <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <jetbrains.kotlin.version>1.9.10</jetbrains.kotlin.version>
+        <jetty-jakarta-servlet-api.version>5.0.2</jetty-jakarta-servlet-api.version>
         <jetty.version>11.0.24</jetty.version>
+        <net.java.dev.jna.version>5.13.0</net.java.dev.jna.version>
+        <net.minidev.jsonsmart.version>2.5.0</net.minidev.jsonsmart.version>
+        <netty.nio.core-http2.version>4.1.110.Final</netty.nio.core-http2.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <okio.version>3.6.0</okio.version>
+        <org.reactivestreams.version>1.0.4</org.reactivestreams.version>
+        <org.yaml.snakeyaml.version>2.2</org.yaml.snakeyaml.version>
+        <protobuf.version>3.25.5</protobuf.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <io.micrometer.version>1.13.1</io.micrometer.version>
         <reactor.netty.version>1.0.44</reactor.netty.version>
-        <awssdk.version>2.26.7</awssdk.version>
 
         <!-- Source characteristics -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -147,6 +148,7 @@
                                 <workingDirectory>${project.basedir}</workingDirectory>
                                 <arguments>
                                     <argument>build</argument>
+                                    <argument>--load</argument>
                                     <argument>--platform</argument>
                                     <argument>${platform}</argument>
                                     <argument>-f</argument>
