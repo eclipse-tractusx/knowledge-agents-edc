@@ -66,10 +66,10 @@ mvn package -Pwith-docker-image
 Alternatively, after a successful build, you can invoke docker yourself 
 
 ```console
-docker build -t tractusx/agentplane-azure-vault:1.13.22-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
+docker build -t tractusx/agentplane-azure-vault:1.14.23-SNAPSHOT -f agentplane-azure-vault/src/main/docker/Dockerfile .
 ```
 
 ```console
-docker build -t tractusx/agentplane-hashicorp:1.13.22-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
+docker build -t tractusx/agentplane-hashicorp:1.14.23-SNAPSHOT -f agentplane-hashicorp/src/main/docker/Dockerfile .
 ```
 

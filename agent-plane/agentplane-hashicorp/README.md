@@ -54,7 +54,7 @@ mvn -s ../../../settings.xml install -Pwith-docker-image
 Alternatively, after a sucessful [build](#building) the docker image of the Agent Plane is created using
 
 ```console
-docker build -t tractusx/agentplane-hashicorp:1.13.22-SNAPSHOT -f src/main/docker/Dockerfile .
+docker build -t tractusx/agentplane-hashicorp:1.14.23-SNAPSHOT -f src/main/docker/Dockerfile .
 ```
 
 To run the docker image, you could invoke this command
@@ -66,7 +66,7 @@ docker run -p 8082:8082 \
   -v $(pwd)/resources/dataplane.properties:/app/configuration.properties \
   -v $(pwd)/resources/opentelemetry.properties:/app/opentelemetry.properties \
   -v $(pwd)/resources/logging.properties:/app/logging.properties \
-  tractusx/agentplane-hashicorp:1.13.22-SNAPSHOT
+  tractusx/agentplane-hashicorp:1.14.23-SNAPSHOT
 ````
 
 Afterwards, you should be able to access the [local SparQL endpoint](http://localhost:8082/api/agent) via

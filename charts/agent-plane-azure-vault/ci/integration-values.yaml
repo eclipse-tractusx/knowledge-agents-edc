@@ -29,7 +29,7 @@ participant:
 
 # image:
 #  repository: ghcr.io/catenax-ng/tx-knowledge-agents-edc/agentplane-azure-vault
-#  tag: 1.13.22-SNAPSHOT
+#  tag: 1.14.23-SNAPSHOT
 
 controlplane:
   endpoints:

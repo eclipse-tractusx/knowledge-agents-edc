@@ -37,7 +37,7 @@ Add the following dependency to your EDC artifact pom:
         <dependency>
             <groupId>org.eclipse.tractusx.agents.edc</groupId>
             <artifactId>auth-jwt</artifactId>
-            <version>1.13.22-SNAPSHOT</version>
+            <version>1.14.23-SNAPSHOT</version>
         </dependency>
 ```
 

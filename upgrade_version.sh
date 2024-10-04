@@ -16,7 +16,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-OLD_VERSION=1.13.22-SNAPSHOT
+OLD_VERSION=1.14.23-SNAPSHOT
 echo Upgrading from $OLD_VERSION to $1
 PATTERN=s/$OLD_VERSION/$1/g
 LC_ALL=C
