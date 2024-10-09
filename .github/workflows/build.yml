@@ -142,7 +142,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=1.14.23-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1.14.24-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Hashicorp Container Build and push
@@ -180,7 +180,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=1.14.23-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1.14.24-SNAPSHOT,enable=${{ github.event.inputs.deploy_docker == 'true' || github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Agent Plane Azure Vault Container Build and push

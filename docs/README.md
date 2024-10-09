@@ -75,7 +75,7 @@ dependencies:
       alias: my-connector
     - name: agent-plane
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.14.23-SNAPSHOT
+      version: 1.14.24-SNAPSHOT
       alias: my-agent
 ```
 
@@ -90,7 +90,7 @@ dependencies:
       alias: my-connector
     - name: agent-plane-azure-vault
       repository: https://eclipse-tractusx.github.io/charts/dev
-      version: 1.14.23-SNAPSHOT
+      version: 1.14.24-SNAPSHOT
       alias: my-agent
 ```
 

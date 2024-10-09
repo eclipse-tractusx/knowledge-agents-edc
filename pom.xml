@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.tractusx.agents</groupId>
     <artifactId>edc</artifactId>
-    <version>1.14.23-SNAPSHOT</version>
+    <version>1.14.24-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Tractus-X Knowledge Agents EDC Extensions</name>
     <description>EDC-Related Artifacts for Federated Procedure Calls</description>
@@ -39,8 +39,8 @@
 
         <junit.version>5.11.0</junit.version>
         <mockito.version>5.2.0</mockito.version>
-        <tx.edc.version>0.8.0-rc3</tx.edc.version>
-        <edc.version>0.10.0-20240918-SNAPSHOT</edc.version>
+        <tx.edc.version>0.8.0-rc4</tx.edc.version>
+        <edc.version>0.10.0-20241006-SNAPSHOT</edc.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
         <awssdk.version>2.26.7</awssdk.version>
         <com.azure.azure-identity.version>1.13.2</com.azure.azure-identity.version>

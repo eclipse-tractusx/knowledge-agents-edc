@@ -123,7 +123,7 @@ public class TestDataspaceSynchronizer {
         JsonObjectBuilder offerBuilder = Json.createObjectBuilder()
                 .add("@id", "cx-taxo:GraphAsset?test=ExampleAsset")
                 .add("https://w3id.org/edc/v0.0.1/ns/contenttype", "application/json, application/xml")
-                .add("https://w3id.org/catenax/ontology/common#version", "1.14.23-SNAPSHOT")
+                .add("https://w3id.org/catenax/ontology/common#version", "1.14.24-SNAPSHOT")
                 .add("https://w3id.org/catenax/ontology/common#name", "Test Asset")
                 .add("https://w3id.org/catenax/ontology/common#description", "Test Asset for RDF Representation")
                 .add("https://w3id.org/catenax/ontology/common#description@de", "Beispiel Asset für RDF Darstellung")
@@ -212,7 +212,7 @@ public class TestDataspaceSynchronizer {
                 "                },\n" +
                 "                \"dcat:accessService\": \"ddd4b79e-f785-4e71-9fe5-4a177b3ccf54\"\n" +
                 "            },\n" +
-                "            \"edc:version\": \"1.14.23-SNAPSHOT\",\n" +
+                "            \"edc:version\": \"1.14.24-SNAPSHOT\",\n" +
                 "            \"http://www.w3.org/2000/01/rdf-schema#isDefinedBy\": \"<https://w3id.org/catenax/ontology/diagnosis>\",\n" +
                 "            \"edc:name\": \"Diagnostic Trouble Code Catalogue Version 2022\",\n" +
                 "            \"http://www.w3.org/ns/shacl#shapesGraph\": \"@prefix cx-common: <https://w3id.org/catenax/ontology/common#>. \\n@prefix : <https://w3id.org/catenax/taxonomy#GraphAsset?oem=Diagnosis2022&shapeObject=> .\\n@prefix cx-diag: <https://w3id.org/catenax/ontology/diagnosis#> .\\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\\n@prefix sh: <http://www.w3.org/ns/shacl#> .\\n\\n:OemDTC rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DTC ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:version ;\\n        sh:hasValue \\\"0\\\"^^xsd:long ;\\n    ] ;\\n  sh:property [\\n        sh:path cx-diag:affects ;\\n        sh:class :OemDiagnosedParts ;\\n    ].\\n\\n:OemDiagnosedParts rdf:type sh:NodeShape ;\\n  sh:targetClass cx-diag:DiagnosedPart ;\\n  sh:property [\\n        sh:path cx-diag:provisionedBy ;\\n        sh:hasValue <urn:bpn:legal:BPNL00000003COJN> ;\\n    ] .\\n\",\n" +

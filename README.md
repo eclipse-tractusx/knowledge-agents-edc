@@ -120,8 +120,8 @@ kubectl wait --namespace ingress-nginx \
   --selector=app.kubernetes.io/component=controller \
   --timeout=90s
 # transfer images
-kind load docker-image docker.io/tractusx/agentplane-hashicorp:1.14.23-SNAPSHOT --name ka
-kind load docker-image docker.io/tractusx/agentplane-azure-vault:1.14.23-SNAPSHOT --name ka
+kind load docker-image docker.io/tractusx/agentplane-hashicorp:1.14.24-SNAPSHOT --name ka
+kind load docker-image docker.io/tractusx/agentplane-azure-vault:1.14.24-SNAPSHOT --name ka
 # run chart testing
 ct install --charts charts/agent-plane
 ct install --charts charts/agent-plane-azure-vault   

@@ -54,7 +54,7 @@ mvn -s ../../../settings.xml install -Pwith-docker-image
 Alternatively, after a sucessful [build](#building) the docker image of the Agent Plane is created using
 
 ```console
-docker build -t tractusx//agentplane-azure-vault:1.14.23-SNAPSHOT -f src/main/docker/Dockerfile .
+docker build -t tractusx//agentplane-azure-vault:1.14.24-SNAPSHOT -f src/main/docker/Dockerfile .
 ```
 
 To run the docker image, you could invoke this command
