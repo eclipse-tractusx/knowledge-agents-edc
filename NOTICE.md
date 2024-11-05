@@ -70,8 +70,8 @@ You may recreate an up-to-date DEPENDENCIES file by invoking
 ```
 
 The KA-EDC build and runtime platform is relying on:
-* [Java Runtime Environment (JRE >=11 - license depends on chosen provider)](https://de.wikipedia.org/wiki/Java-Laufzeitumgebung)
-* [Java Development Kit (JDK >=11 - license depends on chosen provider)](https://de.wikipedia.org/wiki/Java_Development_Kit) 
+* [Java Runtime Environment (JRE >=17 - license depends on chosen provider)](https://de.wikipedia.org/wiki/Java-Laufzeitumgebung)
+* [Java Development Kit (JDK >=17 - license depends on chosen provider)](https://de.wikipedia.org/wiki/Java_Development_Kit) 
 * [Apache Maven >=3.8 (Apache License 2.0)](https://maven.apache.org) 
 * [Eclipse Dash (Eclipse Public License 2.0)](https://github.com/eclipse/dash-licenses)
 * [Docker Engine >= 20.10.17 (Apache License 2.0)]() 

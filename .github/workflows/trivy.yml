@@ -53,7 +53,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@6e7b7d1fd3e4fef0c5fa8cce1229c54b2c9bd0d8 # v0.24.0
         with:
@@ -65,7 +65,7 @@ jobs:
           output: "trivy-results-config.sarif"
           severity: "CRITICAL,HIGH"
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@b611370bb5703a7efb587f9d136a52ea24c5c38c # v3.25.11
+        uses: github/codeql-action/upload-sarif@883d8588e56d1753a8a58c1c86e88976f0c23449 # v3.26.3
         if: always()
         with:
           sarif_file: "trivy-results-config.sarif"
@@ -99,7 +99,7 @@ jobs:
           fi
           exit 0
 
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       # Enable repository access (on main branch and version tags only)
       - name: Login to GitHub Container Registry
@@ -132,6 +132,6 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: success() && steps.imageCheck.outcome != 'failure'
-        uses: github/codeql-action/upload-sarif@b611370bb5703a7efb587f9d136a52ea24c5c38c # v3.25.11
+        uses: github/codeql-action/upload-sarif@883d8588e56d1753a8a58c1c86e88976f0c23449 # v3.26.3
         with:
           sarif_file: "trivy-results-${{ matrix.image }}.sarif"
