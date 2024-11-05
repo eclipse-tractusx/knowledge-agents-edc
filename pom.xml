@@ -44,7 +44,7 @@
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
         <awssdk.version>2.26.7</awssdk.version>
         <com.azure.azure-identity.version>1.13.2</com.azure.azure-identity.version>
-        <com.azure.azure-security-keyvault-secrets.version>4.8.5</com.azure.azure-security-keyvault-secrets.version>
+        <com.azure.azure-security-keyvault-secrets.version>4.9.0</com.azure.azure-security-keyvault-secrets.version>
         <commons.compress.version>1.26.0</commons.compress.version>
         <com.nimbusds.version>9.41.1</com.nimbusds.version>
         <failsafe.version>3.3.2</failsafe.version>
