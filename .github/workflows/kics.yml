@@ -59,7 +59,7 @@ jobs:
       #   - the "Administrative Boundaries" Info (e84eaf4d-2f45-47b2-abe8-e581b06deb66) would not be visible
       #
       - name: KICS scan
-        uses: checkmarx/kics-github-action@8a44970e3d2eca668be41abe9d4e06709c3b3609 # v1.7.0
+        uses: checkmarx/kics-github-action@94469746ec2c43de89a42fb9d2a80070f5d25b16 # v2.1.3
         with:
           path: "."
           fail_on: high
