@@ -46,7 +46,7 @@
         <com.azure.azure-identity.version>1.13.2</com.azure.azure-identity.version>
         <com.azure.azure-security-keyvault-secrets.version>4.8.5</com.azure.azure-security-keyvault-secrets.version>
         <commons.compress.version>1.26.0</commons.compress.version>
-        <com.nimbusds.version>9.41.1</com.nimbusds.version>
+        <com.nimbusds.version>9.47</com.nimbusds.version>
         <failsafe.version>3.3.2</failsafe.version>
         <jackson.version>2.18.0</jackson.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
