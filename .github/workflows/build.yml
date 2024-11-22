@@ -101,7 +101,7 @@ jobs:
 
       # Needed to create multi-platform image
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 (v3.7.1)
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 #(v3.7.1)
 
       # Enable deployment access (on demand or main branch and version tags only)
       - name: Login to GitHub Container Registry
