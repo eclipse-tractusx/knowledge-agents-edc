@@ -31,6 +31,7 @@ All notable changes to this product will be documented in this file.
 ### Changed
 
 - Adapted to Tractus-X EDC 0.8.0
+- Multi-Platform Support
 
 ## [1.13.22] - 2024-07-29
 
