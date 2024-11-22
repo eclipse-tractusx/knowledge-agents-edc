@@ -24,6 +24,14 @@ All notable changes to this product will be documented in this file.
 
 # Released
 
+## [1.14.24] - 2024-11-25
+
+### Added
+
+### Changed
+
+- Adapted to Tractus-X EDC 0.8.0
+
 ## [1.13.22] - 2024-07-29
 
 ### Added

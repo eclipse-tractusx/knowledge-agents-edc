@@ -90,7 +90,7 @@ Project license: Apache License, Version 2.0
 
 **Used base image**
 
-- [eclipse-temurin:22-jre-alpine](https://github.com/adoptium/containers)
+- [eclipse-temurin:23-jre-alpine](https://github.com/adoptium/containers)
 - Official Eclipse Temurin DockerHub page: https://hub.docker.com/_/eclipse-temurin
 - Eclipse Temurin Project: https://projects.eclipse.org/projects/adoptium.temurin
 - Additional information about the Eclipse Temurin images: https://github.com/docker-library/repo-info/tree/master/repos/eclipse-temurin
