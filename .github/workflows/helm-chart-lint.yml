@@ -112,6 +112,15 @@ jobs:
         if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
 
       # install the chart to the kind cluster and run helm test
+      # when in manual mode
+      - name: Run chart-testing (install)
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add hashicorp https://helm.releases.hashicorp.com
+          ct install --all --config charts/config/chart-testing-config.yaml --helm-extra-set-args="--set=imageRegistry=kind-registry:5000/"
+        if: github.event_name == 'workflow_dispatch' && env.CHART_CHANGED != 'true'
+
+      # install the chart to the kind cluster and run helm test
       # define charts to test with the --charts parameter
       - name: Run chart-testing (install)
         run: |
