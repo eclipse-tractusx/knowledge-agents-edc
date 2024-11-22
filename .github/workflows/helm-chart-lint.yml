@@ -86,7 +86,7 @@ jobs:
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
 
       - name: Run chart-testing (lint)
-        run: ct lint --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
+        run: ct lint --all --target-branch ${{ github.base_ref || github.ref_name }} --config charts/config/chart-testing-config.yaml
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -110,15 +110,6 @@ jobs:
         run: |
           ./mvnw -s settings.xml deploy -Drepo=kind-registry:5000/tractusx/ -Dmaven.deploy.skip -DskipTests -Pwith-docker-image
         if: github.event_name != 'pull_request' || env.CHART_CHANGED == 'true'
-
-      # install the chart to the kind cluster and run helm test
-      # when in manual mode
-      - name: Run chart-testing (install)
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add hashicorp https://helm.releases.hashicorp.com
-          ct install --all --config charts/config/chart-testing-config.yaml --helm-extra-set-args="--set=imageRegistry=kind-registry:5000/"
-        if: github.event_name == 'workflow_dispatch' && env.CHART_CHANGED != 'true'
 
       # install the chart to the kind cluster and run helm test
       # define charts to test with the --charts parameter
