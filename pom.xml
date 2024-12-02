@@ -39,8 +39,8 @@
 
         <junit.version>5.11.0</junit.version>
         <mockito.version>5.2.0</mockito.version>
-        <tx.edc.version>0.8.0-rc4</tx.edc.version>
-        <edc.version>0.10.0-20241006-SNAPSHOT</edc.version>
+        <tx.edc.version>0.8.0</tx.edc.version>
+        <edc.version>0.10.1</edc.version>
         <org.apache.jena.version>4.9.0</org.apache.jena.version>
         <awssdk.version>2.26.7</awssdk.version>
         <com.azure.azure-identity.version>1.13.2</com.azure.azure-identity.version>
