@@ -19,3 +19,5 @@
 
 product: "Tractus-X Knowledge Agents EDC Extensions (KA-EDC)"
 leadingRepository: "https://github.com/eclipse-tractusx/knowledge-agents"
+openApiSpecs: 
+  - "https://github.com/eclipse-tractusx/knowledge-agents/blob/main/docs/api/openAPI.yaml"
