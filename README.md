@@ -30,6 +30,7 @@ KA-EDC is a product of the [Tractus-X Knowledge Agents Kit](https://eclipse-trac
 * See the [User Documentation](docs/README.md)
 * See the [Architecture](docs/architecture/Arc42.md)
 * See the [OpenAPI definition](https://github.com/eclipse-tractusx/knowledge-agents/blob/main/docs/api/openAPI.yaml) 
+* See the [Administration Guide](docs/admin/README.md)
 * See the [Authors](AUTHORS.md)
 * See the [Changelog](CHANGELOG.md)
 * See the [Code of Conduct](CODE_OF_CONDUCT.md)
