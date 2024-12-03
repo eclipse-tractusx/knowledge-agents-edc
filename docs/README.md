@@ -19,7 +19,7 @@
 
 # Tractus-X Knowledge Agents EDC Extensions (KA-EDC) Documentation
 
-In the Knowledge Agent Architecture, an Agent is any component which speaks and/or enacts a Semantic Web protocol, such as SPARQL.
+In the [Knowledge Agent Architecture](architecture/Arc42.md), an Agent is any component which speaks and/or enacts a Semantic Web protocol, such as SPARQL.
 
 The Tractus-X Knowledge Agents EDC Extensions (KA-EDC) introduces support for these protocols (and runnable applications) into the [Eclipse DataSpace Connector](https://github.com/eclipse-edc/Connector) and [Tractus-X EDC](https://github.com/eclipse-tractusx/tractusx-edc).
 

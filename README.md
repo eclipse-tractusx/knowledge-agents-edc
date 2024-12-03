@@ -25,9 +25,10 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/eclipse-tractusx/knowledge-agents-edc/total)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eclipse-tractusx_knowledge-agents-edc&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eclipse-tractusx_knowledge-agents-edc)
 
-KA-EDC is a product of the [Catena-X Knowledge Agents Kit (about to move to: Tractus-X Knowledge Agents Kit)](https://bit.ly/tractusx-agents) implementing the core "dataspace" modules of the CX-0084 standard (Federated Queries in Dataspaces).
+KA-EDC is a product of the [Tractus-X Knowledge Agents Kit](https://eclipse-tractusx.github.io/docs-kits/kits/knowledge-agents/adoption-view/intro) implementing the core "dataspace" modules of the CX-0084 standard (Federated Queries in Dataspaces).
 
 * See the [User Documentation](docs/README.md)
+* See the [Architecture](docs/architecture/Arc42.md)
 * See the [Authors](AUTHORS.md)
 * See the [Changelog](CHANGELOG.md)
 * See the [Code of Conduct](CODE_OF_CONDUCT.md)
